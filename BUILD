@@ -1,7 +1,7 @@
 package(default_visibility = ["//visibility:public"])
 
 load("//env:lt_py.bzl", "lt_py_pylint")
-load("//digital/rtl/common:yis.bzl", "yis_rtl_pkg")
+load(":yis.bzl", "yis_rtl_pkg")
 
 py_binary(
     name = "yis",
