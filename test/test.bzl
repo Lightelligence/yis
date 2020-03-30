@@ -1,11 +1,11 @@
 load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg")
 
-def golden_test(name):
+def golden_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
 
     yis_rtl_pkg(
         name = "{}".format(name),
-        pkg_deps = [],
+        pkg_deps = pkg_deps,
         pkg = ":golden_inputs/{}.yis".format(name),
     )
 
@@ -21,9 +21,7 @@ def golden_test(name):
         tags = ["gold"],
     )
 
-def golden_test_glob(yis_files):
-    """Runs all golden tests"""
-    for yis_file in yis_files:
-        yis_file = yis_file.rsplit('/', 1)[1]
-        yis_file = yis_file[:-4]
-        golden_test(yis_file)
+def golden_tests(deps):
+    """Run all golden tests, allow pkg dependencies."""
+    for key, row in deps.items():
+        golden_test(key, row)

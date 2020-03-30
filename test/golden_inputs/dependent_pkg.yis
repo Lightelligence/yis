@@ -1,0 +1,25 @@
+---
+doc_summary: Example of what a dependent package looks like
+localparams:
+        - name: NEW_PARAM
+          width: hero::ANOTHER_PARAM
+          value: 5
+          doc_summary: This should link up
+structs:
+        - name: another_struct
+          doc_summary: Testing inter-package dependencies within struct fields.
+          fields:
+                - name: fielda
+                  doc_summary: FROM_TYPE
+                  type: logic
+                  width: hero::HERO_WIDTH
+                - name: fieldb
+                  doc_summary: FROM_TYPE
+                  type: hero::hero_write
+                - name: fieldc
+                  doc_summary: FROM_TYPE
+                  type: hero::CYCLE_TYPE
+                - name: fieldd
+                  doc_summary: This summary is different than its base definition
+                  type: logic
+                  width: NEW_PARAM

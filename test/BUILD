@@ -1,3 +1,8 @@
-load(":test.bzl", "golden_test_glob")
+load(":test.bzl", "golden_tests")
 
-golden_test_glob(glob(["golden_inputs/*.yis"]))
+golden_tests(
+    deps = {
+        "hero" : [],
+        "dependent_pkg" : ["golden_inputs/hero.yis"],
+    }
+)
