@@ -18,7 +18,7 @@ structs:
                   type: test_pkg_a::hero_write
                 - name: fieldc
                   doc_summary: type.doc_summary
-                  type: test_pkg_a::CYCLE_TYPE
+                  type: test_pkg_a::CYCLE_TYPE_E
                 - name: fieldd
                   doc_summary: This summary is different than its base definition
                   type: logic

@@ -26,7 +26,7 @@ localparams:
     value: 134
     doc_summary: This paramter has a paramterized width from the first param.
 enums:
-  - name: CYCLE_TYPE
+  - name: CYCLE_TYPE_E
     width: 4
     values:
       - name: IDLE
@@ -47,7 +47,7 @@ structs:
     doc_summary: "A struct that wraps all fields needed for a single hero write."
     fields:
       - name: cycle_type
-        type: CYCLE_TYPE
+        type: CYCLE_TYPE_E
         doc_summary: type.doc_summary
         doc_verbose: type.doc_verbose
       - name: wdat

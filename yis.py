@@ -119,6 +119,7 @@ class Yis:
                               parent=self,
                               **data)
                 self.pkgs[pkg_name] = new_pkg
+                self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
             self.log.critical("Couldn't open {}".format(fname))
 
@@ -133,6 +134,7 @@ class Yis:
                                             name=interface_name,
                                             parent=self,
                                             **data)
+                self.log.exit_if_warnings_or_errors(F"Found errors parsing {interface_name}")
         except IOError:
             self.log.critical("Couldn't open {}".format(fname))
 
@@ -173,7 +175,8 @@ class YisNode: # pylint: disable=too-few-public-methods
     def add_child(self, child):
         """Add a child item to this pkg."""
         if child.name in self.children:
-            self.log.error(F"{child.name} already exists in {self.name} as a {type(self.children[child.name]).__name__}")
+            self.log.error(F"{child.name} already exists in {self.name} as a "
+                           F"{type(self.children[child.name]).__name__}")
         self.children[child.name] = child
 
 class Pkg(YisNode):
@@ -303,7 +306,7 @@ class PkgItemBase(YisNode):
                     self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
             # If it doesn't look like we're scoping out of pkg, try to look in this pkg
             elif self.width in localparams:
-                self.log.debug("%s is a valid localparam in pkg %s" % (self.width, self.get_parent_pkg()))
+                self.log.debug("%s is a valid localparam in pkg %s" % (self.width, self.get_parent_pkg().name))
                 self.width = localparams[self.width]
             else:
                 self.log.error(F"Couldn't resolve a width link for {self.name} to {self.width}")
@@ -353,6 +356,18 @@ class PkgEnum(PkgItemBase):
         self.enum_values = []
         for row in kwargs.pop('values'):
             self.enum_values.append(PkgEnumValue(parent=self, log=self.log, **row))
+        self._check_naming_conventions()
+
+    def _check_naming_conventions(self):
+        if not (self.name.isupper() and self.name[-2:] == "_E"):
+            self.log.info("This error")
+            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
+                           F"Enum names must be all caps and end with _E")
+        for enum_value in self.enum_values:
+            if not enum_value.name.isupper():
+                self.log.info("That error")
+                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{enum_value.name} doesn't comply "
+                               F"with naming conventions. Enum values must be all caps")
 
     def __repr__(self):
         values = "\n    -".join([str(enum) for enum in self.enum_values])
@@ -390,16 +405,15 @@ class PkgEnum(PkgItemBase):
 
 class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __repr__(self):
-         return F"{id(self)} {self.name}"
+        return F"{id(self)} {self.name}"
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
         ret_arr = [self.render_doc_verbose(4)]
-        ret_arr.append(F"{self.parent.name}_{self.name}, // {self.doc_summary}")
+        # Strip _E from the rendered RTL name
+        parent_base_name = self.parent.name[-2:]
+        ret_arr.append(F"{parent_base_name}_{self.name}, // {self.doc_summary}")
         return ret_arr
 
 
@@ -492,13 +506,13 @@ class PkgStructField(PkgItemBase):
                                                                      link_symbol,
                                                                      ["structs", "enums"])
             except LinkError:
-                self.log.error(F"Couldn't resolve a link from {self.name} to {self.width}")
+                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
         elif self.field_type in parent_pkg.enums:
-            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.field_type, parent_pkg))
+            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.field_type, parent_pkg.name))
             self.field_type = parent_pkg.enums[self.field_type]
         elif self.field_type in parent_pkg.structs:
-            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.field_type, parent_pkg))
+            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.field_type, parent_pkg.name))
             self.field_type = parent_pkg.structs[self.field_type]
         else:
             self.log.error("Couldn't resolve a width link for {self.name} to {self.width}")
@@ -513,7 +527,7 @@ class PkgStructField(PkgItemBase):
                     setattr(self, doc_type, getattr(self.width, doc_type))
                     self.log.debug(F"Linked up doc for {self.width.name}, it is now {getattr(self, doc_type)}")
                 except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg()}::{self.parent.name}.{self.name} "
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"FROM_TYPE\" "
                                    F"{doc_type} link unless \"width\" field points to a localparam")
             elif (self.field_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
@@ -521,8 +535,8 @@ class PkgStructField(PkgItemBase):
                     setattr(self, doc_type, getattr(self.field_type, doc_type))
                     self.log.debug(F"Linked up doc for {self.field_type.name}, it is now {getattr(self, doc_type)}")
                 except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg()}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"FROM_TYPE\" "
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"type.{doc_type}\" "
                                    F"{doc_type} link unless \"type\" field points to a valid type")
 
     def render_rtl_sv_pkg(self):

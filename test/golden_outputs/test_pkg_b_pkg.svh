@@ -30,7 +30,7 @@ package test_pkg_b; // Example of what a dependent package looks like
     
     test_pkg_a::hero_write fieldb; // type.doc_sumary
     
-    test_pkg_a::CYCLE_TYPE fieldc; // Indicates a command type of IDLE, VALID, or DONE.
+    test_pkg_a::CYCLE_TYPE_E fieldc; // Indicates a command type of IDLE, VALID, or DONE.
     
     logic [NEW_PARAM - 1:0] fieldd; // This summary is different than its base definition
   } another_struct; // Testing inter-package dependencies within struct fields.

@@ -34,13 +34,13 @@ package test_pkg_a; // This is an example of what a package file could look like
   // attempt to link in for cycle_type.
   type enum logic [4 - 1:0] {
     
-    CYCLE_TYPE_IDLE, // The bus is idle this cycle.
+    _E_IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
-    CYCLE_TYPE_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    _E_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
     
-    CYCLE_TYPE_DONE, // The command on the bus this is valid and this is the last cycle of data
-  } CYCLE_TYPE; // Indicates a command type of IDLE, VALID, or DONE.
+    _E_DONE, // The command on the bus this is valid and this is the last cycle of data
+  } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
   /////////////////////////////////////////////////////////////////////////////
   // structs
@@ -50,7 +50,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   typedef struct packed {
     // I'm writing this verbose documentation so that we have something to
     // attempt to link in for cycle_type.
-    CYCLE_TYPE cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
+    CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
     
