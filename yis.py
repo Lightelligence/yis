@@ -195,6 +195,11 @@ class Pkg(YisNode):
             PkgEnum(parent=self, log=self.log, **row)
         for row in kwargs.get('structs', []):
             PkgStruct(parent=self, log=self.log, **row)
+        self._check_naming_conventions()
+
+    def _check_naming_conventions(self):
+        if not self.name.islower():
+            self.log.error(F"Pkg {self.name} doesn't comply with naming conventions. Pkg names must be lowercase.")
 
     def add_child(self, child):
         """Override super add_child to add in differentiation between localparams, enums, and structs."""
