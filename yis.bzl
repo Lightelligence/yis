@@ -8,4 +8,14 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
                    tools = ["//digital/rtl/scripts/yis:yis"],
                )
 
+def yis_rtl_intf(name, pkg_deps, intf):
+    """Create a single yis-generate RTL intf."""
+    native.genrule(name = "{}_rtl_intf_sv".format(name),
+                   srcs = pkg_deps + [intf],
+                   outs = ["{}_rtl_intf.sv".format(name)],
+                   cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface",
+                   output_to_bindir = True,
+                   tools = ["//digital/rtl/scripts/yis:yis"],
+               )
+
 

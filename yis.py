@@ -73,8 +73,9 @@ def parse_args(argv):
                         help="YAML files defining pkgs needed for block interfaces")
 
     parser.add_argument('--block-interface',
-                        nargs='?',
-                        help="YAML file defining block-to-block interface")
+                        default=False,
+                        action='store_true',
+                        help="Indicates if the last .yis file passed in is an intf definition")
 
     parser.add_argument('--output-file',
                         required=True,
@@ -98,19 +99,33 @@ class LinkError(Exception):
 class Yis:
     """Yaml Interface Spec parser and generator class."""
     def __init__(self, block_interface, pkgs, log):
-        self._block_interface = block_interface
-        self._pkgs = pkgs
         self.log = log
-        self.pkgs = OrderedDict()
-        self.block_interface = None
+        self._pkgs = OrderedDict()
+        self._block_interface = None
+        self._parse_files(block_interface, pkgs)
+        self._link_symbols()
 
-    def parse_pkgs(self):
+    def _parse_files(self, block_interface, pkgs):
+        """Determine which files to parse as a Pkg or as an Intf."""
+        intf_to_parse = None
+        pkgs_to_parse = pkgs
+        if block_interface:
+            intf_to_parse = pkgs[-1]
+            pkgs = []
+            if len(pkgs) > 1:
+                pkgs_to_parse = pkgs[:-2]
+        self._parse_pkgs(pkgs_to_parse)
+        if block_interface:
+            self._parse_block_interface(intf_to_parse)
+
+    def _parse_pkgs(self, pkgs_to_parse):
         """Parse all pkgs."""
-        for fname in self._pkgs:
+        for fname in pkgs_to_parse:
             self._parse_one_pkg(fname)
 
     def _parse_one_pkg(self, fname):
         try:
+            self.log.info(F"Parsing {fname}")
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
                 pkg_name = os.path.splitext(os.path.basename(fname))[0]
@@ -118,30 +133,30 @@ class Yis:
                               name=pkg_name,
                               parent=self,
                               **data)
-                self.pkgs[pkg_name] = new_pkg
+                self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
             self.log.critical("Couldn't open {}".format(fname))
 
-    def parse_block_interface(self):
+    def _parse_block_interface(self, intf_to_parse):
         """Parse a block interface file, deserialize into relevant objects."""
         try:
-            fname = self._block_interface
-            with open(fname) as yfile:
+            self.log.info(F"Parsing {intf_to_parse}")
+            with open(intf_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
-                interface_name = os.path.splitext(os.path.basename(fname))[0]
-                self.block_interface = Intf(log=self.log,
-                                            name=interface_name,
-                                            parent=self,
-                                            **data)
+                interface_name = os.path.splitext(os.path.basename(intf_to_parse))[0]
+                self._block_interface = Intf(log=self.log,
+                                             name=interface_name,
+                                             parent=self,
+                                             **data)
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {interface_name}")
         except IOError:
-            self.log.critical("Couldn't open {}".format(fname))
+            self.log.critical("Couldn't open {}".format(intf_to_parse))
 
-    def link_symbols(self):
+    def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
         # Localparams are always first
-        for pkg in self.pkgs.values():
+        for pkg in self._pkgs.values():
             pkg.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
 
@@ -149,10 +164,25 @@ class Yis:
         """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
         self.log.debug("Attempting to link %s::%s" % (link_pkg, link_symbol))
         try:
-            return self.pkgs[link_pkg].resolve_inbound_symbol(link_symbol, symbol_types)
+            return self._pkgs[link_pkg].resolve_inbound_symbol(link_symbol, symbol_types)
         except KeyError:
             self.log.error(F"{link_pkg} not a defined pkg")
             raise LinkError
+
+    def render_output(self, output_file):
+        """Render the appropriate output file, either a pkg or an intf."""
+        year = date.today().year
+        if self._block_interface:
+            self.log.debug("Rendering intf %s" % (self._block_interface.name))
+            output_content = RTL_INTF_TEMPLATE.render(year=year, interface=self._block_interface)
+        else:
+            target_pkg = next(reversed(self._pkgs.values()))
+            self.log.debug("Rendering pkg %s" % (target_pkg))
+            output_content = RTL_PKG_TEMPLATE.render(year=year, pkg=target_pkg)
+
+        with open(output_file, 'w') as fileh:
+            self.log.info(F"Writing {os.path.abspath(output_file)}")
+            fileh.write(output_content)
 
 
 class YisNode: # pylint: disable=too-few-public-methods
@@ -178,6 +208,7 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error(F"{child.name} already exists in {self.name} as a "
                            F"{type(self.children[child.name]).__name__}")
         self.children[child.name] = child
+
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
@@ -353,7 +384,11 @@ class PkgLocalparam(PkgItemBase):
         Pay careful attention to how to pull out width, because width either points to an int or
         it points to another PkgLocalparam.
         """
-        ret_arr = [self.render_doc_verbose(2)]
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
         render_width = self._get_render_width()
         ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {self.value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
@@ -392,7 +427,12 @@ class PkgEnum(PkgItemBase):
           // enum_values
         } NAME;
         """
-        ret_arr = [self.render_doc_verbose(2)]
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
         render_width = self._get_render_width()
         ret_arr.append(F"type enum logic [{render_width} - 1:0] {{")
 
@@ -419,9 +459,14 @@ class PkgEnumValue(PkgItemBase):
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
-        ret_arr = [self.render_doc_verbose(4)]
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
         # Strip _E from the rendered RTL name
-        parent_base_name = self.parent.name[-2:]
+        parent_base_name = self.parent.name[:-2]
         ret_arr.append(F"{parent_base_name}_{self.name}, // {self.doc_summary}")
         return ret_arr
 
@@ -473,7 +518,12 @@ class PkgStruct(PkgItemBase):
           // struct_fields
         } NAME;
         """
-        ret_arr = [self.render_doc_verbose(2)]
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
         ret_arr.append(F"typedef struct packed {{")
 
         # Render each field, note they are 2 indented farther
@@ -567,41 +617,71 @@ class PkgStructField(PkgItemBase):
                 render_type = F"{self.field_type}"
         else:
             render_type = self._get_render_type()
-        ret_arr = [self.render_doc_verbose(4)]
+
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
         ret_arr.append(F"{render_type} {self.name}; // {self.doc_summary}")
 
         return ret_arr
 
-class Intf(YisNode): # pylint: disable=too-few-public-methods
+class Intf(YisNode):
     """Class to hold IntfItemBase objects, representikng a whole intf."""
-    pass # pylint: disable=unnecessary-pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.parent = kwargs.pop('parent')
+        self.children = OrderedDict()
+        for row in kwargs.pop('connections'):
+            IntfConn(parent=self, log=self.log, **row)
+
+    def __repr__(self):
+        return (F"Intf name: {self.name}\n"
+                "Connections:\n  -{connections}\n"
+                .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
+
+
+class IntfItemBase(YisNode):
+    """Base class for anything contained in an Intf."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.parent = kwargs.pop('parent')
+        self.parent.add_child(self)
+        self.children = {}
+
+
+class IntfConn(IntfItemBase):
+    """Definition for a Conn(ection) - a set of individual port symbols - on an interface."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        for component in kwargs.pop('components'):
+            IntfConnComp(parent=self, log=self.log, **component)
+
+    def __repr__(self):
+        return (F"Connection name: {self.name}\n"
+                "Components:\n  -{components}\n"
+                .format(components="\n  -".join([repr(component) for component in self.children.values()])))
+
+
+class IntfConnComp(IntfItemBase):
+    """Definition for a Comp(onent) in a Conn(ection)."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.comp_type = kwargs.pop('type')
+        self.width = kwargs.pop('width', None)
+
+    def __repr__(self):
+        return F"Comp {self.name}, {self.comp_type}, {self.width} "
+
 
 def main(options, log):
     """Main execution."""
-    if (not options.pkgs) and (not options.block_interface):
-        log.critical("Didn't find anything to render via cmd line. Must render at least 1 pkg or a block interface")
+    if not options.pkgs:
+        log.critical("Didn't find anything to render via cmd line. Must specify at least .yis")
 
     yis = Yis(options.block_interface, options.pkgs, log)
-    yis.parse_pkgs()
-    yis.link_symbols()
-    for pkg in yis.pkgs.values():
-        log.debug(F"Pkg {repr(pkg)}")
-
-    year = date.today().year
-
-    # if a block_interface is defined, that's the thing we need to render. Parse it first, then render it
-    if options.block_interface:
-        # yis.parse_block_interface()
-        output_content = RTL_INTF_TEMPLATE.render(year=year, interface=yis.block_interface)
-    # If it isn't defined, assume we're rendering a pkg. Assume the pkg to render is the last one in the args
-    else:
-        target_pkg = next(reversed(yis.pkgs))
-        output_content = RTL_PKG_TEMPLATE.render(year=year, pkg=yis.pkgs[target_pkg])
-
-    fname = options.output_file
-    with open(fname, 'w') as fileh:
-        log.info("Writing " + os.path.abspath(fname))
-        fileh.write(output_content)
+    yis.render_output(options.output_file)
 
 def setup_context():
     """Set up options, log, and other context for main to run."""

@@ -12,7 +12,6 @@ package test_pkg_a; // This is an example of what a package file could look like
   // localparams
   /////////////////////////////////////////////////////////////////////////////
   
-  
   localparam [32 - 1:0] HERO_WIDTH = 36; // Width of hero bus around the bag.
   
   // This field has extra verbose documentation surrounding it for
@@ -23,7 +22,6 @@ package test_pkg_a; // This is an example of what a package file could look like
   // definition for the whole long-form documentation.
   localparam [6 - 1:0] ANOTHER_PARAM = 2; // This is a different parameter than the first.
   
-  
   localparam [HERO_WIDTH - 1:0] THIRD_PARAM = 134; // This paramter has a paramterized width from the first param.
   
   /////////////////////////////////////////////////////////////////////////////
@@ -33,27 +31,22 @@ package test_pkg_a; // This is an example of what a package file could look like
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
   type enum logic [4 - 1:0] {
-    
-    _E_IDLE, // The bus is idle this cycle.
+    CYCLE_TYPE_IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
-    _E_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
-    
-    _E_DONE, // The command on the bus this is valid and this is the last cycle of data
+    CYCLE_TYPE_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    CYCLE_TYPE_DONE, // The command on the bus this is valid and this is the last cycle of data
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
   /////////////////////////////////////////////////////////////////////////////
   // structs
   /////////////////////////////////////////////////////////////////////////////
   
-  
   typedef struct packed {
     // I'm writing this verbose documentation so that we have something to
     // attempt to link in for cycle_type.
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
-    
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
-    
     logic [1 - 1:0] clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
