@@ -184,6 +184,10 @@ class Yis:
             self.log.info(F"Writing {os.path.abspath(output_file)}")
             fileh.write(output_content)
 
+    def add_child(self, child):
+        """Dummy add_child function to make the class inheritance for YisNode work."""
+        pass # pylint: disable=unnecessary-pass
+
 
 class YisNode: # pylint: disable=too-few-public-methods
     """Base class for any type of specification."""
@@ -192,7 +196,9 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.name = kwargs.pop('name')
         self.doc_summary = kwargs.pop('doc_summary')
         self.doc_verbose = kwargs.pop('doc_verbose', None)
-        self.children = {}
+        self.parent = kwargs.pop('parent')
+        self.parent.add_child(self)
+        self.children = OrderedDict()
 
     def render_doc_verbose(self, indent_width):
         """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
@@ -214,12 +220,12 @@ class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         self.finished_link = False
-        self.parent = kwargs.pop('parent')
         self.localparams = OrderedDict()
         self.enums = OrderedDict()
         self.structs = OrderedDict()
-        self.children = OrderedDict()
+
         for row in kwargs.get('localparams', []):
             PkgLocalparam(parent=self, log=self.log, **row)
         for row in kwargs.get('enums', []):
@@ -300,9 +306,6 @@ class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.parent = kwargs.pop('parent')
-        self.parent.add_child(self)
-        self.children = {}
         self.render_width = None
 
     def _get_parent_localparams(self):
@@ -399,22 +402,22 @@ class PkgEnum(PkgItemBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
-        self.enum_values = []
         for row in kwargs.pop('values'):
-            self.enum_values.append(PkgEnumValue(parent=self, log=self.log, **row))
+            PkgEnumValue(parent=self, log=self.log, **row)
         self._check_naming_conventions()
 
     def _check_naming_conventions(self):
         if not (self.name.isupper() and self.name[-2:] == "_E"):
             self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
                            F"Enum names must be uppercase and end with _E")
-        for enum_value in self.enum_values:
-            if not enum_value.name.isupper():
-                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{enum_value.name} doesn't comply "
+
+        for child in self.children.values():
+            if not child.name.isupper():
+                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{child.name} doesn't comply "
                                F"with naming conventions. Enum values must be uppercase")
 
     def __repr__(self):
-        values = "\n    -".join([str(enum) for enum in self.enum_values])
+        values = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, width {self.width}, values:\n    -{values}"
 
     def render_rtl_sv_pkg(self):
@@ -424,7 +427,7 @@ class PkgEnum(PkgItemBase):
         // doc_summary
         // (optional) doc_verbose
         typedef enum logic [WIDTH - 1:0] {
-          // enum_values
+          // children
         } NAME;
         """
         ret_arr = []
@@ -438,10 +441,10 @@ class PkgEnum(PkgItemBase):
 
         # Render each enum_value, note they are 2 indented farther
         enum_value_arr = []
-        for row in self.enum_values:
+        for row in self.children.values():
             enum_value_arr.extend(row.render_rtl_sv_pkg())
 
-        # Add leading spaces to make all enum_values line up
+        # Add leading spaces to make all children line up
         enum_value_arr[0] = F"  {enum_value_arr[0]}"
 
         # Strip trailing comma from last enum_value
@@ -475,39 +478,39 @@ class PkgStruct(PkgItemBase):
     """Definition for a localparam inside a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.fields = []
         for row in kwargs.pop('fields'):
-            self.fields.append(PkgStructField(parent=self, log=self.log, **row))
+            PkgStructField(parent=self, log=self.log, **row)
         self._check_naming_conventions()
 
     def _check_naming_conventions(self):
         if not (self.name.islower() and self.name[-2:] == "_t"):
             self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
                            F"struct names must be all lowercase and end with _t")
-        for field in self.fields:
-            if not field.name.islower():
-                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{field.name} doesn't comply "
+
+        for child in self.children.values():
+            if not child.name.islower():
+                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{child.name} doesn't comply "
                                F"with naming conventions. struct fields must be lowercase")
 
     def __repr__(self):
-        fields = "\n    -".join([str(field) for field in self.fields])
+        fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
 
     def resolve_width_links(self):
         """Override superclass definition of resolve_width_links to know how to resolve width links in each field."""
-        for field in self.fields:
-            field.resolve_width_links()
+        for child in self.children.values():
+            child.resolve_width_links()
 
     def resolve_type_links(self):
         """Resolve type links for each field in a struct."""
-        for field in self.fields:
-            if field.field_type not in ['logic', 'wire']:
-                field.resolve_type_links()
+        for child in self.children.values():
+            if child.sv_type not in ['logic', 'wire']:
+                child.resolve_type_links()
 
     def resolve_doc_links(self):
         """Resolve links to doc_verbose and doc_summary for each field in a struct."""
-        for field in self.fields:
-            field.resolve_doc_links()
+        for child in self.children.values():
+            child.resolve_doc_links()
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this struct.
@@ -528,8 +531,8 @@ class PkgStruct(PkgItemBase):
 
         # Render each field, note they are 2 indented farther
         field_arr = []
-        for row in self.fields:
-            field_arr.extend(row.render_rtl_sv_pkg())
+        for child in self.children.values():
+            field_arr.extend(child.render_rtl_sv_pkg())
 
         # Add leading spaces to make all fields line up
         field_arr[0] = F"  {field_arr[0]}"
@@ -543,46 +546,46 @@ class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.field_type = kwargs.pop('type')
+        self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
 
     def __repr__(self):
-        return F"{id(self)} type {self.field_type} width {self.width}"
+        return F"{id(self)} type {self.sv_type} width {self.width}"
 
     def _get_render_type(self):
-        if self.get_parent_pkg() is not self.field_type.get_parent_pkg():
-            return F"{self.field_type.parent.name}::{self.field_type.name}"
-        return F"{self.field_type.name}"
+        if self.get_parent_pkg() is not self.sv_type.get_parent_pkg():
+            return F"{self.sv_type.parent.name}::{self.sv_type.name}"
+        return F"{self.sv_type.name}"
 
     def resolve_width_links(self):
         """Override superclass resolve_width_links to not call """
-        if self.field_type in ["logic", "wire"]:
+        if self.sv_type in ["logic", "wire"]:
             super().resolve_width_links()
 
     def resolve_type_links(self):
         """Resolve links in type."""
         # If field_type is a logic or a wire, don't need to resolve a type
-        self.log.debug("%s type %s is a type that must be linked" % (self.name, self.field_type))
+        self.log.debug("%s type %s is a type that must be linked" % (self.name, self.sv_type))
         parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(self.field_type)
+        match = PKG_SCOPE_REGEXP.match(self.sv_type)
         # If it looks like we're scoping out of pkg
         if match:
             link_pkg = match.group(1)
             link_symbol = match.group(2)
             try:
                 self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
-                self.field_type = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                                     link_symbol,
-                                                                     ["structs", "enums"])
+                self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                                  link_symbol,
+                                                                  ["structs", "enums"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        elif self.field_type in parent_pkg.enums:
-            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.field_type, parent_pkg.name))
-            self.field_type = parent_pkg.enums[self.field_type]
-        elif self.field_type in parent_pkg.structs:
-            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.field_type, parent_pkg.name))
-            self.field_type = parent_pkg.structs[self.field_type]
+        elif self.sv_type in parent_pkg.enums:
+            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.enums[self.sv_type]
+        elif self.sv_type in parent_pkg.structs:
+            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.structs[self.sv_type]
         else:
             self.log.error("Couldn't resolve a width link for {self.name} to {self.width}")
 
@@ -591,18 +594,18 @@ class PkgStructField(PkgItemBase):
         for doc_type in ['doc_summary', 'doc_verbose']:
             self.log.debug(F"Looking for {doc_type} on {self.name}")
             doc_attr = getattr(self, doc_type)
-            if (self.field_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
+            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
                 try:
                     setattr(self, doc_type, getattr(self.width, doc_type))
                     self.log.debug(F"Linked up doc for {self.width.name}, it is now {getattr(self, doc_type)}")
                 except AttributeError:
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"FROM_TYPE\" "
+                                   F"can't use a \"width.{doc_type}\" "
                                    F"{doc_type} link unless \"width\" field points to a localparam")
-            elif (self.field_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
+            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
                 try:
-                    setattr(self, doc_type, getattr(self.field_type, doc_type))
-                    self.log.debug(F"Linked up doc for {self.field_type.name}, it is now {getattr(self, doc_type)}")
+                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
+                    self.log.debug(F"Linked up doc for {self.sv_type.name}, it is now {getattr(self, doc_type)}")
                 except AttributeError:
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"type.{doc_type}\" "
@@ -610,11 +613,11 @@ class PkgStructField(PkgItemBase):
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
-        if self.field_type in ["logic", "wire"]:
+        if self.sv_type in ["logic", "wire"]:
             render_width = self._get_render_width()
-            render_type = F"{self.field_type} [{render_width} - 1:0]"
+            render_type = F"{self.sv_type} [{render_width} - 1:0]"
             if render_width == "1":
-                render_type = F"{self.field_type}"
+                render_type = F"{self.sv_type}"
         else:
             render_type = self._get_render_type()
 
@@ -631,8 +634,6 @@ class Intf(YisNode):
     """Class to hold IntfItemBase objects, representikng a whole intf."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.parent = kwargs.pop('parent')
-        self.children = OrderedDict()
         for row in kwargs.pop('connections'):
             IntfConn(parent=self, log=self.log, **row)
 
@@ -643,13 +644,11 @@ class Intf(YisNode):
 
 
 class IntfItemBase(YisNode):
-    """Base class for anything contained in an Intf."""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.parent = kwargs.pop('parent')
-        self.parent.add_child(self)
-        self.children = {}
+    """Base class for anything contained in an Intf.
 
+    This doesn't override any functionality from YisNode, but it provides a good layer of abstraction.
+    """
+    pass # pylint: disable=unnecessary-pass
 
 class IntfConn(IntfItemBase):
     """Definition for a Conn(ection) - a set of individual port symbols - on an interface."""
@@ -668,11 +667,11 @@ class IntfConnComp(IntfItemBase):
     """Definition for a Comp(onent) in a Conn(ection)."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.comp_type = kwargs.pop('type')
+        self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
 
     def __repr__(self):
-        return F"Comp {self.name}, {self.comp_type}, {self.width} "
+        return F"Comp {self.name}, {self.sv_type}, {self.width} "
 
 
 def main(options, log):
