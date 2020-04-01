@@ -1,0 +1,66 @@
+---
+doc_summary: This is an example of what a package file could look like.
+doc_verbose: |
+  This is now verbose documentation.
+  It doesn't work yet.
+localparams:
+  - name: HERO_WIDTH
+    width: 32
+    value: 36
+    doc_summary: Width of hero bus around the bag.
+
+  - name: ANOTHER_PARAM
+    width: 6
+    value: 2
+    doc_summary: This is a different parameter than the first.
+    doc_verbose: |
+      This field has extra verbose documentation surrounding it
+      for reasons that might be clear later. The intent of these different fields
+      is so that when a block interface uses a struct or enum in an interface
+      definition, we can copy over the doc_summary and keep it inline, but for
+      more information point to the package definition for the whole long-form
+      documentation.
+
+  - name: THIRD_PARAM
+    width: HERO_WIDTH
+    value: 134
+    doc_summary: This paramter has a paramterized width from the first param.
+enums:
+  - name: CYCLE_TYPE
+    width: 4
+    values:
+      - name: IDLE
+        value: 0
+        doc_summary: The bus is idle this cycle.
+      - name: VALID
+        value: 1
+        doc_summary: The command on the bus this is valid and there will be future VALID cycles for this transaction.
+        doc_verbose: |
+          The enum value is so complicated it needs its own
+          verbose documentation that none of the other values in this enum need.
+      - name: DONE
+        value: 3
+        doc_summary: The command on the bus this is valid and this is the last cycle of data.
+    doc_summary: Indicates a command type of IDLE, VALID, or DONE.
+    doc_verbose: |
+      I'm writing this verbose documentation so that we have something to attempt to link in
+      for cycle_type.
+structs:
+  - name: hero_write
+    doc_summary: "A struct that wraps all fields needed for a single hero write."
+    fields:
+      - name: cycle_type
+        type: CYCLE_TYPE
+        doc_summary: type.doc_summary
+        doc_verbose: type.doc_verbose
+      - name: wdat
+        type: logic
+        width: HERO_WIDTH
+        doc_summary: width.doc_summary
+      - name: clk_en
+        type: logic
+        width: 1
+        doc_summary: Clock enable for the bus
+
+
+

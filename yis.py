@@ -5,6 +5,7 @@ import argparse
 import sys
 import os
 import re
+import textwrap
 from collections import OrderedDict
 from datetime import date
 
@@ -21,32 +22,42 @@ from scripts import cmn_logging
 
 ################################################################################
 # Constants
-PACKAGE_SCOPE_REGEXP = re.compile("(.*)::(.*)")
+PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
+
+RTL_INTF_TEMPLATE = Template("""
+""")
 
 RTL_PKG_TEMPLATE = Template("""// Copyright (c) {{ year }} Lightelligence
 //
-// Description: SV Package generated from {{ package.name }}.yis by YIS
+// Description: SV Pkg generated from {{ pkg.name }}.yis by YIS
 
-`ifndef __{{ package.name | upper }}_SVH__
-  `define __{{ package.name | upper }}_SVH__
+`ifndef __{{ pkg.name | upper }}_PKG_SVH__
+  `define __{{ pkg.name | upper }}_PKG_SVH__
 
-package {{ package.name }};
+{{ pkg.render_doc_verbose(0) }}
+package {{ pkg.name }}; // {{ pkg.doc_summary }}
 
+  /////////////////////////////////////////////////////////////////////////////
   // localparams
-  {% for localparam in package.localparams.values() %}
+  /////////////////////////////////////////////////////////////////////////////
+  {% for localparam in pkg.localparams.values() %}
   {{ localparam.render_rtl_sv_pkg() }}
   {% endfor %}
+  /////////////////////////////////////////////////////////////////////////////
   // enums
-  {% for enum in package.enums.values() %}
+  /////////////////////////////////////////////////////////////////////////////
+  {% for enum in pkg.enums.values() %}
   {{ enum.render_rtl_sv_pkg() }}
   {% endfor %}
+  /////////////////////////////////////////////////////////////////////////////
   // structs
-  {% for struct in package.structs.values() %}
+  /////////////////////////////////////////////////////////////////////////////
+  {% for struct in pkg.structs.values() %}
   {{ struct.render_rtl_sv_pkg() }}
   {% endfor %}
 
-endpackage : {{ package.name }}
-`endif
+endpackage : {{ pkg.name }}
+`endif // guard
 """)
 
 ################################################################################
@@ -57,9 +68,9 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description="Parse an interface spec and generate the associated collateral.",
                                      formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('--packages',
+    parser.add_argument('--pkgs',
                         nargs='*',
-                        help="YAML files defining packages needed for block interfaces")
+                        help="YAML files defining pkgs needed for block interfaces")
 
     parser.add_argument('--block-interface',
                         nargs='?',
@@ -86,49 +97,63 @@ class LinkError(Exception):
 
 class Yis:
     """Yaml Interface Spec parser and generator class."""
-    def __init__(self, block_interface, packages, log):
+    def __init__(self, block_interface, pkgs, log):
         self._block_interface = block_interface
-        self._packages = packages
+        self._pkgs = pkgs
         self.log = log
-        self.packages = OrderedDict()
-        self.interfaces = {}
+        self.pkgs = OrderedDict()
+        self.block_interface = None
 
-    def parse_packages(self):
-        """Parse all packages."""
-        for fname in self._packages:
-            self._parse_one_package(fname)
+    def parse_pkgs(self):
+        """Parse all pkgs."""
+        for fname in self._pkgs:
+            self._parse_one_pkg(fname)
 
-    def _parse_one_package(self, fname):
+    def _parse_one_pkg(self, fname):
         try:
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
-                package_name = os.path.splitext(os.path.basename(fname))[0]
-                new_package = Package(log=self.log,
-                                      name=package_name,
-                                      parent=self,
-                                      **data)
-                self.packages[package_name] = new_package
+                pkg_name = os.path.splitext(os.path.basename(fname))[0]
+                new_pkg = Pkg(log=self.log,
+                              name=pkg_name,
+                              parent=self,
+                              **data)
+                self.pkgs[pkg_name] = new_pkg
+        except IOError:
+            self.log.critical("Couldn't open {}".format(fname))
+
+    def parse_block_interface(self):
+        """Parse a block interface file, deserialize into relevant objects."""
+        try:
+            fname = self._block_interface
+            with open(fname) as yfile:
+                data = yaml.load(yfile, Loader)
+                interface_name = os.path.splitext(os.path.basename(fname))[0]
+                self.block_interface = Intf(log=self.log,
+                                            name=interface_name,
+                                            parent=self,
+                                            **data)
         except IOError:
             self.log.critical("Couldn't open {}".format(fname))
 
     def link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
         # Localparams are always first
-        for package in self.packages.values():
-            package.resolve_links()
-        self.log.exit_if_warnings_or_errors("Found errors linking packages")
+        for pkg in self.pkgs.values():
+            pkg.resolve_links()
+        self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
 
-    def resolve_symbol(self, link_package, link_symbol, symbol_types):
-        """Attempt to find a symbol in the specified package, raise a LinkError if it can't be found."""
-        self.log.debug("Attempting to link %s::%s" % (link_package, link_symbol))
+    def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
+        """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
+        self.log.debug("Attempting to link %s::%s" % (link_pkg, link_symbol))
         try:
-            return self.packages[link_package].resolve_inbound_symbol(link_symbol, symbol_types)
+            return self.pkgs[link_pkg].resolve_inbound_symbol(link_symbol, symbol_types)
         except KeyError:
-            self.log.error(F"{link_package} not a defined package")
+            self.log.error(F"{link_pkg} not a defined pkg")
             raise LinkError
 
 
-class SpecNode: # pylint: disable=too-few-public-methods
+class YisNode: # pylint: disable=too-few-public-methods
     """Base class for any type of specification."""
     def __init__(self, **kwargs):
         self.log = kwargs.pop('log')
@@ -136,9 +161,16 @@ class SpecNode: # pylint: disable=too-few-public-methods
         self.doc_summary = kwargs.pop('doc_summary')
         self.doc_verbose = kwargs.pop('doc_verbose', None)
 
+    def render_doc_verbose(self, indent_width):
+        """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
+        indent_spaces = " " * indent_width
+        if self.doc_verbose is not None:
+            wrapper = textwrap.TextWrapper(initial_indent="// ", subsequent_indent=F"{indent_spaces}// ")
+            return wrapper.fill(self.doc_verbose)
+        return ""
 
-class Package(SpecNode):
-    """Class to hold a set of PackageItemBase objects, representing the whole package."""
+class Pkg(YisNode):
+    """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.finished_link = False
@@ -148,26 +180,26 @@ class Package(SpecNode):
         self.structs = OrderedDict()
         self.children = OrderedDict()
         for row in kwargs.get('localparams', []):
-            PackageLocalparam(parent=self, log=self.log, **row)
+            PkgLocalparam(parent=self, log=self.log, **row)
         for row in kwargs.get('enums', []):
-            PackageEnum(parent=self, log=self.log, **row)
+            PkgEnum(parent=self, log=self.log, **row)
         for row in kwargs.get('structs', []):
-            PackageStruct(parent=self, log=self.log, **row)
+            PkgStruct(parent=self, log=self.log, **row)
 
     def add_child(self, child):
-        """Add a child item to this package."""
+        """Add a child item to this pkg."""
         if child.name in self.children:
             raise ValueError(F"{child.name} already exists in {self.name} as a {type(self.children[child.name])}")
 
         self.children[child.name] = child
-        if isinstance(child, PackageLocalparam):
+        if isinstance(child, PkgLocalparam):
             self.localparams[child.name] = child
-        elif isinstance(child, PackageEnum):
+        elif isinstance(child, PkgEnum):
             self.enums[child.name] = child
-        elif isinstance(child, PackageStruct):
+        elif isinstance(child, PkgStruct):
             self.structs[child.name] = child
         else:
-            raise ValueError(F"Can't add {child.name} to package {self.name} becuase it is a {type(child)}. "
+            raise ValueError(F"Can't add {child.name} to pkg {self.name} becuase it is a {type(child)}. "
                              "Can only add localparams, enums, and structs.")
 
     def resolve_links(self):
@@ -185,13 +217,13 @@ class Package(SpecNode):
             struct.resolve_type_links()
             struct.resolve_doc_links()
 
-    def resolve_outbound_symbol(self, link_package, link_symbol, symbol_types):
-        """Resolve links leaving this package."""
-        self.log.debug("Attempting to resolve outbound link from %s to %s::%s" % (self.name, link_package, link_symbol))
-        return self.parent.resolve_symbol(link_package, link_symbol, symbol_types)
+    def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
+        """Resolve links leaving this pkg."""
+        self.log.debug("Attempting to resolve outbound link from %s to %s::%s" % (self.name, link_pkg, link_symbol))
+        return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
 
     def resolve_inbound_symbol(self, link_symbol, symbol_types):
-        """Resolve a link from another package attempting to reference a symbol in this package."""
+        """Resolve a link from another pkg attempting to reference a symbol in this pkg."""
         self.log.debug("Attempting to resolve an inbound link %s::%s of types %s" % (self.name,
                                                                                      link_symbol,
                                                                                      symbol_types))
@@ -206,11 +238,11 @@ class Package(SpecNode):
             except KeyError:
                 pass
 
-        self.log.error(F"Can't find {link_symbol} in package {self.name} for types {symbol_types}")
+        self.log.error(F"Can't find {link_symbol} in pkg {self.name} for types {symbol_types}")
         raise LinkError
 
     def __repr__(self):
-        return (F"Package name: {self.name}\n"
+        return (F"Pkg name: {self.name}\n"
                 "Localparams:\n  -{localparams}\n"
                 "Enums:\n  -{enums}\n"
                 "Structs:\n  -{structs}\n"
@@ -219,8 +251,8 @@ class Package(SpecNode):
                         structs="\n  -".join([str(param) for param in self.structs.values()])))
 
 
-class PackageItemBase(SpecNode):
-    """Base class for all objects contained in a package."""
+class PkgItemBase(YisNode):
+    """Base class for all objects contained in a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.parent = kwargs.pop('parent')
@@ -229,7 +261,7 @@ class PackageItemBase(SpecNode):
         self.render_width = None
 
     def add_child(self, child):
-        """Add a child item to this package."""
+        """Add a child item to this pkg."""
         if child.name in self.children:
             raise ValueError(F"{child.name} already exists in {self.name} as a {type(self.children[child.name])}")
         self.children[child.name] = child
@@ -242,11 +274,11 @@ class PackageItemBase(SpecNode):
             except AttributeError:
                 parent = parent.parent
 
-    def get_parent_package(self):
-        """Recursively walks up parents until a Package is found, returns the Package instance."""
+    def get_parent_pkg(self):
+        """Recursively walks up parents until a Pkg is found, returns the Pkg instance."""
         parent = self.parent
         while True:
-            if isinstance(parent, Package):
+            if isinstance(parent, Pkg):
                 return parent
             parent = parent.parent
 
@@ -256,37 +288,28 @@ class PackageItemBase(SpecNode):
         if not isinstance(self.width, int):
             self.log.debug("%s, width %s is a type that must be linked" % (self.name, self.width))
             localparams = self._get_parent_localparams()
-            match = PACKAGE_SCOPE_REGEXP.match(self.width)
-            # If it looks like we're scoping out of package
+            match = PKG_SCOPE_REGEXP.match(self.width)
+            # If it looks like we're scoping out of pkg
             if match:
-                link_package = match.group(1)
+                link_pkg = match.group(1)
                 link_symbol = match.group(2)
                 try:
-                    self.log.debug("Attempting to resolve external %s::%s" % (link_package, link_symbol))
-                    self.width = self.get_parent_package().resolve_outbound_symbol(link_package,
-                                                                                   link_symbol,
-                                                                                   ["localparams"])
+                    self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
+                    self.width = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
+                                                                               link_symbol,
+                                                                               ["localparams"])
                     self.render_width = self.width.name
                 except LinkError:
                     self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
-            # If it doesn't look like we're scoping out of package, try to look in this package
+            # If it doesn't look like we're scoping out of pkg, try to look in this pkg
             elif self.width in localparams:
-                self.log.debug("%s is a valid localparam in package %s" % (self.width, self.get_parent_package()))
+                self.log.debug("%s is a valid localparam in pkg %s" % (self.width, self.get_parent_pkg()))
                 self.width = localparams[self.width]
             else:
                 self.log.error(F"Couldn't resolve a width link for {self.name} to {self.width}")
 
-    def _render_rtl_comment_docs(self, indent_width):
-        """Return array of strings that print doc_summary and doc_verbose for RTL."""
-        indent_spaces = " " * indent_width
-        ret_arr = []
-        if self.doc_verbose is not None:
-            split_verbose = self.doc_verbose.splitlines()
-            ret_arr.append("// {}".format("\n{}// ".format(indent_spaces).join(split_verbose)))
-        return ret_arr
-
     def _get_render_width(self):
-        if not isinstance(self.width, int) and (self.get_parent_package() is not self.width.get_parent_package()):
+        if not isinstance(self.width, int) and (self.get_parent_pkg() is not self.width.get_parent_pkg()):
             ret_str = F"{self.width.parent.name}::{self.width.name}"
         elif isinstance(self.width, int):
             ret_str = self.width
@@ -295,8 +318,8 @@ class PackageItemBase(SpecNode):
         return ret_str
 
 
-class PackageLocalparam(PackageItemBase):
-    """Definition for a localparam in a package."""
+class PkgLocalparam(PkgItemBase):
+    """Definition for a localparam in a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
@@ -314,22 +337,22 @@ class PackageLocalparam(PackageItemBase):
         localparam [WIDTH - 1:0] NAME = VALUE;
 
         Pay careful attention to how to pull out width, because width either points to an int or
-        it points to another PackageLocalparam.
+        it points to another PkgLocalparam.
         """
-        ret_arr = self._render_rtl_comment_docs(2)
+        ret_arr = [self.render_doc_verbose(2)]
         render_width = self._get_render_width()
         ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {self.value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
 
-class PackageEnum(PackageItemBase):
-    """Definition for an enum inside a package."""
+class PkgEnum(PkgItemBase):
+    """Definition for an enum inside a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.enum_values = []
         for row in kwargs.pop('values'):
-            self.enum_values.append(PackageEnumValue(parent=self, log=self.log, **row))
+            self.enum_values.append(PkgEnumValue(parent=self, log=self.log, **row))
 
     def __repr__(self):
         values = "\n    -".join([str(enum) for enum in self.enum_values])
@@ -345,7 +368,7 @@ class PackageEnum(PackageItemBase):
           // enum_values
         } NAME;
         """
-        ret_arr = self._render_rtl_comment_docs(2)
+        ret_arr = [self.render_doc_verbose(2)]
         render_width = self._get_render_width()
         ret_arr.append(F"type enum logic [{render_width} - 1:0] {{")
 
@@ -365,7 +388,7 @@ class PackageEnum(PackageItemBase):
         return "\n  ".join(ret_arr)
 
 
-class PackageEnumValue(PackageItemBase):
+class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -375,19 +398,19 @@ class PackageEnumValue(PackageItemBase):
         return F"{id(self)} {self.name}, value {self.enum_value}"
 
     def render_rtl_sv_pkg(self):
-        """Render RTL in a SV package for this enun value."""
-        ret_arr = self._render_rtl_comment_docs(4)
+        """Render RTL in a SV pkg for this enun value."""
+        ret_arr = [self.render_doc_verbose(4)]
         ret_arr.append(F"{self.name}, // {self.doc_summary}")
         return ret_arr
 
 
-class PackageStruct(PackageItemBase):
-    """Definition for a localparam inside a package."""
+class PkgStruct(PkgItemBase):
+    """Definition for a localparam inside a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.fields = []
         for row in kwargs.pop('fields'):
-            self.fields.append(PackageStructField(parent=self, log=self.log, **row))
+            self.fields.append(PkgStructField(parent=self, log=self.log, **row))
 
     def __repr__(self):
         fields = "\n    -".join([str(field) for field in self.fields])
@@ -418,7 +441,7 @@ class PackageStruct(PackageItemBase):
           // struct_fields
         } NAME;
         """
-        ret_arr = self._render_rtl_comment_docs(2)
+        ret_arr = [self.render_doc_verbose(2)]
         ret_arr.append(F"typedef struct packed {{")
 
         # Render each field, note they are 2 indented farther
@@ -434,7 +457,7 @@ class PackageStruct(PackageItemBase):
         return "\n  ".join(ret_arr)
 
 
-class PackageStructField(PackageItemBase):
+class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -445,7 +468,7 @@ class PackageStructField(PackageItemBase):
         return F"{id(self)} type {self.field_type} width {self.width}"
 
     def _get_render_type(self):
-        if self.get_parent_package() is not self.field_type.get_parent_package():
+        if self.get_parent_pkg() is not self.field_type.get_parent_pkg():
             return F"{self.field_type.parent.name}::{self.field_type.name}"
         return F"{self.field_type.name}"
 
@@ -458,54 +481,53 @@ class PackageStructField(PackageItemBase):
         """Resolve links in type."""
         # If field_type is a logic or a wire, don't need to resolve a type
         self.log.debug("%s type %s is a type that must be linked" % (self.name, self.field_type))
-        parent_package = self.get_parent_package()
-        match = PACKAGE_SCOPE_REGEXP.match(self.field_type)
-        # If it looks like we're scoping out of package
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(self.field_type)
+        # If it looks like we're scoping out of pkg
         if match:
-            link_package = match.group(1)
+            link_pkg = match.group(1)
             link_symbol = match.group(2)
             try:
-                self.log.debug("Attempting to resolve external %s::%s" % (link_package, link_symbol))
-                self.field_type = parent_package.resolve_outbound_symbol(link_package,
-                                                                         link_symbol,
-                                                                         ["structs", "enums"])
+                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
+                self.field_type = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                                     link_symbol,
+                                                                     ["structs", "enums"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from {self.name} to {self.width}")
-        # If it doesn't look like we're scoping out of package, try to look in this package
-        elif self.field_type in parent_package.enums:
-            self.log.debug("%s type %s is a valid enum in package %s" % (self.name, self.field_type, parent_package))
-            self.field_type = parent_package.enums[self.field_type]
-        elif self.field_type in parent_package.structs:
-            self.log.debug("%s type %s is a valid struct in package %s" % (self.name, self.field_type, parent_package))
-            self.field_type = parent_package.structs[self.field_type]
+        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
+        elif self.field_type in parent_pkg.enums:
+            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.field_type, parent_pkg))
+            self.field_type = parent_pkg.enums[self.field_type]
+        elif self.field_type in parent_pkg.structs:
+            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.field_type, parent_pkg))
+            self.field_type = parent_pkg.structs[self.field_type]
         else:
             self.log.error("Couldn't resolve a width link for {self.name} to {self.width}")
 
     def resolve_doc_links(self):
-        """Resolve basic doc_* links from :FROM_TYPE to the original definition."""
+        """Resolve basic doc_* links from *.doc_* to the original definition."""
         for doc_type in ['doc_summary', 'doc_verbose']:
             self.log.debug(F"Looking for {doc_type} on {self.name}")
             doc_attr = getattr(self, doc_type)
-            if doc_attr == "FROM_TYPE":
-                if self.field_type in ["logic", "wire"]:
-                    try:
-                        setattr(self, doc_type, getattr(self.width, doc_type))
-                        self.log.debug(F"Linked up doc for {self.width.name}, it is now {getattr(self, doc_type)}")
-                    except AttributeError:
-                        self.log.error(F"{self.get_parent_package()}::{self.parent.name}.{self.name} "
-                                       F"can't use a \"FROM_TYPE\" "
-                                       F"{doc_type} link unless \"width\" field points to a localparam")
-                else:
-                    try:
-                        setattr(self, doc_type, getattr(self.field_type, doc_type))
-                        self.log.debug(F"Linked up doc for {self.field_type.name}, it is now {getattr(self, doc_type)}")
-                    except AttributeError:
-                        self.log.error(F"{self.get_parent_package()}::{self.parent.name}.{self.name} "
-                                       F"can't use a \"FROM_TYPE\" "
-                                       F"{doc_type} link unless \"type\" field points to a valid type")
+            if (self.field_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.width, doc_type))
+                    self.log.debug(F"Linked up doc for {self.width.name}, it is now {getattr(self, doc_type)}")
+                except AttributeError:
+                    self.log.error(F"{self.get_parent_pkg()}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"FROM_TYPE\" "
+                                   F"{doc_type} link unless \"width\" field points to a localparam")
+            elif (self.field_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.field_type, doc_type))
+                    self.log.debug(F"Linked up doc for {self.field_type.name}, it is now {getattr(self, doc_type)}")
+                except AttributeError:
+                    self.log.error(F"{self.get_parent_pkg()}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"FROM_TYPE\" "
+                                   F"{doc_type} link unless \"type\" field points to a valid type")
 
     def render_rtl_sv_pkg(self):
-        """Render RTL in a SV package for this enun value."""
+        """Render RTL in a SV pkg for this enun value."""
         if self.field_type in ["logic", "wire"]:
             render_width = self._get_render_width()
             render_type = F"{self.field_type} [{render_width} - 1:0]"
@@ -513,36 +535,41 @@ class PackageStructField(PackageItemBase):
                 render_type = F"{self.field_type}"
         else:
             render_type = self._get_render_type()
-        ret_arr = self._render_rtl_comment_docs(4)
+        ret_arr = [self.render_doc_verbose(4)]
         ret_arr.append(F"{render_type} {self.name}; // {self.doc_summary}")
 
         return ret_arr
 
+class Intf(YisNode): # pylint: disable=too-few-public-methods
+    """Class to hold IntfItemBase objects, representikng a whole intf."""
+    pass # pylint: disable=unnecessary-pass
 
 def main(options, log):
     """Main execution."""
-    if (not options.packages) and (not options.block_interface):
-        log.critical("Didn't find anything to render via cmd line. Must render at least 1 package or a block interface")
+    if (not options.pkgs) and (not options.block_interface):
+        log.critical("Didn't find anything to render via cmd line. Must render at least 1 pkg or a block interface")
 
-    yis = Yis(options.block_interface, options.packages, log)
-    yis.parse_packages()
+    yis = Yis(options.block_interface, options.pkgs, log)
+    yis.parse_pkgs()
     yis.link_symbols()
-    for package in yis.packages.values():
-        log.debug(F"Package {repr(package)}")
+    for pkg in yis.pkgs.values():
+        log.debug(F"Pkg {repr(pkg)}")
+
+    year = date.today().year
 
     # if a block_interface is defined, that's the thing we need to render. Parse it first, then render it
     if options.block_interface:
-        pass # FIXME # pylint: disable=fixme,unnecessary-pass
-    # If it isn't defined, assume we're rendering a package. Assume the package to render is the last one in the args
+        # yis.parse_block_interface()
+        output_content = RTL_INTF_TEMPLATE.render(year=year, interface=yis.block_interface)
+    # If it isn't defined, assume we're rendering a pkg. Assume the pkg to render is the last one in the args
     else:
-        target_pkg = next(reversed(yis.packages))
-        fname = options.output_file
-        year = date.today().year
-        with open(fname, 'w') as fileh:
-            log.info("Writing " + os.path.abspath(fname))
-            fileh.write(RTL_PKG_TEMPLATE.render(year=year, package=yis.packages[target_pkg]))
-#    yis.parse_block_interface()
-#     yis.print_all_packages()
+        target_pkg = next(reversed(yis.pkgs))
+        output_content = RTL_PKG_TEMPLATE.render(year=year, pkg=yis.pkgs[target_pkg])
+
+    fname = options.output_file
+    with open(fname, 'w') as fileh:
+        log.info("Writing " + os.path.abspath(fname))
+        fileh.write(output_content)
 
 def setup_context():
     """Set up options, log, and other context for main to run."""

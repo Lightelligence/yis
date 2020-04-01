@@ -2,7 +2,7 @@ load(":test.bzl", "golden_tests")
 
 golden_tests(
     deps = {
-        "hero" : [],
-        "dependent_pkg" : ["golden_inputs/hero.yis"],
+        "test_pkg_a" : [],
+        "test_pkg_b" : ["golden_inputs/test_pkg_a.yis"],
     }
 )
