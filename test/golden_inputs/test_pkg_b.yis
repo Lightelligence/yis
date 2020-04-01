@@ -6,7 +6,7 @@ localparams:
           value: 5
           doc_summary: This should link up
 structs:
-        - name: another_struct
+        - name: another_struct_t
           doc_summary: Testing inter-package dependencies within struct fields.
           fields:
                 - name: fielda
@@ -15,7 +15,7 @@ structs:
                   width: test_pkg_a::HERO_WIDTH
                 - name: fieldb
                   doc_summary: type.doc_sumary
-                  type: test_pkg_a::hero_write
+                  type: test_pkg_a::hero_write_t
                 - name: fieldc
                   doc_summary: type.doc_summary
                   type: test_pkg_a::CYCLE_TYPE_E

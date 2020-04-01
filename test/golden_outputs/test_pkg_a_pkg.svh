@@ -55,7 +55,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
     
     logic [1 - 1:0] clk_en; // Clock enable for the bus
-  } hero_write; // A struct that wraps all fields needed for a single hero write.
+  } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
 
 endpackage : test_pkg_a

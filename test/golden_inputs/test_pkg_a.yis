@@ -43,7 +43,7 @@ enums:
       I'm writing this verbose documentation so that we have something to attempt to link in
       for cycle_type.
 structs:
-  - name: hero_write
+  - name: hero_write_t
     doc_summary: "A struct that wraps all fields needed for a single hero write."
     fields:
       - name: cycle_type

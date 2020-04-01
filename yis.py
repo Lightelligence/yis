@@ -327,6 +327,12 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.value = kwargs.pop('value')
+        self._check_naming_conventions()
+
+    def _check_naming_conventions(self):
+        if not self.name.isupper():
+            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
+                           F"localparam names must be uppercase")
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
@@ -360,14 +366,12 @@ class PkgEnum(PkgItemBase):
 
     def _check_naming_conventions(self):
         if not (self.name.isupper() and self.name[-2:] == "_E"):
-            self.log.info("This error")
             self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
-                           F"Enum names must be all caps and end with _E")
+                           F"Enum names must be uppercase and end with _E")
         for enum_value in self.enum_values:
             if not enum_value.name.isupper():
-                self.log.info("That error")
                 self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{enum_value.name} doesn't comply "
-                               F"with naming conventions. Enum values must be all caps")
+                               F"with naming conventions. Enum values must be uppercase")
 
     def __repr__(self):
         values = "\n    -".join([str(enum) for enum in self.enum_values])
@@ -424,6 +428,16 @@ class PkgStruct(PkgItemBase):
         self.fields = []
         for row in kwargs.pop('fields'):
             self.fields.append(PkgStructField(parent=self, log=self.log, **row))
+        self._check_naming_conventions()
+
+    def _check_naming_conventions(self):
+        if not (self.name.islower() and self.name[-2:] == "_t"):
+            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
+                           F"struct names must be all lowercase and end with _t")
+        for field in self.fields:
+            if not field.name.islower():
+                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{field.name} doesn't comply "
+                               F"with naming conventions. struct fields must be lowercase")
 
     def __repr__(self):
         fields = "\n    -".join([str(field) for field in self.fields])
