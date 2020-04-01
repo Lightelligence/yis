@@ -160,6 +160,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.name = kwargs.pop('name')
         self.doc_summary = kwargs.pop('doc_summary')
         self.doc_verbose = kwargs.pop('doc_verbose', None)
+        self.children = {}
 
     def render_doc_verbose(self, indent_width):
         """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
@@ -168,6 +169,12 @@ class YisNode: # pylint: disable=too-few-public-methods
             wrapper = textwrap.TextWrapper(initial_indent="// ", subsequent_indent=F"{indent_spaces}// ")
             return wrapper.fill(self.doc_verbose)
         return ""
+
+    def add_child(self, child):
+        """Add a child item to this pkg."""
+        if child.name in self.children:
+            self.log.error(F"{child.name} already exists in {self.name} as a {type(self.children[child.name]).__name__}")
+        self.children[child.name] = child
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
@@ -187,9 +194,8 @@ class Pkg(YisNode):
             PkgStruct(parent=self, log=self.log, **row)
 
     def add_child(self, child):
-        """Add a child item to this pkg."""
-        if child.name in self.children:
-            raise ValueError(F"{child.name} already exists in {self.name} as a {type(self.children[child.name])}")
+        """Override super add_child to add in differentiation between localparams, enums, and structs."""
+        super().add_child(child)
 
         self.children[child.name] = child
         if isinstance(child, PkgLocalparam):
@@ -259,12 +265,6 @@ class PkgItemBase(YisNode):
         self.parent.add_child(self)
         self.children = {}
         self.render_width = None
-
-    def add_child(self, child):
-        """Add a child item to this pkg."""
-        if child.name in self.children:
-            raise ValueError(F"{child.name} already exists in {self.name} as a {type(self.children[child.name])}")
-        self.children[child.name] = child
 
     def _get_parent_localparams(self):
         parent = self.parent
@@ -392,15 +392,14 @@ class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.enum_value = kwargs.pop('value')
 
     def __repr__(self):
-        return F"{id(self)} {self.name}, value {self.enum_value}"
+         return F"{id(self)} {self.name}"
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
         ret_arr = [self.render_doc_verbose(4)]
-        ret_arr.append(F"{self.name}, // {self.doc_summary}")
+        ret_arr.append(F"{self.parent.name}_{self.name}, // {self.doc_summary}")
         return ret_arr
 
 

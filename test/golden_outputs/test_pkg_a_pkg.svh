@@ -34,12 +34,12 @@ package test_pkg_a; // This is an example of what a package file could look like
   // attempt to link in for cycle_type.
   type enum logic [4 - 1:0] {
     
-    IDLE, // The bus is idle this cycle.
+    CYCLE_TYPE_IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
-    VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    CYCLE_TYPE_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
     
-    DONE, // The command on the bus this is valid and this is the last cycle of data
+    CYCLE_TYPE_DONE, // The command on the bus this is valid and this is the last cycle of data
   } CYCLE_TYPE; // Indicates a command type of IDLE, VALID, or DONE.
   
   /////////////////////////////////////////////////////////////////////////////
