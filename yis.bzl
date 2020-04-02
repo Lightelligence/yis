@@ -8,6 +8,18 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
                    tools = ["//digital/rtl/scripts/yis:yis"],
                )
 
+def yis_html_pkg(name, pkg_deps, pkg):
+    expected_name = pkg.rsplit(":")[1][:-4]
+    if name != expected_name:
+        fail("Expect yis target name to be: {}".format(expected_name))
+    native.genrule(name = "{}_pkg_html".format(name),
+                   srcs = pkg_deps + [pkg],
+                   outs = ["{}_pkg.html".format(name)],
+                   cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-html",
+                   output_to_bindir = True,
+                   tools = ["//digital/rtl/scripts/yis:yis"] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
+               )
+
 def yis_rtl_intf(name, pkg_deps, intf):
     """Create a single yis-generate RTL intf."""
     native.genrule(name = "{}_rtl_intf_html".format(name),
@@ -18,4 +30,8 @@ def yis_rtl_intf(name, pkg_deps, intf):
                    tools = ["//digital/rtl/scripts/yis:yis"],
                )
 
+
+def yis_pkg(name, pkg_deps, pkg):
+    yis_rtl_pkg(name, pkg_deps, pkg)
+    yis_html_pkg(name, pkg_deps, pkg)
 

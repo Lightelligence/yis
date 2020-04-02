@@ -45,6 +45,11 @@ def parse_args(argv):
                         required=True,
                         help="Path to the output file, which might either be a packge or a block interface.")
 
+    parser.add_argument('--gen-html',
+                        default=False,
+                        action='store_true',
+                        help="Use the html generator for output.")
+
     parser.add_argument('--tool-debug',
                         default=False,
                         action='store_true',
@@ -62,8 +67,9 @@ class LinkError(Exception):
 
 class Yis:
     """Yaml Interface Spec parser and generator class."""
-    def __init__(self, block_interface, pkgs, log):
+    def __init__(self, block_interface, pkgs, log, options):
         self.log = log
+        self.options = options
         self._pkgs = OrderedDict()
         self._block_interface = None
         self._parse_files(block_interface, pkgs)
@@ -142,15 +148,21 @@ class Yis:
                 default_for_string=True,
             ))
         year = date.today().year
+
+        template_directory = "rtl"
+        if self.options.gen_html:
+            template_directory = "html"
+        
+        template_name = "pkg"
         if self._block_interface:
-            self.log.debug("Rendering intf %s" % (self._block_interface.name))
-            template = env.get_template('html/rtl_intf.html')
-            output_content = template.render(year=year, interface=self._block_interface)
-        else:
-            target_pkg = next(reversed(self._pkgs.values()))
-            self.log.debug("Rendering pkg %s" % (target_pkg))
-            template = env.get_template('rtl_pkg.svh')
-            output_content = template.render(year=year, pkg=target_pkg)
+            template_name = "intf"
+        
+        template_name = os.path.join(template_directory, template_name)
+        
+        self.log.debug("Rendering %s with %s", self, template_name)
+        template = env.get_template(template_name)
+        target_pkg = next(reversed(self._pkgs.values()))
+        output_content = template.render(year=year, interface=self._block_interface, pkgs=self._pkgs, target_pkg=target_pkg)
 
         with open(output_file, 'w') as fileh:
             self.log.info(F"Writing {os.path.abspath(output_file)}")
@@ -651,7 +663,7 @@ def main(options, log):
     if not options.pkgs:
         log.critical("Didn't find anything to render via cmd line. Must specify at least .yis")
 
-    yis = Yis(options.block_interface, options.pkgs, log)
+    yis = Yis(options.block_interface, options.pkgs, log, options=options)
     yis.render_output(options.output_file)
 
 def setup_context():

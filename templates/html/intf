@@ -1,4 +1,4 @@
-{% extends "html/base.html" %}
+{% extends "html/base" %}
 {% block title -%}
 {{ interface.name }}
 {%- endblock title %}

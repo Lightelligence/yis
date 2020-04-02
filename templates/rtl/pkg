@@ -1,6 +1,7 @@
 // Copyright (c) {{ year }} Lightelligence
 //
 // Description: SV Pkg generated from {{ pkg.name }}.yis by YIS
+{% set pkg=target_pkg %}
 
 `ifndef __{{ pkg.name | upper }}_PKG_SVH__
   `define __{{ pkg.name | upper }}_PKG_SVH__
