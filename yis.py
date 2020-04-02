@@ -135,7 +135,7 @@ class Yis:
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
         """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
-        self.log.debug("Attempting to link %s::%s" % (link_pkg, link_symbol))
+        self.log.debug("Attempting to link %s::%s", link_pkg, link_symbol)
         try:
             return self._pkgs[link_pkg].resolve_inbound_symbol(link_symbol, symbol_types)
         except KeyError:
@@ -247,7 +247,7 @@ class Pkg(YisNode):
 
     def resolve_links(self):
         """Find and resolve links between types starting at localparms, then enums, then structs."""
-        self.log.debug("Attempting to resolve links in %s" % (self.name))
+        self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
         for localparam in self.localparams.values():
             localparam.resolve_width_links()
@@ -262,21 +262,25 @@ class Pkg(YisNode):
 
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
         """Resolve links leaving this pkg."""
-        self.log.debug("Attempting to resolve outbound link from %s to %s::%s" % (self.name, link_pkg, link_symbol))
+        self.log.debug("Attempting to resolve outbound link from %s to %s::%s", self.name, link_pkg, link_symbol)
         return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
 
     def resolve_inbound_symbol(self, link_symbol, symbol_types):
         """Resolve a link from another pkg attempting to reference a symbol in this pkg."""
-        self.log.debug("Attempting to resolve an inbound link %s::%s of types %s" % (self.name,
-                                                                                     link_symbol,
-                                                                                     symbol_types))
+        self.log.debug("Attempting to resolve an inbound link %s::%s of types %s",
+                       self.name,
+                       link_symbol,
+                       symbol_types)
         if not self.finished_link:
             self.log.error(F"Can't resolve {link_symbol} into {self.name}, it hasn't been compiled yet")
             raise LinkError
 
         for symbol_type in symbol_types:
             try:
-                self.log.debug("Looking for a(n) %s link to %s::%s" % (symbol_type, self.name, link_symbol))
+                self.log.debug("Looking for a(n) %s link to %s::%s",
+                               symbol_type,
+                               self.name,
+                               link_symbol)
                 return getattr(self, symbol_type)[link_symbol]
             except KeyError:
                 pass
@@ -338,7 +342,7 @@ class PkgItemBase(YisNode):
         """Resolve links in width. Resolving links in value gets dicey."""
         # If self.width is already an int, don't try to resolve a link
         if not isinstance(self.width, int):
-            self.log.debug("%s, width %s is a type that must be linked" % (self.name, self.width))
+            self.log.debug("%s, width %s is a type that must be linked", self.name, self.width)
             localparams = self._get_parent_localparams()
             match = PKG_SCOPE_REGEXP.match(self.width)
             # If it looks like we're scoping out of pkg
@@ -346,7 +350,7 @@ class PkgItemBase(YisNode):
                 link_pkg = match.group(1)
                 link_symbol = match.group(2)
                 try:
-                    self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
+                    self.log.debug("Attempting to resolve external %s::%s", link_pkg, link_symbol)
                     self.width = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
                                                                                link_symbol,
                                                                                ["localparams"])
@@ -354,7 +358,7 @@ class PkgItemBase(YisNode):
                     self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
             # If it doesn't look like we're scoping out of pkg, try to look in this pkg
             elif self.width in localparams:
-                self.log.debug("%s is a valid localparam in pkg %s" % (self.width, self.get_parent_pkg().name))
+                self.log.debug("%s is a valid localparam in pkg %s", self.width, self.get_parent_pkg().name)
                 self.width = localparams[self.width]
             else:
                 self.log.error(F"Couldn't resolve a width link for {self.name} to {self.width}")
