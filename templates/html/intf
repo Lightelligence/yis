@@ -10,13 +10,8 @@
 {% endif %}
 <br/>
 {% for connection in interface.children.values() %}
-    <h4>
-    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#conn_{{ connection.name }}" aria-expanded="false" aria-controls="conn_{{ connection.name }}">
-      {{ connection.name }}
-    </button>
-    {{ connection.doc_summary }}
-    </h4>
-    <div class="collapse hidden" id="conn_{{ connection.name }}">
+    <h4 id="{{ connection.html_anchor() }}"><a href="#{{ connection.html_anchor() }}">{{ connection.name }}</a></h4>
+    <h5>{{ connection.doc_summary }}</h5>
       {% if connection.doc_verbose %}
       <p> {{ connection.doc_verbose }} </p>
       {% endif %}
@@ -32,7 +27,7 @@
         </thead>
       {% for component in connection.children.values() %}
         <tr>
-            <td>{{ component.name }}</td>
+            <td id="{{ component.html_anchor() }}"><a href="#{{ component.html_anchor() }}">{{ component.name }}</a></td>
             <td>{{ component.html_link_attribute('sv_type') }}</td>
             <td>{{ component.html_link_attribute('width') }}</td>
             <td>{{ component.doc_summary }}</td>
@@ -40,6 +35,5 @@
         </tr>
       {% endfor %}
       </table>
-    </div>
 {% endfor %}
 {% endblock content %}

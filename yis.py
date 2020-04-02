@@ -220,6 +220,16 @@ class YisNode: # pylint: disable=too-few-public-methods
         """Recursively call parent.resolve_symbol until we hit the top-level Yis instance."""
         return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
 
+    def html_anchor(self):
+        anchor_hierarchy = []
+        parent = self
+        while parent:
+            if not isinstance(parent, YisNode):
+                break
+            anchor_hierarchy.append(parent.name)
+            parent = parent.parent
+        return "__".join([ah for ah in reversed(anchor_hierarchy)])
+
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
@@ -341,16 +351,6 @@ class PkgItemBase(YisNode):
         
         href_target=os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{attr.name}</a>'
-
-    def html_anchor(self):
-        anchor_hierarchy = [self.name]
-        parent = self.parent
-        while True:
-            anchor_hierarchy.append(parent.name)
-            if isinstance(parent, Pkg):
-                break
-            parent = parent.parent
-        return "__".join([ah for ah in reversed(anchor_hierarchy)])
 
     def resolve_width_links(self):
         """Resolve links in width. Resolving links in value gets dicey."""
