@@ -102,6 +102,7 @@ class Yis:
                 new_pkg = Pkg(log=self.log,
                               name=pkg_name,
                               parent=self,
+                              source_file = fname,
                               **data)
                 self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
@@ -209,6 +210,7 @@ class Pkg(YisNode):
         self.localparams = OrderedDict()
         self.enums = OrderedDict()
         self.structs = OrderedDict()
+        self.source_file = kwargs['source_file']
 
         for row in kwargs.get('localparams', []):
             PkgLocalparam(parent=self, log=self.log, **row)
@@ -307,6 +309,28 @@ class PkgItemBase(YisNode):
             if isinstance(parent, Pkg):
                 return parent
             parent = parent.parent
+
+    def html_link_attribute(self, attr_name):
+        attr = getattr(self, attr_name)
+        if not isinstance(attr, PkgItemBase):
+            return attr
+
+        my_root = self.get_parent_pkg()
+        ref_root = attr.get_parent_pkg()
+        relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
+        
+        href_target=os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+        return f'<a href="{href_target}">{attr.name}</a>'
+
+    def html_anchor(self):
+        anchor_hierarchy = [self.name]
+        parent = self.parent
+        while True:
+            anchor_hierarchy.append(parent.name)
+            if isinstance(parent, Pkg):
+                break
+            parent = parent.parent
+        return "__".join([ah for ah in reversed(anchor_hierarchy)])
 
     def resolve_width_links(self):
         """Resolve links in width. Resolving links in value gets dicey."""
