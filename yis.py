@@ -27,6 +27,19 @@ PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
 ################################################################################
 # Helpers
 
+class YisFileFilterAction(argparse.Action):
+    """
+    Having some bazel dependency issues where some deps aren't getting built.
+    It's easier (and hackier) to solve this by just adding these deps to the genrule srcs,
+    but we want to ignore those files because they aren't really consumed here.
+    """
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, [])
+        for value in values:
+            if os.path.splitext(value)[1] == ".yis":
+                getattr(namespace, self.dest).append(value)
+
+
 def parse_args(argv):
     """Parse script arguments."""
     parser = argparse.ArgumentParser(description="Parse an interface spec and generate the associated collateral.",
@@ -34,6 +47,7 @@ def parse_args(argv):
 
     parser.add_argument('--pkgs',
                         nargs='*',
+                        action=YisFileFilterAction,
                         help="YAML files defining pkgs needed for block interfaces")
 
     parser.add_argument('--block-interface',

@@ -13,7 +13,7 @@ def yis_html_pkg(name, pkg_deps, pkg):
     if name != expected_name:
         fail("Expect yis target name to be: {}".format(expected_name))
     native.genrule(name = "{}_pkg_html".format(name),
-                   srcs = pkg_deps + [pkg],
+                   srcs = pkg_deps + [pkg] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
                    outs = ["{}_pkg.html".format(name)],
                    cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-html",
                    output_to_bindir = True,
@@ -26,11 +26,11 @@ def yis_html_intf(name, pkg_deps, intf):
         fail("Expect yis target name to be: {}".format(expected_name))
         
     native.genrule(name = "{}_rtl_intf_html".format(name),
-                   srcs = pkg_deps + [intf],
+                   srcs = pkg_deps + [intf] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
                    outs = ["{}_rtl_intf.html".format(name)],
                    cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-html",
                    output_to_bindir = True,
-                   tools = ["//digital/rtl/scripts/yis:yis"] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
+                   tools = ["//digital/rtl/scripts/yis:yis"],
                )
 
 
