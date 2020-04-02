@@ -1,0 +1,31 @@
+// Copyright (c) {{ year }} Lightelligence
+//
+// Description: SV Pkg generated from {{ pkg.name }}.yis by YIS
+
+`ifndef __{{ pkg.name | upper }}_PKG_SVH__
+  `define __{{ pkg.name | upper }}_PKG_SVH__
+
+{{ pkg.render_doc_verbose(0) }}
+package {{ pkg.name }}; // {{ pkg.doc_summary }}
+
+  /////////////////////////////////////////////////////////////////////////////
+  // localparams
+  /////////////////////////////////////////////////////////////////////////////
+  {% for localparam in pkg.localparams.values() %}
+  {{ localparam.render_rtl_sv_pkg() }}
+  {% endfor %}
+  /////////////////////////////////////////////////////////////////////////////
+  // enums
+  /////////////////////////////////////////////////////////////////////////////
+  {% for enum in pkg.enums.values() %}
+  {{ enum.render_rtl_sv_pkg() }}
+  {% endfor %}
+  /////////////////////////////////////////////////////////////////////////////
+  // structs
+  /////////////////////////////////////////////////////////////////////////////
+  {% for struct in pkg.structs.values() %}
+  {{ struct.render_rtl_sv_pkg() }}
+  {% endfor %}
+
+endpackage : {{ pkg.name }}
+`endif // guard
