@@ -33,8 +33,8 @@
       {% for component in connection.children.values() %}
         <tr>
             <td>{{ component.name }}</td>
-            <td>{{ component.sv_type }}</td>
-            <td>{{ component.width }}</td>
+            <td>{{ component.html_link_attribute('sv_type') }}</td>
+            <td>{{ component.html_link_attribute('width') }}</td>
             <td>{{ component.doc_summary }}</td>
             <td>{% if component.doc_verbose %}{{ component.doc_verbose }}{% endif %}</td>
         </tr>

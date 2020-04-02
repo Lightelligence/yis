@@ -119,6 +119,7 @@ class Yis:
                 self._block_interface = Intf(log=self.log,
                                              name=interface_name,
                                              parent=self,
+                                             source_file=intf_to_parse,
                                              **data)
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {interface_name}")
         except IOError:
@@ -642,6 +643,7 @@ class Intf(YisNode):
     """Class to hold IntfItemBase objects, representing a whole intf."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.source_file = kwargs['source_file']
         for row in kwargs.pop('connections'):
             IntfConn(parent=self, log=self.log, **row)
 
@@ -681,6 +683,17 @@ class IntfConnComp(IntfItemBase):
     def __repr__(self):
         return F"Comp {self.name}, {self.sv_type}, {self.width} "
 
+    def html_link_attribute(self, attr_name):
+        attr = getattr(self, attr_name)
+        if not isinstance(attr, PkgItemBase):
+            return attr
+
+        my_root = self.parent.parent # Assumption intf is two levels up
+        ref_root = attr.get_parent_pkg()
+        relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
+        
+        href_target=os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+        return f'<a href="{href_target}">{attr.name}</a>'
 
 def main(options, log):
     """Main execution."""
