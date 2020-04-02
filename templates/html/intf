@@ -6,14 +6,14 @@
 {% block content %}
 <h3>{{ interface.doc_summary }}</h3>
 {% if interface.doc_verbose %}
-<p>{{ interface.doc_verbose }}</p>
+<pre>{{ interface.doc_verbose }}</pre>
 {% endif %}
 <br/>
 {% for connection in interface.children.values() %}
     <h4 id="{{ connection.html_anchor() }}"><a href="#{{ connection.html_anchor() }}">{{ connection.name }}</a></h4>
     <h5>{{ connection.doc_summary }}</h5>
       {% if connection.doc_verbose %}
-      <p> {{ connection.doc_verbose }} </p>
+      <pre> {{ connection.doc_verbose }} </pre>
       {% endif %}
       <table class="table table-striped table-bordered table-sm">
         <thead>
@@ -31,7 +31,7 @@
             <td>{{ component.html_link_attribute('sv_type') }}</td>
             <td>{{ component.html_link_attribute('width') }}</td>
             <td>{{ component.doc_summary }}</td>
-            <td>{% if component.doc_verbose %}{{ component.doc_verbose }}{% endif %}</td>
+            <td>{% if component.doc_verbose %}<pre>{{ component.doc_verbose }}</pre>{% endif %}</td>
         </tr>
       {% endfor %}
       </table>
