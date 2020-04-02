@@ -127,9 +127,10 @@ class Yis:
 
     def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
-        # Localparams are always first
         for pkg in self._pkgs.values():
             pkg.resolve_links()
+        if self._block_interface:
+            self._block_interface.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
@@ -200,6 +201,10 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error(F"{child.name} already exists in {self.name} as a "
                            F"{type(self.children[child.name]).__name__}")
         self.children[child.name] = child
+
+    def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
+        """Recursively call parent.resolve_symbol until we hit the top-level Yis instance."""
+        return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
 
 
 class Pkg(YisNode):
@@ -291,10 +296,6 @@ class Pkg(YisNode):
 
 class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.render_width = None
-
     def _get_parent_localparams(self):
         parent = self.parent
         while True:
@@ -349,7 +350,6 @@ class PkgItemBase(YisNode):
                     self.width = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
                                                                                link_symbol,
                                                                                ["localparams"])
-                    self.render_width = self.width.name
                 except LinkError:
                     self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
             # If it doesn't look like we're scoping out of pkg, try to look in this pkg
@@ -606,7 +606,7 @@ class PkgStructField(PkgItemBase):
             if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
                 try:
                     setattr(self, doc_type, getattr(self.width, doc_type))
-                    self.log.debug(F"Linked up doc for {self.width.name}, it is now {getattr(self, doc_type)}")
+                    self.log.debug("Linked up doc for %s" % (self.width.name))
                 except AttributeError:
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"width.{doc_type}\" "
@@ -614,7 +614,7 @@ class PkgStructField(PkgItemBase):
             elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
                 try:
                     setattr(self, doc_type, getattr(self.sv_type, doc_type))
-                    self.log.debug(F"Linked up doc for {self.sv_type.name}, it is now {getattr(self, doc_type)}")
+                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
                 except AttributeError:
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"type.{doc_type}\" "
@@ -652,13 +652,16 @@ class Intf(YisNode):
                 "Connections:\n  -{connections}\n"
                 .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
+    def resolve_links(self):
+        """Find and resolve type links in all connections."""
+        for child in self.children.values():
+            child.resolve_links()
+
 
 class IntfItemBase(YisNode):
-    """Base class for anything contained in an Intf.
-
-    This doesn't override any functionality from YisNode, but it provides a good layer of abstraction.
-    """
+    """Base class for anything contained in an Intf."""
     pass # pylint: disable=unnecessary-pass
+
 
 class IntfConn(IntfItemBase):
     """Definition for a Conn(ection) - a set of individual port symbols - on an interface."""
@@ -672,6 +675,11 @@ class IntfConn(IntfItemBase):
                 "Components:\n  -{components}\n"
                 .format(components="\n  -".join([repr(component) for component in self.children.values()])))
 
+    def resolve_links(self):
+        """Resolve links for each ConnComp child."""
+        for child in self.children.values():
+            child.resolve_links()
+
 
 class IntfConnComp(IntfItemBase):
     """Definition for a Comp(onent) in a Conn(ection)."""
@@ -681,7 +689,78 @@ class IntfConnComp(IntfItemBase):
         self.width = kwargs.pop('width', None)
 
     def __repr__(self):
-        return F"Comp {self.name}, {self.sv_type}, {self.width} "
+        return F"Comp {self.name}, {self.sv_type}, {self.width}"
+
+    def resolve_links(self):
+        """Resolve links from IntfConnComp to a package.
+
+        Note that this is similar to resolve_width_links, but only external package links are allowed here.
+        """
+        # If the sv_type is not a logic or wire, try to resolve the sv_type link
+        if self.sv_type not in ['logic', 'wire']:
+            self._resolve_type_link()
+        # If sv_type is a logic or wire but width isn't an int, try to resolve the width link
+        elif not isinstance(self.width, int):
+            self._resolve_width_link()
+        # Else sv_type is a logic and it has an int width, so leave it alone
+
+        self._resolve_doc_links()
+
+    def _resolve_type_link(self):
+        self.log.debug("%s, type %s must be linked" % (self.name, self.sv_type))
+        match = PKG_SCOPE_REGEXP.match(self.sv_type)
+        # If it looks like we're scoping out of pkg
+        if match:
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+            try:
+                self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
+                self.sv_type = self.parent.resolve_symbol(link_pkg, link_symbol, ["enums", "structs"])
+                self.log.debug("%s type is now %s" % (self.name, self.sv_type.name))
+            except LinkError:
+                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.sv_type))
+        else:
+            self.log.error(F"{self.name} has invalid type {self.sv_type}. "
+                           "Type references in RTL intf files must be package scoped")
+
+    def _resolve_width_link(self):
+        self.log.debug("%s, width %s is a type that must be linked" % (self.name, self.width))
+        match = PKG_SCOPE_REGEXP.match(self.width)
+        # If it looks like we're scoping out of pkg
+        if match:
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+            try:
+                self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
+                self.width = self.parent.resolve_symbol(link_pkg, link_symbol, ["localparams"])
+                self.log.debug("%s width is now %s" % (self.name, self.width.name))
+            except LinkError:
+                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+        else:
+            self.log.error(F"{self.name} has invalid width {self.width}. "
+                           "Width references in RTL intf files must be package scoped")
+
+    def _resolve_doc_links(self):
+        """Resolve basic doc_* links from *.doc_* to the original definition."""
+        for doc_type in ['doc_summary', 'doc_verbose']:
+            self.log.debug(F"Looking for {doc_type} on {self.name}")
+            doc_attr = getattr(self, doc_type)
+            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.width, doc_type))
+                    self.log.debug("Linked up doc for %s" % (self.width.name))
+                except AttributeError:
+                    self.log.error(F"{self.parent.name}.{self.name} "
+                                   F"can't use a \"width.{doc_type}\" "
+                                   F"{doc_type} link unless \"width\" points to a localparam")
+            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
+                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
+                except AttributeError:
+                    self.log.error(F"{self.parent.name}.{self.name} "
+                                   F"can't use a \"type.{doc_type}\" "
+                                   F"{doc_type} link unless \"type\" points to a valid type")
 
     def html_link_attribute(self, attr_name):
         attr = getattr(self, attr_name)
