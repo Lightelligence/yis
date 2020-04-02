@@ -144,7 +144,7 @@ class Yis:
         year = date.today().year
         if self._block_interface:
             self.log.debug("Rendering intf %s" % (self._block_interface.name))
-            template = env.get_template('rtl_intf.html')
+            template = env.get_template('html/rtl_intf.html')
             output_content = template.render(year=year, interface=self._block_interface)
         else:
             target_pkg = next(reversed(self._pkgs.values()))

@@ -3,11 +3,7 @@ package(default_visibility = ["//visibility:public"])
 load("//env:lt_py.bzl", "lt_py_pylint")
 load(":yis.bzl", "yis_rtl_pkg")
 
-all_jinja_templates = [
-    "templates/rtl_pkg.svh",
-    "templates/base.html",
-    "templates/rtl_intf.html",
-]
+all_jinja_templates = glob(["templates/**"])
 
 py_binary(
     name = "yis",
