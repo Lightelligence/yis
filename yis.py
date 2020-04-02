@@ -687,6 +687,8 @@ class IntfConnComp(IntfItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
+        self._render_type = self.sv_type
+        self._render_width = self.width
 
     def __repr__(self):
         return F"Comp {self.name}, {self.sv_type}, {self.width}"
@@ -716,6 +718,7 @@ class IntfConnComp(IntfItemBase):
             try:
                 self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
                 self.sv_type = self.parent.resolve_symbol(link_pkg, link_symbol, ["enums", "structs"])
+                self._render_type = F"{self.sv_type.get_parent_pkg().name}::{self.sv_type.name}"
                 self.log.debug("%s type is now %s" % (self.name, self.sv_type.name))
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.sv_type))
@@ -733,6 +736,7 @@ class IntfConnComp(IntfItemBase):
             try:
                 self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
                 self.width = self.parent.resolve_symbol(link_pkg, link_symbol, ["localparams"])
+                self._render_width = F"{self.width.get_parent_pkg().name}::{self.width.name}"
                 self.log.debug("%s width is now %s" % (self.name, self.width.name))
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
