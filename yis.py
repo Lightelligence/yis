@@ -603,7 +603,7 @@ class PkgStructField(PkgItemBase):
         return ret_arr
 
 class Intf(YisNode):
-    """Class to hold IntfItemBase objects, representikng a whole intf."""
+    """Class to hold IntfItemBase objects, representing a whole intf."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for row in kwargs.pop('connections'):
