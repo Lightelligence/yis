@@ -19,9 +19,9 @@ localparam:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
 ---
-enum_name: regex('^[A-Z0-9_]{3,}_E$', name="valid enum name. enums must be all caps, start with a letter, only contain letters, numbers, and _, and must end with _E")
-enum_value_name: regex('^[A-Z0-9_]{3,}$', name="valid enum value name. enum value names must be all caps, start with a letter, and only contain letters, numbers, and _")
-pkg_scoped_enum_name: regex('^[a-z0-9_]{3,}::[A-Z0-9_]{3,}_E$', name="valid package scoped enum name. enums must be all caps, start with a letter, can only contain letters, numbers, and _, and must end with _E. The package must be all lowercase and start with a letter.")
+enum_name: regex('^[A-Z][A-Z0-9_]{2,}_E$', name="valid enum name. enums must be all caps, start with a letter, only contain letters, numbers, and _, and must end with _E")
+enum_value_name: regex('^[A-Z][A-Z0-9_]{2,}$', name="valid enum value name. enum value names must be all caps, start with a letter, and only contain letters, numbers, and _")
+pkg_scoped_enum_name: regex('^[a-z][a-z0-9_]{2,}::[A-Z][A-Z0-9_]{2,}_E$', name="valid package scoped enum name. enums must be all caps, start with a letter, can only contain letters, numbers, and _, and must end with _E. The package must be all lowercase and start with a letter.")
 any_enum_name: any(include('enum_name'), include('pkg_scoped_enum_name'))
 enum:
   name: include('enum_name')
@@ -34,10 +34,10 @@ enum_value:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
 ---
-struct_name: regex('^[a-z0-9_]{3,}_t$', name="valid struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
-pkg_scoped_struct_name: regex('^[a-z0-9_]{3,}::[a-z0-9_]{3,}_t$', name="valid struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
+struct_name: regex('^[a-z][a-z0-9_]{2,}_t$', name="valid struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
+pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}_t$', name="valid package scoped struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 any_struct_name: any(include('struct_name'), include('pkg_scoped_struct_name'))
-struct_field_name: regex('^[a-z0-9_]{3,}$', name="valid struct field name. struct field names must be all lowercase, start with a letter, only contain letters, numbers, and _")
+struct_field_name: regex('^[a-z][a-z0-9_]{2,}$', name="valid struct field name. struct field names must be all lowercase, start with a letter, only contain letters, numbers, and _")
 struct:
   name: include('struct_name')
   fields: list(include('struct_field'))
