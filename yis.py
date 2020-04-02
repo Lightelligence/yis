@@ -6,6 +6,7 @@ import sys
 import os
 import re
 import textwrap
+import yamale
 from collections import OrderedDict
 from datetime import date
 
@@ -101,15 +102,25 @@ class Yis:
         self._parse_pkgs(pkgs_to_parse)
         if block_interface:
             self._parse_block_interface(intf_to_parse)
+        self.log.exit_if_warnings_or_errors("Found errors parsing input files")
 
     def _parse_pkgs(self, pkgs_to_parse):
         """Parse all pkgs."""
         for fname in pkgs_to_parse:
             self._parse_one_pkg(fname)
 
+    def _yamale_validate(self, schema_file, data_file):
+        schema = yamale.make_schema(schema_file)
+        data = yamale.make_data(data_file)
+        try:
+            yamale.validate(schema, data, strict=True)
+        except ValueError as exc:
+            self.log.error(F"Error validating input file {data_file}{str(exc)}")
+
     def _parse_one_pkg(self, fname):
         try:
-            self.log.info(F"Parsing {fname}")
+            self.log.info(F"Parsing pkg {fname}")
+            self._yamale_validate('digital/rtl/scripts/yis/yamale/rtl_pkg.yaml', fname)
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
                 pkg_name = os.path.splitext(os.path.basename(fname))[0]
@@ -126,7 +137,8 @@ class Yis:
     def _parse_block_interface(self, intf_to_parse):
         """Parse a block interface file, deserialize into relevant objects."""
         try:
-            self.log.info(F"Parsing {intf_to_parse}")
+            self.log.info(F"Parsing intf {intf_to_parse}")
+            self._yamale_validate('digital/rtl/scripts/yis/yamale/rtl_intf.yaml', intf_to_parse)
             with open(intf_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
                 interface_name = os.path.splitext(os.path.basename(intf_to_parse))[0]
@@ -248,11 +260,6 @@ class Pkg(YisNode):
             PkgEnum(parent=self, log=self.log, **row)
         for row in kwargs.get('structs', []):
             PkgStruct(parent=self, log=self.log, **row)
-        self._check_naming_conventions()
-
-    def _check_naming_conventions(self):
-        if not self.name.islower():
-            self.log.error(F"Pkg {self.name} doesn't comply with naming conventions. Pkg names must be lowercase.")
 
     def add_child(self, child):
         """Override super add_child to add in differentiation between localparams, enums, and structs."""
@@ -393,12 +400,6 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.value = kwargs.pop('value')
-        self._check_naming_conventions()
-
-    def _check_naming_conventions(self):
-        if not self.name.isupper():
-            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
-                           F"localparam names must be uppercase")
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
@@ -431,17 +432,6 @@ class PkgEnum(PkgItemBase):
         self.width = kwargs.pop('width')
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
-        self._check_naming_conventions()
-
-    def _check_naming_conventions(self):
-        if not (self.name.isupper() and self.name[-2:] == "_E"):
-            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
-                           F"Enum names must be uppercase and end with _E")
-
-        for child in self.children.values():
-            if not child.name.isupper():
-                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{child.name} doesn't comply "
-                               F"with naming conventions. Enum values must be uppercase")
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
@@ -507,17 +497,6 @@ class PkgStruct(PkgItemBase):
         super().__init__(**kwargs)
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
-        self._check_naming_conventions()
-
-    def _check_naming_conventions(self):
-        if not (self.name.islower() and self.name[-2:] == "_t"):
-            self.log.error(F"{self.get_parent_pkg().name}::{self.name} doesn't comply with naming conventions. "
-                           F"struct names must be all lowercase and end with _t")
-
-        for child in self.children.values():
-            if not child.name.islower():
-                self.log.error(F"{self.get_parent_pkg().name}::{self.name}.{child.name} doesn't comply "
-                               F"with naming conventions. struct fields must be lowercase")
 
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])

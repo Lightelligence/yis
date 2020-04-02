@@ -1,4 +1,4 @@
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_rtl_intf")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_html_pkg")
 
 def golden_pkg_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
