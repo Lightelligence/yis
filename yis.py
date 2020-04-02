@@ -96,9 +96,8 @@ class Yis:
         pkgs_to_parse = pkgs
         if block_interface:
             intf_to_parse = pkgs[-1]
-            pkgs = []
             if len(pkgs) > 1:
-                pkgs_to_parse = pkgs[:-2]
+                pkgs_to_parse = pkgs[:-1]
         self._parse_pkgs(pkgs_to_parse)
         if block_interface:
             self._parse_block_interface(intf_to_parse)
