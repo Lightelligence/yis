@@ -1,8 +1,45 @@
 {% extends "html/base.html" %}
-{% block title %}
+{% block title -%}
 {{ interface.name }}
-{% endblock title %}
+{%- endblock title %}
 
 {% block content %}
-<p> I am ripping this entire thing from Wil. I've never written an HTML app before.</p>
+<h3>{{ interface.doc_summary }}</h3>
+{% if interface.doc_verbose %}
+<p>{{ interface.doc_verbose }}</p>
+{% endif %}
+<br/>
+{% for connection in interface.children.values() %}
+    <h4>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#conn_{{ connection.name }}" aria-expanded="false" aria-controls="conn_{{ connection.name }}">
+      {{ connection.name }}
+    </button>
+    {{ connection.doc_summary }}
+    </h4>
+    <div class="collapse hidden" id="conn_{{ connection.name }}">
+      {% if connection.doc_verbose %}
+      <p> {{ connection.doc_verbose }} </p>
+      {% endif %}
+      <table class="table table-striped table-bordered table-sm">
+        <thead>
+          <tr>
+            <th class="th-sm">Name</th>
+            <th class="th-sm">Type</th>
+            <th class="th-sm">Width</th>
+            <th class="th-sm">Doc Summary</th>
+            <th class="th-sm">Doc Verbose</th>
+          </tr>
+        </thead>
+      {% for component in connection.children.values() %}
+        <tr>
+            <td>{{ component.name }}</td>
+            <td>{{ component.sv_type }}</td>
+            <td>{{ component.width }}</td>
+            <td>{{ component.doc_summary }}</td>
+            <td>{% if component.doc_verbose %}{{ component.doc_verbose }}{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </table>
+    </div>
+{% endfor %}
 {% endblock content %}
