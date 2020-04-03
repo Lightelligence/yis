@@ -363,8 +363,12 @@ class PkgItemBase(YisNode):
         ref_root = attr.get_parent_pkg()
         relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
 
+        pkg_prefix = ""
+        if ref_root is not my_root:
+            pkg_prefix = f"{ref_root.name}_pkg::"
+
         href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
-        return f'<a href="{href_target}">{attr.name}</a>'
+        return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
     def resolve_width_links(self):
         """Resolve width links. A width can only be an int or a localparam, so call resolve_localparam_links."""
@@ -798,8 +802,12 @@ class IntfConnComp(IntfItemBase):
         ref_root = attr.get_parent_pkg()
         relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
 
+        pkg_prefix = ""
+        if ref_root is not my_root:
+            pkg_prefix = f"{ref_root.name}_pkg::"
+
         href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
-        return f'<a href="{href_target}">{attr.name}</a>'
+        return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
 def main(options, log):
     """Main execution."""
