@@ -349,6 +349,8 @@ class PkgItemBase(YisNode):
     def html_link_attribute(self, attr_name):
         attr = getattr(self, attr_name)
         if not isinstance(attr, PkgItemBase):
+            if attr is None:
+                return ""
             return attr
 
         my_root = self.get_parent_pkg()
@@ -765,6 +767,8 @@ class IntfConnComp(IntfItemBase):
     def html_link_attribute(self, attr_name):
         attr = getattr(self, attr_name)
         if not isinstance(attr, PkgItemBase):
+            if attr is None:
+                return ""
             return attr
 
         my_root = self.parent.parent # Assumption intf is two levels up
