@@ -5,8 +5,9 @@
 {%- endblock title %}
 
 {% block content %}
+<h2>{{ target_pkg.name }}</h2>
 {% if target_pkg.localparams|length %}
-<h3>{{ target_pkg.doc_summary }}</h3>
+<h5>{{ target_pkg.doc_summary }}</h5>
 {% if target_pkg.doc_verbose %}
 <pre>{{ target_pkg.doc_verbose }}</pre>
 {% endif %}

@@ -4,7 +4,8 @@
 {%- endblock title %}
 
 {% block content %}
-<h3>{{ interface.doc_summary }}</h3>
+<h2>{{ interface.name }}</h2>
+<h5>{{ interface.doc_summary }}</h5>
 {% if interface.doc_verbose %}
 <pre>{{ interface.doc_verbose }}</pre>
 {% endif %}
