@@ -214,6 +214,23 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.parent = kwargs.pop('parent')
         self.parent.add_child(self)
         self.children = OrderedDict()
+        self._computed_width = None
+
+    def compute_attr(self, attr_name):
+        """Compute the raw value of an attr, recursively computing the value of a linked attr."""
+        attr = getattr(self, attr_name)
+        computed_attr_name = F"_computed_{attr_name}"
+        current_computed_attr = getattr(self, computed_attr_name)
+        if isinstance(attr, int):
+            setattr(self, computed_attr_name, attr)
+        elif not isinstance(attr, int) and not current_computed_attr:
+            setattr(self, computed_attr_name, attr.compute_attr(attr_name))
+
+        return getattr(self, computed_attr_name)
+
+    def compute_width(self):
+        """Compute the raw width of this YisNode."""
+        self.compute_attr('width')
 
     def render_doc_verbose(self, indent_width):
         """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
@@ -283,13 +300,24 @@ class Pkg(YisNode):
         """Find and resolve links between types starting at localparms, then enums, then structs."""
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
+        self._link_localparams()
+        self._link_enums()
+        self._link_structs()
+
+    def _link_localparams(self):
+        """Link localparam widths and values, then compute absolute widths and values."""
         for localparam in self.localparams.values():
             localparam.resolve_width_links()
             localparam.resolve_value_links()
+            localparam.compute_width()
+            localparam.compute_value()
 
+    def _link_enums(self):
         for enum in self.enums.values():
             enum.resolve_width_links()
+            enum.compute_width()
 
+    def _link_structs(self):
         for struct in self.structs.values():
             struct.resolve_width_links()
             struct.resolve_type_links()
@@ -426,9 +454,14 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.value = kwargs.pop('value')
+        self._computed_value = None
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
+
+    def compute_value(self):
+        """Computing localparam value is straightforward - use YisNode.compute_attr to resolve value."""
+        self.compute_attr('value')
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
