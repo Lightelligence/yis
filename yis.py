@@ -6,10 +6,10 @@ import sys
 import os
 import re
 import textwrap
-import yamale
 from collections import OrderedDict
 from datetime import date
 
+import yamale
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import yaml
@@ -28,7 +28,7 @@ PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
 ################################################################################
 # Helpers
 
-class YisFileFilterAction(argparse.Action):
+class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
     """
     Having some bazel dependency issues where some deps aren't getting built.
     It's easier (and hackier) to solve this by just adding these deps to the genrule srcs,
@@ -126,7 +126,7 @@ class Yis:
                 new_pkg = Pkg(log=self.log,
                               name=pkg_name,
                               parent=self,
-                              source_file = fname,
+                              source_file=fname,
                               **data)
                 self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
@@ -180,17 +180,20 @@ class Yis:
         template_directory = "rtl"
         if self.options.gen_html:
             template_directory = "html"
-        
+
         template_name = "pkg"
         if self._block_interface:
             template_name = "intf"
-        
+
         template_name = os.path.join(template_directory, template_name)
-        
+
         self.log.debug("Rendering %s with %s", self, template_name)
         template = env.get_template(template_name)
         target_pkg = next(reversed(self._pkgs.values()))
-        output_content = template.render(year=year, interface=self._block_interface, pkgs=self._pkgs, target_pkg=target_pkg)
+        output_content = template.render(year=year,
+                                         interface=self._block_interface,
+                                         pkgs=self._pkgs,
+                                         target_pkg=target_pkg)
 
         with open(output_file, 'w') as fileh:
             self.log.info(F"Writing {os.path.abspath(output_file)}")
@@ -232,6 +235,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
 
     def html_anchor(self):
+        """Build a parent hierarchy in order to build HTML anchors."""
         anchor_hierarchy = []
         parent = self
         while parent:
@@ -239,7 +243,7 @@ class YisNode: # pylint: disable=too-few-public-methods
                 break
             anchor_hierarchy.append(parent.name)
             parent = parent.parent
-        return "__".join([ah for ah in reversed(anchor_hierarchy)])
+        return "__".join([ah for ah in reversed(anchor_hierarchy)]) # FIXME # pylint: disable=unnecessary-comprehension,fixme,line-too-long
 
 
 class Pkg(YisNode):
@@ -281,6 +285,7 @@ class Pkg(YisNode):
         self.finished_link = True
         for localparam in self.localparams.values():
             localparam.resolve_width_links()
+            localparam.resolve_value_links()
 
         for enum in self.enums.values():
             enum.resolve_width_links()
@@ -347,6 +352,7 @@ class PkgItemBase(YisNode):
             parent = parent.parent
 
     def html_link_attribute(self, attr_name):
+        """Build HTML string to render for an attribute that can be linked (e.g. width)."""
         attr = getattr(self, attr_name)
         if not isinstance(attr, PkgItemBase):
             if attr is None:
@@ -356,42 +362,57 @@ class PkgItemBase(YisNode):
         my_root = self.get_parent_pkg()
         ref_root = attr.get_parent_pkg()
         relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
-        
-        href_target=os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+
+        href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{attr.name}</a>'
 
     def resolve_width_links(self):
-        """Resolve links in width. Resolving links in value gets dicey."""
-        # If self.width is already an int, don't try to resolve a link
-        if not isinstance(self.width, int):
-            self.log.debug("%s, width %s is a type that must be linked", self.name, self.width)
+        """Resolve width links. A width can only be an int or a localparam, so call resolve_localparam_links."""
+        self._resolve_localparam_links('width')
+
+    def resolve_value_links(self):
+        """Resolve value links. A value can only be an int or a localparam, so call resolve_localparam_links."""
+        self._resolve_localparam_links('value')
+
+    def _resolve_localparam_links(self, attr_name):
+        """Resolve links to localparams for the specified object attr."""
+        valid_attrs = ['width', 'value']
+        if attr_name not in valid_attrs:
+            raise ValueError(F"Can't resolve localparam for {attr_name}, only {valid_attrs} are allowed")
+
+        # If attr is already an int, don't try to resolve a link
+        attr = getattr(self, attr_name)
+        if not isinstance(attr, int):
+            self.log.debug("%s, %s %s is a type that must be linked", self.name, attr_name, attr)
             localparams = self._get_parent_localparams()
-            match = PKG_SCOPE_REGEXP.match(self.width)
+            match = PKG_SCOPE_REGEXP.match(attr)
             # If it looks like we're scoping out of pkg
             if match:
                 link_pkg = match.group(1)
                 link_symbol = match.group(2)
                 try:
                     self.log.debug("Attempting to resolve external %s::%s", link_pkg, link_symbol)
-                    self.width = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
-                                                                               link_symbol,
-                                                                               ["localparams"])
+                    new_attr = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
+                                                                             link_symbol,
+                                                                             ["localparams"])
+                    setattr(self, attr_name, new_attr)
                 except LinkError:
-                    self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+                    self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, attr))
             # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-            elif self.width in localparams:
-                self.log.debug("%s is a valid localparam in pkg %s", self.width, self.get_parent_pkg().name)
-                self.width = localparams[self.width]
+            elif attr in localparams:
+                self.log.debug("%s is a valid localparam in pkg %s", attr_name, self.get_parent_pkg().name)
+                setattr(self, attr_name, localparams[attr])
             else:
-                self.log.error(F"Couldn't resolve a width link for {self.name} to {self.width}")
+                self.log.error(F"Couldn't resolve a {attr_name} link for {self.name} to {attr}")
 
-    def _get_render_width(self):
-        if not isinstance(self.width, int) and (self.get_parent_pkg() is not self.width.get_parent_pkg()):
-            ret_str = F"{self.width.parent.name}::{self.width.name}"
-        elif isinstance(self.width, int):
-            ret_str = self.width
+    def _get_render_attr(self, attr_name):
+        attr = getattr(self, attr_name)
+        if not isinstance(attr, int) and (self.get_parent_pkg() is not attr.get_parent_pkg()):
+            ret_str = F"{attr.parent.name}::{attr.name}"
+        elif isinstance(attr, int):
+            ret_str = attr
         else:
-            ret_str = self.width.name
+            ret_str = attr.name
         return ret_str
 
 
@@ -421,8 +442,9 @@ class PkgLocalparam(PkgItemBase):
         doc_verbose = self.render_doc_verbose(2)
         if doc_verbose:
             ret_arr.append(doc_verbose)
-        render_width = self._get_render_width()
-        ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {self.value}; // {self.doc_summary}")
+        render_width = self._get_render_attr('width')
+        render_value = self._get_render_attr('value')
+        ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {render_value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
 
@@ -454,7 +476,7 @@ class PkgEnum(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
 
-        render_width = self._get_render_width()
+        render_width = self._get_render_attr('width')
         ret_arr.append(F"type enum logic [{render_width} - 1:0] {{")
 
         # Render each enum_value, note they are 2 indented farther
@@ -621,7 +643,7 @@ class PkgStructField(PkgItemBase):
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
         if self.sv_type in ["logic", "wire"]:
-            render_width = self._get_render_width()
+            render_width = self._get_render_attr('width')
             render_type = F"{self.sv_type} [{render_width} - 1:0]"
             if render_width == "1":
                 render_type = F"{self.sv_type}"
@@ -765,6 +787,7 @@ class IntfConnComp(IntfItemBase):
                                    F"{doc_type} link unless \"type\" points to a valid type")
 
     def html_link_attribute(self, attr_name):
+        """Build HTML string to render for an attribute that can be linked (e.g. width)."""
         attr = getattr(self, attr_name)
         if not isinstance(attr, PkgItemBase):
             if attr is None:
@@ -774,8 +797,8 @@ class IntfConnComp(IntfItemBase):
         my_root = self.parent.parent # Assumption intf is two levels up
         ref_root = attr.get_parent_pkg()
         relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
-        
-        href_target=os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+
+        href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{attr.name}</a>'
 
 def main(options, log):

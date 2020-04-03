@@ -22,7 +22,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   // definition for the whole long-form documentation.
   localparam [6 - 1:0] ANOTHER_PARAM = 2; // This is a different parameter than the first.
   
-  localparam [HERO_WIDTH - 1:0] THIRD_PARAM = 134; // This paramter has a paramterized width from the first param.
+  localparam [HERO_WIDTH - 1:0] THIRD_PARAM = ANOTHER_PARAM; // This paramter has a paramterized width from the first param and a value from the second.
   
   /////////////////////////////////////////////////////////////////////////////
   // enums

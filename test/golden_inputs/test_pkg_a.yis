@@ -23,8 +23,8 @@ localparams:
 
   - name: THIRD_PARAM
     width: HERO_WIDTH
-    value: 134
-    doc_summary: This paramter has a paramterized width from the first param.
+    value: ANOTHER_PARAM
+    doc_summary: This paramter has a paramterized width from the first param and a value from the second.
 enums:
   - name: CYCLE_TYPE_E
     width: 4
