@@ -48,7 +48,7 @@
 <pre>{{ enum.doc_verbose }}</pre>
 {% endif %}
 <p> WIDTH={{ enum.html_link_attribute('width') }}</p>
-<p> COMPUTED WIDTH={{ enum._computed_width }}</p>
+<p> RAW WIDTH={{ enum._computed_width }}</p>
 <table class="table table-striped table-bordered table-sm">
   <thead>
     <tr>
@@ -76,12 +76,14 @@
 {% if struct.doc_verbose %}
 <pre>{{ struct.doc_verbose }}</pre>
 {% endif %}
+<p> RAW WIDTH={{ struct._computed_width }}</p>
 <table class="table table-striped table-bordered table-sm">
   <thead>
     <tr>
       <th class="th-sm">Name</th>
       <th class="th-sm">Type</th>
       <th class="th-sm">Width</th>
+      <th class="th-sm">Raw Width</th>
       <th class="th-sm">Doc Summary</th>
       <th class="th-sm">Doc Verbose</th>
     </tr>
@@ -91,6 +93,7 @@
       <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
       <td>{{ ev.html_link_attribute('sv_type') }}</td>
       <td>{{ ev.html_link_attribute('width') }}</td>
+      <td>{{ ev._computed_width }}</td>
       <td>{{ ev.doc_summary }}</td>
       <td>{% if ev.doc_verbose %}<pre>{{ ev.doc_verbose }}</pre>{% endif %}</td>
   </tr>

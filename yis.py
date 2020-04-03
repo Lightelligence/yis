@@ -228,10 +228,6 @@ class YisNode: # pylint: disable=too-few-public-methods
 
         return getattr(self, computed_attr_name)
 
-    def compute_width(self):
-        """Compute the raw width of this YisNode."""
-        self.compute_attr('width')
-
     def render_doc_verbose(self, indent_width):
         """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
         indent_spaces = " " * indent_width
@@ -322,6 +318,7 @@ class Pkg(YisNode):
             struct.resolve_width_links()
             struct.resolve_type_links()
             struct.resolve_doc_links()
+            struct.compute_width()
 
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
         """Resolve links leaving this pkg."""
@@ -459,9 +456,14 @@ class PkgLocalparam(PkgItemBase):
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
 
+    def compute_width(self):
+        """Compute the raw width of this localparam."""
+        self.compute_attr('width')
+        return self._computed_width
+
     def compute_value(self):
         """Computing localparam value is straightforward - use YisNode.compute_attr to resolve value."""
-        self.compute_attr('value')
+        return self.compute_attr('value')
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
@@ -496,6 +498,17 @@ class PkgEnum(PkgItemBase):
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, width {self.width}, values:\n    -{values}"
+
+    def compute_width(self):
+        """Compute the raw width of this enum."""
+        if isinstance(self.width, int):
+            self._computed_width = self.width
+        else:
+            # We need a localparam value for the enum width
+            # For example, if you have a localparam [31:0] MY_PARAM = 5, then an enum of width MY_PARAM,
+            # the enum width is the 5, not the localparam width
+            self._computed_width = self.width.compute_value()
+        return self._computed_width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this enum.
@@ -577,6 +590,14 @@ class PkgStruct(PkgItemBase):
         """Resolve links to doc_verbose and doc_summary for each field in a struct."""
         for child in self.children.values():
             child.resolve_doc_links()
+
+    def compute_width(self):
+        """Compute the width of a struct by computing width of all fields."""
+        cumulative_width = 0
+        for child in self.children.values():
+            cumulative_width += child.compute_width()
+        self._computed_width = cumulative_width
+        return self._computed_width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this struct.
@@ -676,6 +697,17 @@ class PkgStructField(PkgItemBase):
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"type.{doc_type}\" "
                                    F"{doc_type} link unless \"type\" field points to a valid type")
+
+    def compute_width(self):
+        """Compute width by looking at width and type."""
+        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+            self._computed_width = self.width
+        elif self.sv_type in ["logic", "wire"]:
+            self._computed_width = self.width.compute_width()
+        else:
+            self._computed_width = self.sv_type.compute_width()
+
+        return self._computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
