@@ -305,12 +305,22 @@ class Pkg(YisNode):
         for localparam in self.localparams.values():
             localparam.resolve_width_links()
             localparam.resolve_value_links()
+
+        self.log.exit_if_warnings_or_errors("Errors linking localparams")
+
+        # Compute values after all localparams have been linked to ensure you don't try to compute width
+        # from a localparam that hasn't been linked yet.
+        for localparam in self.localparams.values():
             localparam.compute_width()
             localparam.compute_value()
 
     def _link_enums(self):
         for enum in self.enums.values():
             enum.resolve_width_links()
+
+        self.log.exit_if_warnings_or_errors("Errors linking enums")
+
+        for enum in self.enums.values():
             enum.compute_width()
 
     def _link_structs(self):
@@ -318,6 +328,12 @@ class Pkg(YisNode):
             struct.resolve_width_links()
             struct.resolve_type_links()
             struct.resolve_doc_links()
+
+        self.log.exit_if_warnings_or_errors("Errors linkings structs")
+
+        # Compute values after all structs have been linked to ensure you don't try to compute width
+        # from a struct that hasn't been linked yet.
+        for struct in self.structs.values():
             struct.compute_width()
 
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
@@ -645,8 +661,9 @@ class PkgStructField(PkgItemBase):
         return F"{self.sv_type.name}"
 
     def resolve_width_links(self):
-        """Override superclass resolve_width_links to not call """
+        """Override superclass resolve_width_links to not call if type isn't a logic or a wire"""
         if self.sv_type in ["logic", "wire"]:
+            self.log.debug("Resolving a width link for %s width %s", self.name, self.width)
             super().resolve_width_links()
 
     def resolve_type_links(self):
@@ -700,6 +717,7 @@ class PkgStructField(PkgItemBase):
 
     def compute_width(self):
         """Compute width by looking at width and type."""
+        self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
             self._computed_width = self.width
         elif self.sv_type in ["logic", "wire"]:
