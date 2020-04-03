@@ -43,7 +43,7 @@
 {% if enum.doc_verbose %}
 <pre>{{ enum.doc_verbose }}</pre>
 {% endif %}
-<p> WIDTH={{ enum.width }}</p>
+<p> WIDTH={{ enum.html_link_attribute('width') }}</p>
 <table class="table table-striped table-bordered table-sm">
   <thead>
     <tr>
