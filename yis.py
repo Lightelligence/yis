@@ -214,12 +214,12 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.parent = kwargs.pop('parent')
         self.parent.add_child(self)
         self.children = OrderedDict()
-        self._computed_width = None
+        self.computed_width = None
 
     def compute_attr(self, attr_name):
         """Compute the raw value of an attr, recursively computing the value of a linked attr."""
         attr = getattr(self, attr_name)
-        computed_attr_name = F"_computed_{attr_name}"
+        computed_attr_name = F"computed_{attr_name}"
         current_computed_attr = getattr(self, computed_attr_name)
         if isinstance(attr, int):
             setattr(self, computed_attr_name, attr)
@@ -467,7 +467,7 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.value = kwargs.pop('value')
-        self._computed_value = None
+        self.computed_value = None
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
@@ -475,7 +475,7 @@ class PkgLocalparam(PkgItemBase):
     def compute_width(self):
         """Compute the raw width of this localparam."""
         self.compute_attr('width')
-        return self._computed_width
+        return self.computed_width
 
     def compute_value(self):
         """Computing localparam value is straightforward - use YisNode.compute_attr to resolve value."""
@@ -518,13 +518,13 @@ class PkgEnum(PkgItemBase):
     def compute_width(self):
         """Compute the raw width of this enum."""
         if isinstance(self.width, int):
-            self._computed_width = self.width
+            self.computed_width = self.width
         else:
             # We need a localparam value for the enum width
             # For example, if you have a localparam [31:0] MY_PARAM = 5, then an enum of width MY_PARAM,
             # the enum width is the 5, not the localparam width
-            self._computed_width = self.width.compute_value()
-        return self._computed_width
+            self.computed_width = self.width.compute_value()
+        return self.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this enum.
@@ -612,8 +612,8 @@ class PkgStruct(PkgItemBase):
         cumulative_width = 0
         for child in self.children.values():
             cumulative_width += child.compute_width()
-        self._computed_width = cumulative_width
-        return self._computed_width
+        self.computed_width = cumulative_width
+        return self.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this struct.
@@ -719,13 +719,13 @@ class PkgStructField(PkgItemBase):
         """Compute width by looking at width and type."""
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
-            self._computed_width = self.width
+            self.computed_width = self.width
         elif self.sv_type in ["logic", "wire"]:
-            self._computed_width = self.width.compute_width()
+            self.computed_width = self.width.compute_value()
         else:
-            self._computed_width = self.sv_type.compute_width()
+            self.computed_width = self.sv_type.compute_width()
 
-        return self._computed_width
+        return self.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
@@ -764,6 +764,14 @@ class Intf(YisNode):
         for child in self.children.values():
             child.resolve_links()
 
+        cumulative_width = 0
+        for child in self.children.values():
+            cumulative_width += child.compute_width()
+        self.computed_width = cumulative_width
+
+        for child in self.children.values():
+            self.log.info(F"Child {child.name}, width {child.computed_width}")
+
 
 class IntfItemBase(YisNode):
     """Base class for anything contained in an Intf."""
@@ -786,6 +794,16 @@ class IntfConn(IntfItemBase):
         """Resolve links for each ConnComp child."""
         for child in self.children.values():
             child.resolve_links()
+
+    def compute_width(self):
+        """Compute width for this Connection by iterating through all children."""
+        self.log.info("Computing width for Connection %s", self.name)
+        cumulative_width = 0
+        for child in self.children.values():
+            cumulative_width += child.compute_width()
+        self.computed_width = cumulative_width
+        self.log.info("Computed width for this Connection is %s", self.computed_width)
+        return self.computed_width
 
 
 class IntfConnComp(IntfItemBase):
@@ -872,6 +890,18 @@ class IntfConnComp(IntfItemBase):
                     self.log.error(F"{self.parent.name}.{self.name} "
                                    F"can't use a \"type.{doc_type}\" "
                                    F"{doc_type} link unless \"type\" points to a valid type")
+
+    def compute_width(self):
+        """Compute width by looking at width and type."""
+        self.log.info("Computing width for Component %s - width is %s, type is %s", self.name, self.width, self.sv_type)
+        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+            self.computed_width = self.width
+        elif self.sv_type in ["logic", "wire"]:
+            self.computed_width = self.width.computed_width
+        else:
+            self.computed_width = self.sv_type.computed_width
+        self.log.info("Computed width for this Component is %s", self.computed_width)
+        return self.computed_width
 
     def html_link_attribute(self, attr_name):
         """Build HTML string to render for an attribute that can be linked (e.g. width)."""
