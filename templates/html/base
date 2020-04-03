@@ -11,8 +11,10 @@
   {% block html_head %}{% endblock %}
 </head>
 <body>
+  <a href="/">Go home...</a>
+  <br/>
   <a href=".">Go to parent directory...</a>
-
+  </br>
   <div class="container-fluid">
     {% block content %}{% endblock %}
   </div>
