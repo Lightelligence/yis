@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  <title>test_intf_a - YIS</title>
+  
+</head>
+<body>
+  <a href="/">Go home...</a>
+  <br/>
+  <a href=".">Go to parent directory...</a>
+  </br>
+  <div class="container-fluid">
+    
+<h2>test_intf_a</h2>
+<h5>This is my first real interface file</h5>
+
+<p> Calculated Width = 144 </p>
+<br/>
+
+    <h4 id="test_intf_a__mem_write"><a href="#test_intf_a__mem_write">mem_write</a></h4>
+    <h5>Memory write interface between TRY and BOG</h5>
+      
+      <pre> Boring info about memories. And now
+I'm on a new line
+ </pre>
+      
+      <p> Calculated Width = 48 </p>
+      <table class="table table-striped table-bordered table-sm">
+        <thead>
+          <tr>
+            <th class="th-sm">Name</th>
+            <th class="th-sm">Type</th>
+            <th class="th-sm">Width</th>
+            <th class="th-sm">Calculated Width</th>
+            <th class="th-sm">Doc Summary</th>
+            <th class="th-sm">Doc Verbose</th>
+          </tr>
+        </thead>
+      
+        <tr>
+            <td id="test_intf_a__mem_write__mwc__try__hero_write"><a href="#test_intf_a__mem_write__mwc__try__hero_write">mwc__try__hero_write</a></td>
+            <td><a href="./test_pkg_a_pkg.html#test_pkg_a__hero_write_t">test_pkg_a_pkg::hero_write_t</a></td>
+            <td></td>
+            <td>47</td>
+            <td>hero write from BOG to TRY</td>
+            <td><pre>This is a verbose doc. I'm writing it to provide that my verbose
+doc links are working correctly.
+</pre></td>
+        </tr>
+      
+        <tr>
+            <td id="test_intf_a__mem_write__try__bog_hero__ack"><a href="#test_intf_a__mem_write__try__bog_hero__ack">try__bog_hero__ack</a></td>
+            <td>logic</td>
+            <td>1</td>
+            <td>1</td>
+            <td>ACK the hero writes from BOG to TRY to refund BOG hero credits</td>
+            <td></td>
+        </tr>
+      
+      </table>
+
+    <h4 id="test_intf_a__csr"><a href="#test_intf_a__csr">csr</a></h4>
+    <h5>CSR interface between TRY and BOG</h5>
+      
+      <p> Calculated Width = 96 </p>
+      <table class="table table-striped table-bordered table-sm">
+        <thead>
+          <tr>
+            <th class="th-sm">Name</th>
+            <th class="th-sm">Type</th>
+            <th class="th-sm">Width</th>
+            <th class="th-sm">Calculated Width</th>
+            <th class="th-sm">Doc Summary</th>
+            <th class="th-sm">Doc Verbose</th>
+          </tr>
+        </thead>
+      
+        <tr>
+            <td id="test_intf_a__csr__try__bog__csr_req"><a href="#test_intf_a__csr__try__bog__csr_req">try__bog__csr_req</a></td>
+            <td>logic</td>
+            <td><a href="./test_pkg_b_pkg.html#test_pkg_b__NEW_PARAM">test_pkg_b_pkg::NEW_PARAM</a></td>
+            <td>6</td>
+            <td>This should link up</td>
+            <td></td>
+        </tr>
+      
+        <tr>
+            <td id="test_intf_a__csr__bog__try__csr_rsp"><a href="#test_intf_a__csr__bog__try__csr_rsp">bog__try__csr_rsp</a></td>
+            <td><a href="./test_pkg_b_pkg.html#test_pkg_b__another_struct_t">test_pkg_b_pkg::another_struct_t</a></td>
+            <td></td>
+            <td>90</td>
+            <td>Testing inter-package dependencies within struct fields.</td>
+            <td></td>
+        </tr>
+      
+      </table>
+
+
+  </div>
+
+  <div id="footer">
+    
+    &copy; Copyright 2020 by <a href="http://lightelligence.ai">Lightelligence</a>.
+    
+  </div>
+
+</body>
+

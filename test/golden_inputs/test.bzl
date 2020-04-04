@@ -1,4 +1,4 @@
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_html_pkg")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_html_pkg", "yis_html_intf")
 
 def golden_rtl_pkg_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
@@ -42,6 +42,27 @@ def golden_html_pkg_test(name, pkg_deps):
         tags = ["gold"],
     )
 
+def golden_html_intf_test(name, pkg_deps):
+    """Compares a generated file to a statically checked in file."""
+
+    yis_html_intf(
+        name = "{}".format(name),
+        pkg_deps = pkg_deps,
+        intf = ":{}.yis".format(name),
+    )
+
+    native.sh_test(
+        name = "{}_html_intf_gold_test".format(name),
+        size = "small",
+        srcs = ["//digital/rtl/scripts/yis/test:passthrough.sh"],
+        data = [
+            ":{}_rtl_intf_html".format(name),
+            ":{}_rtl_intf.html".format(name),
+        ],
+        args = ["diff $(location :{name}_rtl_intf_html) $(location {name}_rtl_intf.html)".format(name=name)],
+        tags = ["gold"],
+    )
+
 def golden_pkg_tests(deps):
     """Run all golden pkg tests, allow pkg dependencies."""
     for key, row in deps.items():
@@ -50,6 +71,5 @@ def golden_pkg_tests(deps):
 
 def golden_intf_tests(deps):
     """Run all golden intf tests, allow pkg dependencies."""
-    pass
-    # for key, row in deps.items():
-    #     golden_html_test(key, row)
+    for key, row in deps.items():
+        golden_html_intf_test(key, row)

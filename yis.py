@@ -626,7 +626,7 @@ class PkgStruct(PkgItemBase):
         """
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
-        doc_verbose = self.render_doc_verbose(4)
+        doc_verbose = self.render_doc_verbose(2)
         if doc_verbose:
             ret_arr.append(doc_verbose)
 
@@ -769,9 +769,6 @@ class Intf(YisNode):
             cumulative_width += child.compute_width()
         self.computed_width = cumulative_width
 
-        for child in self.children.values():
-            self.log.info(F"Child {child.name}, width {child.computed_width}")
-
 
 class IntfItemBase(YisNode):
     """Base class for anything contained in an Intf."""
@@ -797,12 +794,10 @@ class IntfConn(IntfItemBase):
 
     def compute_width(self):
         """Compute width for this Connection by iterating through all children."""
-        self.log.info("Computing width for Connection %s", self.name)
         cumulative_width = 0
         for child in self.children.values():
             cumulative_width += child.compute_width()
         self.computed_width = cumulative_width
-        self.log.info("Computed width for this Connection is %s", self.computed_width)
         return self.computed_width
 
 
@@ -893,14 +888,12 @@ class IntfConnComp(IntfItemBase):
 
     def compute_width(self):
         """Compute width by looking at width and type."""
-        self.log.info("Computing width for Component %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
             self.computed_width = self.width
         elif self.sv_type in ["logic", "wire"]:
             self.computed_width = self.width.computed_width
         else:
             self.computed_width = self.sv_type.computed_width
-        self.log.info("Computed width for this Component is %s", self.computed_width)
         return self.computed_width
 
     def html_link_attribute(self, attr_name):

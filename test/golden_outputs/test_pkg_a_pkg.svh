@@ -45,7 +45,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   /////////////////////////////////////////////////////////////////////////////
   
   // This is a verbose doc. I'm writing it to provide that my verbose
-    // doc links are working correctly.
+  // doc links are working correctly.
   typedef struct packed {
     // I'm writing this verbose documentation so that we have something to
     // attempt to link in for cycle_type.
