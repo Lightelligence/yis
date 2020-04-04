@@ -1,3 +1,4 @@
+# -*- yaml -*-
 ---
 doc_summary: Example of what a dependent package looks like
 localparams:
@@ -14,7 +15,7 @@ structs:
                   type: logic
                   width: test_pkg_a::HERO_WIDTH
                 - name: fieldb
-                  doc_summary: type.doc_sumary
+                  doc_summary: type.doc_summary
                   type: test_pkg_a::hero_write_t
                 - name: fieldc
                   doc_summary: type.doc_summary

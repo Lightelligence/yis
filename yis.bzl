@@ -11,7 +11,7 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
 def yis_html_pkg(name, pkg_deps, pkg):
     expected_name = pkg.rsplit(":")[1][:-4]
     if name != expected_name:
-        fail("Expect yis target name to be: {}".format(expected_name))
+        fail("Expect yis target name to be: {}, not {}".format(expected_name, name))
     native.genrule(name = "{}_pkg_html".format(name),
                    srcs = pkg_deps + [pkg] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
                    outs = ["{}_pkg.html".format(name)],
