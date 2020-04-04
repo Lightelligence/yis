@@ -256,7 +256,7 @@ class YisNode: # pylint: disable=too-few-public-methods
                 break
             anchor_hierarchy.append(parent.name)
             parent = parent.parent
-        return "__".join([ah for ah in reversed(anchor_hierarchy)]) # FIXME # pylint: disable=unnecessary-comprehension,fixme,line-too-long
+        return "__".join(reversed(anchor_hierarchy))
 
 
 class Pkg(YisNode):
