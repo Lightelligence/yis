@@ -303,8 +303,7 @@ class Pkg(YisNode):
     def _link_localparams(self):
         """Link localparam widths and values, then compute absolute widths and values."""
         for localparam in self.localparams.values():
-            localparam.resolve_width_links()
-            localparam.resolve_value_links()
+            localparam.resolve_links()
 
         self.log.exit_if_warnings_or_errors("Errors linking localparams")
 
@@ -316,7 +315,7 @@ class Pkg(YisNode):
 
     def _link_enums(self):
         for enum in self.enums.values():
-            enum.resolve_width_links()
+            enum.resolve_links()
 
         self.log.exit_if_warnings_or_errors("Errors linking enums")
 
@@ -325,9 +324,7 @@ class Pkg(YisNode):
 
     def _link_structs(self):
         for struct in self.structs.values():
-            struct.resolve_width_links()
-            struct.resolve_type_links()
-            struct.resolve_doc_links()
+            struct.resolve_links()
 
         self.log.exit_if_warnings_or_errors("Errors linkings structs")
 
@@ -411,11 +408,15 @@ class PkgItemBase(YisNode):
         href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
-    def resolve_width_links(self):
+    def resolve_links(self):
+        """Resolve links in widths and values."""
+        self._resolve_width_links()
+
+    def _resolve_width_links(self):
         """Resolve width links. A width can only be an int or a localparam, so call resolve_localparam_links."""
         self._resolve_localparam_links('width')
 
-    def resolve_value_links(self):
+    def _resolve_value_links(self):
         """Resolve value links. A value can only be an int or a localparam, so call resolve_localparam_links."""
         self._resolve_localparam_links('value')
 
@@ -471,6 +472,11 @@ class PkgLocalparam(PkgItemBase):
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
+
+    def resolve_links(self):
+        """Call superclass to resolve width links, then resolve type links."""
+        super().resolve_links()
+        self._resolve_value_links()
 
     def compute_width(self):
         """Compute the raw width of this localparam."""
@@ -591,21 +597,32 @@ class PkgStruct(PkgItemBase):
         fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
 
-    def resolve_width_links(self):
+    def resolve_links(self):
+        """Resolve links for type and width, then check for width/type conflicts."""
+        self._resolve_width_links()
+        self._resolve_type_links()
+        self._resolve_doc_links()
+        self._check_type_width_conflicts()
+
+    def _resolve_width_links(self):
         """Override superclass definition of resolve_width_links to know how to resolve width links in each field."""
         for child in self.children.values():
             child.resolve_width_links()
 
-    def resolve_type_links(self):
+    def _resolve_type_links(self):
         """Resolve type links for each field in a struct."""
         for child in self.children.values():
             if child.sv_type not in ['logic', 'wire']:
                 child.resolve_type_links()
 
-    def resolve_doc_links(self):
+    def _resolve_doc_links(self):
         """Resolve links to doc_verbose and doc_summary for each field in a struct."""
         for child in self.children.values():
             child.resolve_doc_links()
+
+    def _check_type_width_conflicts(self):
+        for child in self.children.values():
+            child.check_type_width_conflicts()
 
     def compute_width(self):
         """Compute the width of a struct by computing width of all fields."""
@@ -664,7 +681,7 @@ class PkgStructField(PkgItemBase):
         """Override superclass resolve_width_links to not call if type isn't a logic or a wire"""
         if self.sv_type in ["logic", "wire"]:
             self.log.debug("Resolving a width link for %s width %s", self.name, self.width)
-            super().resolve_width_links()
+            super()._resolve_width_links()
 
     def resolve_type_links(self):
         """Resolve links in type."""
@@ -714,6 +731,12 @@ class PkgStructField(PkgItemBase):
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"type.{doc_type}\" "
                                    F"{doc_type} link unless \"type\" field points to a valid type")
+
+    def check_type_width_conflicts(self):
+        """Check to see if this struct field defines both a width and a non-logic/wire type."""
+        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+            self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
+                           "a non-logic/wire type. Only logic/wire can have a width")
 
     def compute_width(self):
         """Compute width by looking at width and type."""
@@ -791,6 +814,7 @@ class IntfConn(IntfItemBase):
         """Resolve links for each ConnComp child."""
         for child in self.children.values():
             child.resolve_links()
+            child.check_type_width_conflicts()
 
     def compute_width(self):
         """Compute width for this Connection by iterating through all children."""
@@ -827,6 +851,12 @@ class IntfConnComp(IntfItemBase):
         # Else sv_type is a logic and it has an int width, so leave it alone
 
         self._resolve_doc_links()
+
+    def check_type_width_conflicts(self):
+        """Check to see if this struct field defines both a width and a non-logic/wire type."""
+        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+            self.log.error(F"Interface component {self.parent.name}.{self.name} has width specified for a "
+                           "non-logic/wire type. Only logic/wire can have a width")
 
     def _resolve_type_link(self):
         self.log.debug("%s, type %s must be linked" % (self.name, self.sv_type))
