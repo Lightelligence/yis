@@ -1,13 +1,13 @@
 # -*- yaml -*-
 ---
 doc_summary: This is my first real interface file
-connections:
+components:
         - name: mem_write
           doc_summary: Memory write interface between TRY and BOG
           doc_verbose: |
             Boring info about memories. And now
             I'm on a new line
-          components:
+          connections:
                 - name: mwc__try__hero_write
                   type: test_pkg_a::hero_write_t
                   doc_summary: hero write from BOG to TRY
@@ -18,7 +18,7 @@ connections:
                   doc_summary: ACK the hero writes from BOG to TRY to refund BOG hero credits
         - name: csr
           doc_summary: CSR interface between TRY and BOG
-          components:                  
+          connections:                  
                 - name: try__bog__csr_req
                   type: logic
                   width: test_pkg_b::NEW_PARAM

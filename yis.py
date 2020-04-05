@@ -774,16 +774,16 @@ class Intf(YisNode):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source_file = kwargs['source_file']
-        for row in kwargs.pop('connections'):
-            IntfConn(parent=self, log=self.log, **row)
+        for row in kwargs.pop('components'):
+            IntfComp(parent=self, log=self.log, **row)
 
     def __repr__(self):
         return (F"Intf name: {self.name}\n"
-                "Connections:\n  -{connections}\n"
-                .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
+                "Components:\n  -{components}\n"
+                .format(components="\n  -".join([repr(component) for component in self.children.values()])))
 
     def resolve_links(self):
-        """Find and resolve type links in all connections."""
+        """Find and resolve type links in all components."""
         for child in self.children.values():
             child.resolve_links()
 
@@ -798,26 +798,26 @@ class IntfItemBase(YisNode):
     pass # pylint: disable=unnecessary-pass
 
 
-class IntfConn(IntfItemBase):
-    """Definition for a Conn(ection) - a set of individual port symbols - on an interface."""
+class IntfComp(IntfItemBase):
+    """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for component in kwargs.pop('components'):
-            IntfConnComp(parent=self, log=self.log, **component)
+        for connection in kwargs.pop('connections'):
+            IntfCompConn(parent=self, log=self.log, **connection)
 
     def __repr__(self):
-        return (F"Connection name: {self.name}\n"
-                "Components:\n  -{components}\n"
-                .format(components="\n  -".join([repr(component) for component in self.children.values()])))
+        return (F"Component name: {self.name}\n"
+                "Connections:\n  -{connections}\n"
+                .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
     def resolve_links(self):
-        """Resolve links for each ConnComp child."""
+        """Resolve links for each CompConn child."""
         for child in self.children.values():
             child.resolve_links()
             child.check_type_width_conflicts()
 
     def compute_width(self):
-        """Compute width for this Connection by iterating through all children."""
+        """Compute width for this Component by iterating through all children."""
         cumulative_width = 0
         for child in self.children.values():
             cumulative_width += child.compute_width()
@@ -825,8 +825,8 @@ class IntfConn(IntfItemBase):
         return self.computed_width
 
 
-class IntfConnComp(IntfItemBase):
-    """Definition for a Comp(onent) in a Conn(ection)."""
+class IntfCompConn(IntfItemBase):
+    """Definition for a Conn(onent) in a Comp(onent)."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
@@ -835,10 +835,10 @@ class IntfConnComp(IntfItemBase):
         self._render_width = self.width
 
     def __repr__(self):
-        return F"Comp {self.name}, {self.sv_type}, {self.width}"
+        return F"Conn {self.name}, {self.sv_type}, {self.width}"
 
     def resolve_links(self):
-        """Resolve links from IntfConnComp to a package.
+        """Resolve links from IntfCompConn to a package.
 
         Note that this is similar to resolve_width_links, but only external package links are allowed here.
         """
@@ -855,7 +855,7 @@ class IntfConnComp(IntfItemBase):
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
         if self.sv_type not in ["logic", "wire"] and self.width is not None:
-            self.log.error(F"Interface component {self.parent.name}.{self.name} has width specified for a "
+            self.log.error(F"Interface connection {self.parent.name}.{self.name} has width specified for a "
                            "non-logic/wire type. Only logic/wire can have a width")
 
     def _resolve_type_link(self):

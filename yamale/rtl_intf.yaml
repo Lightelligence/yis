@@ -1,6 +1,6 @@
 doc_summary: include('doc_summary')
 doc_verbose: include('doc_verbose', required=False)
-connections: list(include('connection'))
+components: list(include('component'))
 ---
 sv_name: str(min=3, exclude='=+!@#$%^&*()-|\/?.,[{]}\`~:;')
 port_name: regex('^[a-z][a-z0-9_]{,}__[a-z][a-z0-9_]{,}__[a-z][a-z0-9_]{2,}$', name='valid port name. Valid port names are <src>__<dst>__<symbol> and must start with a letter.')
@@ -11,12 +11,12 @@ pkg_enum: regex('^[a-z][a-z0-9_]{2,}::[A-Z][A-Z0-9_]{2,}_E$', name="valid packag
 pkg_typedef: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}_t$', name="valid package scoped struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 wire_or_logic: enum('logic', 'wire')
 sv_type: any(include('wire_or_logic'), include('pkg_enum'), include('pkg_typedef'))
-connection:
+component:
   name: include('sv_name')
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
-  components: list(include('component'))
-component:
+  connections: list(include('connection'))
+connection:
   name: include('port_name')
   type: include('sv_type')
   width: any(int(min=1), include('pkg_localparam'), required=False)
