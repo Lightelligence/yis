@@ -51,7 +51,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     // attempt to link in for cycle_type.
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
-    sub_struct_t struct_reference; // Test a struct of a struct
+    sub_struct_t another_type_reference; // Test a struct of a struct
     logic [1 - 1:0] clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   

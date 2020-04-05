@@ -62,7 +62,7 @@ structs:
                   type: logic
                   width: HERO_WIDTH
                   doc_summary: width.doc_summary
-                - name: struct_reference
+                - name: another_type_reference
                   type: sub_struct_t
                   doc_summary: Test a struct of a struct
                 - name: clk_en

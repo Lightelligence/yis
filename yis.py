@@ -24,6 +24,7 @@ from scripts import cmn_logging
 ################################################################################
 # Constants
 PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
+LOGIC_OR_WIRE_REGEXP = re.compile("logic|wire|enum|struct|bit|real|input|output|interface")
 
 ################################################################################
 # Helpers
@@ -215,6 +216,19 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.parent.add_child(self)
         self.children = OrderedDict()
         self.computed_width = None
+
+    def _check_naming_conventions(self):
+        self._check_dunder_name()
+        self._check_reserved_word_name()
+
+    def _check_reserved_word_name(self):
+        if LOGIC_OR_WIRE_REGEXP.search(self.name):
+            self.log.error(F"{self.name} is not a valid name - name can't contain 'logic' or 'wire'")
+
+    def _check_dunder_name(self):
+        if "__" in self.name:
+            self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
+                           "names in this context.")
 
     def compute_attr(self, attr_name):
         """Compute the raw value of an attr, recursively computing the value of a linked attr."""
@@ -569,6 +583,10 @@ class PkgEnum(PkgItemBase):
 
 class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._check_naming_conventions()
+
     def __repr__(self):
         return F"{id(self)} {self.name}"
 
@@ -668,6 +686,7 @@ class PkgStructField(PkgItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
+        self._check_naming_conventions()
 
     def __repr__(self):
         return F"{id(self)} type {self.sv_type} width {self.width}"
@@ -833,6 +852,16 @@ class IntfCompConn(IntfItemBase):
         self.width = kwargs.pop('width', None)
         self._render_type = self.sv_type
         self._render_width = self.width
+        self._check_naming_conventions()
+
+    def _check_naming_conventions(self):
+        self._check_reserved_word_name()
+        self._check_extra_dunder_name()
+
+    def _check_extra_dunder_name(self):
+        if self.name.count("__") > 2:
+            self.log.error(F"{self.name} is not a valid name. Connection names must have exactly 2 underscores -"
+                           " one between source and destination, one between destintation and \'functional\' name")
 
     def __repr__(self):
         return F"Conn {self.name}, {self.sv_type}, {self.width}"
