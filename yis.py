@@ -9,7 +9,6 @@ import textwrap
 from collections import OrderedDict
 from datetime import date
 
-import yamale
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import yaml
@@ -17,6 +16,7 @@ try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader as Loader # pylint: disable=useless-import-alias
+import yamale
 
 ################################################################################
 from scripts import cmn_logging
