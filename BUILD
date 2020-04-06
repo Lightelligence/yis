@@ -4,7 +4,7 @@ load("//env:lt_py.bzl", "lt_py_pylint")
 load(":yis.bzl", "yis_rtl_pkg")
 
 all_jinja_templates = glob(["templates/**"])
-all_yamale_schemas = glob(["yamale/**"])
+all_yamale_schemas = glob(["yamale_schemas/**"])
 
 py_binary(
     name = "yis",
