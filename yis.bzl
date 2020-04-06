@@ -18,6 +18,7 @@ def yis_html_pkg(name, pkg_deps, pkg):
                    cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-html",
                    output_to_bindir = True,
                    tools = ["//digital/rtl/scripts/yis:yis"] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
+                   visibility = ["//visibility:public"],
                )
 
 def yis_html_intf(name, pkg_deps, intf):
@@ -31,6 +32,7 @@ def yis_html_intf(name, pkg_deps, intf):
                    cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-html",
                    output_to_bindir = True,
                    tools = ["//digital/rtl/scripts/yis:yis"],
+                   visibility = ["//visibility:public"],
                )
 
 
