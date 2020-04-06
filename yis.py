@@ -121,6 +121,7 @@ class Yis:
         try:
             self.log.info(F"Parsing pkg {fname}")
             self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_pkg.yaml', fname)
+            self.log.exit_if_warnings_or_errors("Previous errors")
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
                 pkg_name = os.path.splitext(os.path.basename(fname))[0]
@@ -139,6 +140,7 @@ class Yis:
         try:
             self.log.info(F"Parsing intf {intf_to_parse}")
             self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_intf.yaml', intf_to_parse)
+            self.log.exit_if_warnings_or_errors("Previous errors")
             with open(intf_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
                 interface_name = os.path.splitext(os.path.basename(intf_to_parse))[0]
