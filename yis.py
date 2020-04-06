@@ -230,6 +230,12 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
                            "names in this context.")
 
+    def _render_formatted_width(self, raw_type):
+        render_width = self._get_render_attr('width')
+        if render_width == 1:
+            return F"{raw_type}"
+        return F"{raw_type} [{render_width} - 1:0]"
+
     def compute_attr(self, attr_name):
         """Compute the raw value of an attr, recursively computing the value of a linked attr."""
         attr = getattr(self, attr_name)
@@ -562,8 +568,8 @@ class PkgEnum(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
 
-        render_width = self._get_render_attr('width')
-        ret_arr.append(F"type enum logic [{render_width} - 1:0] {{")
+        formatted_type = self._render_formatted_width("logic")
+        ret_arr.append(F"type enum {formatted_type} {{")
 
         # Render each enum_value, note they are 2 indented farther
         enum_value_arr = []
@@ -772,10 +778,7 @@ class PkgStructField(PkgItemBase):
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
         if self.sv_type in ["logic", "wire"]:
-            render_width = self._get_render_attr('width')
-            render_type = F"{self.sv_type} [{render_width} - 1:0]"
-            if render_width == "1":
-                render_type = F"{self.sv_type}"
+            render_type = self._render_formatted_width(self.sv_type)
         else:
             render_type = self._get_render_type()
 

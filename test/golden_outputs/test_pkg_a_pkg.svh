@@ -40,6 +40,11 @@ package test_pkg_a; // This is an example of what a package file could look like
     CYCLE_TYPE_DONE, // The command on the bus this is valid and this is the last cycle of data
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
+  type enum logic {
+    BOOL_TRUE, // This is true
+    BOOL_FALSE, // This is fals
+  } BOOL_E; // Test for an enum that is width 1
+  
   /////////////////////////////////////////////////////////////////////////////
   // structs
   /////////////////////////////////////////////////////////////////////////////
@@ -52,11 +57,11 @@ package test_pkg_a; // This is an example of what a package file could look like
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
     sub_struct_t another_type_reference; // Test a struct of a struct
-    logic [1 - 1:0] clk_en; // Clock enable for the bus
+    logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
   typedef struct packed {
-    wire [ANOTHER_PARAM - 1:0] subfield_a; // This is a different parameter than the first.
+    wire subfield_a; // Test that a width-1 wire field generates correctly
     wire [ANOTHER_PARAM - 1:0] subfield_b; // This is a different parameter than the first.
     wire [ANOTHER_PARAM - 1:0] subfield_c; // This is a different parameter than the first.
     wire [ANOTHER_PARAM - 1:0] subfield_d; // This is a different parameter than the first.

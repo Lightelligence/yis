@@ -47,6 +47,14 @@ enums:
           doc_verbose: |
                        I'm writing this verbose documentation so that we have something to attempt to link in
                        for cycle_type.
+        - name: BOOL_E
+          width: 1
+          values:
+                - name: "TRUE"
+                  doc_summary: This is true
+                - name: "FALSE"
+                  doc_summary: This is false
+          doc_summary: Test for an enum that is width 1
 structs:
         - name: hero_write_t
           doc_summary: "A struct that wraps all fields needed for a single hero write."
@@ -75,8 +83,8 @@ structs:
           fields:
                 - name: subfield_a
                   type: wire
-                  width: ANOTHER_PARAM
-                  doc_summary: width.doc_summary
+                  width: 1
+                  doc_summary: Test that a width-1 wire field generates correctly
                 - name: subfield_b
                   type: wire
                   width: ANOTHER_PARAM
