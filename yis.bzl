@@ -19,6 +19,7 @@ def yis_html_pkg(name, pkg_deps, pkg):
                    output_to_bindir = True,
                    tools = ["//digital/rtl/scripts/yis:yis"] + [pkg_dep[:-4] + "_pkg_html" for pkg_dep in pkg_deps],
                    visibility = ["//visibility:public"],
+                   tags = ["doc_export"],
                )
 
 def yis_html_intf(name, pkg_deps, intf):
@@ -33,6 +34,7 @@ def yis_html_intf(name, pkg_deps, intf):
                    output_to_bindir = True,
                    tools = ["//digital/rtl/scripts/yis:yis"],
                    visibility = ["//visibility:public"],
+                   tags = ["doc_export"],
                )
 
 
