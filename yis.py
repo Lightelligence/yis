@@ -421,7 +421,7 @@ class PkgItemBase(YisNode):
 
         my_root = self.get_parent_pkg()
         ref_root = attr.get_parent_pkg()
-        relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
+        relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
 
         pkg_prefix = ""
         if ref_root is not my_root:
@@ -970,7 +970,7 @@ class IntfCompConn(IntfItemBase):
 
         my_root = self.parent.parent # Assumption intf is two levels up
         ref_root = attr.get_parent_pkg()
-        relpath = os.path.relpath(os.path.dirname(my_root.source_file), os.path.dirname(ref_root.source_file))
+        relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
 
         pkg_prefix = ""
         if ref_root is not my_root:
