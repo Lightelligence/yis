@@ -14,10 +14,10 @@ def golden_rtl_pkg_test(name, pkg_deps):
         size = "small",
         srcs = ["//digital/rtl/scripts/yis/test:passthrough.sh"],
         data = [
-            ":{}_pkg_svh".format(name),
-            ":{}_pkg.svh".format(name),
+            ":{}_rypkg_svh".format(name),
+            ":{}_rypkg.svh".format(name),
         ],
-        args = ["diff $(location :{name}_pkg_svh) $(location {name}_pkg.svh)".format(name=name)],
+        args = ["diff $(location :{name}_rypkg_svh) $(location {name}_rypkg.svh)".format(name=name)],
         tags = ["gold"],
     )
 
@@ -35,10 +35,10 @@ def golden_html_pkg_test(name, pkg_deps):
         size = "small",
         srcs = ["//digital/rtl/scripts/yis/test:passthrough.sh"],
         data = [
-            ":{}_pkg_html".format(name),
-            ":{}_pkg.html".format(name),
+            ":{}_rypkg_html".format(name),
+            ":{}_rypkg.html".format(name),
         ],
-        args = ["diff $(location :{name}_pkg_html) $(location {name}_pkg.html)".format(name=name)],
+        args = ["diff $(location :{name}_rypkg_html) $(location {name}_rypkg.html)".format(name=name)],
         tags = ["gold"],
     )
 

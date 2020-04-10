@@ -477,9 +477,9 @@ class PkgItemBase(YisNode):
 
         pkg_prefix = ""
         if ref_root is not my_root:
-            pkg_prefix = f"{ref_root.name}_pkg::"
+            pkg_prefix = f"{ref_root.name}_rypkg::"
 
-        href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
     def resolve_links(self):
@@ -528,7 +528,7 @@ class PkgItemBase(YisNode):
     def _get_render_attr(self, attr_name):
         attr = getattr(self, attr_name)
         if not isinstance(attr, int) and (self.get_parent_pkg() is not attr.get_parent_pkg()):
-            ret_str = F"{attr.parent.name}::{attr.name}"
+            ret_str = F"{attr.parent.name}_rypkg::{attr.name}"
         elif isinstance(attr, int):
             ret_str = attr
         else:
@@ -873,7 +873,7 @@ class PkgStructField(PkgItemBase):
 
     def _get_render_type(self):
         if self.get_parent_pkg() is not self.sv_type.get_parent_pkg():
-            return F"{self.sv_type.parent.name}::{self.sv_type.name}"
+            return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
         return F"{self.sv_type.name}"
 
     def resolve_width_links(self):
@@ -1095,7 +1095,7 @@ class IntfCompConn(IntfItemBase):
             try:
                 self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
                 self.width = self.parent.resolve_symbol(link_pkg, link_symbol, ["localparams"])
-                self._render_width = F"{self.width.get_parent_pkg().name}::{self.width.name}"
+                self._render_width = F"{self.width.get_parent_pkg().name}_rypkg::{self.width.name}"
                 self.log.debug("%s width is now %s" % (self.name, self.width.name))
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
@@ -1149,9 +1149,9 @@ class IntfCompConn(IntfItemBase):
 
         pkg_prefix = ""
         if ref_root is not my_root:
-            pkg_prefix = f"{ref_root.name}_pkg::"
+            pkg_prefix = f"{ref_root.name}_rypkg::"
 
-        href_target = os.path.join(relpath, f"{ref_root.name}_pkg.html#{attr.html_anchor()}")
+        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
 def main(options, log):

@@ -2,11 +2,11 @@
 //{% set pkg=target_pkg %}
 // Description: SV Pkg generated from {{ pkg.name }}.yis by YIS
 
-`ifndef __{{ pkg.name | upper }}_PKG_SVH__
-  `define __{{ pkg.name | upper }}_PKG_SVH__
+`ifndef __{{ pkg.name | upper }}_RYPKG_SVH__
+  `define __{{ pkg.name | upper }}_RYPKG_SVH__
 
 {{ pkg.render_doc_verbose(0) }}
-package {{ pkg.name }}; // {{ pkg.doc_summary }}
+package {{ pkg.name }}_rypkg; // {{ pkg.doc_summary }}
 
   /////////////////////////////////////////////////////////////////////////////
   // localparams
@@ -33,5 +33,5 @@ package {{ pkg.name }}; // {{ pkg.doc_summary }}
   {{ struct.render_rtl_sv_pkg() }}
   {% endfor %}
 
-endpackage : {{ pkg.name }}
+endpackage : {{ pkg.name }}_rypkg
 `endif // guard
