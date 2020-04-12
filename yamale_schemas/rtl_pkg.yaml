@@ -31,6 +31,7 @@ enum:
   doc_verbose: include('doc_verbose', required=False)
 enum_value:
   name: include('enum_value_name')
+  value: int(min=0, required=False)
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
 ---

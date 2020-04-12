@@ -52,8 +52,10 @@ enums:
           values:
                 - name: "TRUE"
                   doc_summary: This is true
+                  value: 1
                 - name: "FALSE"
                   doc_summary: This is false
+                  value: 0
           doc_summary: Test for an enum that is width 1
 structs:
         - name: hero_write_t

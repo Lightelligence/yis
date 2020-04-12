@@ -538,10 +538,26 @@ class PkgEnum(PkgItemBase):
         self.width = kwargs.pop('width')
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
+        self._check_enum_value_consistency()
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, width {self.width}, values:\n    -{values}"
+
+    def _check_enum_value_consistency(self):
+        # I had a list comprehension that was way cooler, but it was hard to read
+        explicit_values = []
+        implicit_values = []
+
+        for child in self.children.values():
+            value_attr = getattr(child, 'sv_value', None)
+            if value_attr is None:
+                implicit_values.append(child)
+            else:
+                explicit_values.append(child)
+
+        if explicit_values and implicit_values:
+            self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values")
 
     def compute_width(self):
         """Compute the raw width of this enum."""
@@ -582,7 +598,8 @@ class PkgEnum(PkgItemBase):
         enum_value_arr[0] = F"  {enum_value_arr[0]}"
 
         # Strip trailing comma from last enum_value
-        enum_value_arr[-1] = enum_value_arr[-1][:-1]
+        idx_of_comma = enum_value_arr[-1].index(",")
+        enum_value_arr[-1] = enum_value_arr[-1][:idx_of_comma] + enum_value_arr[-1][idx_of_comma + 1:]
 
         ret_arr.append("\n    ".join(enum_value_arr))
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
@@ -593,10 +610,11 @@ class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.sv_value = kwargs.pop('value', None)
         self._check_naming_conventions()
 
     def __repr__(self):
-        return F"{id(self)} {self.name}"
+        return F"{id(self)} {self.name} {self.sv_value}"
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this enun value."""
@@ -608,7 +626,10 @@ class PkgEnumValue(PkgItemBase):
 
         # Strip _E from the rendered RTL name
         parent_base_name = self.parent.name[:-2]
-        ret_arr.append(F"{parent_base_name}_{self.name}, // {self.doc_summary}")
+        exp_sv_value = ""
+        if self.sv_value is not None:
+            exp_sv_value = F" = {self.sv_value}"
+        ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}, // {self.doc_summary}")
         return ret_arr
 
 

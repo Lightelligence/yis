@@ -37,12 +37,12 @@ package test_pkg_a; // This is an example of what a package file could look like
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
     CYCLE_TYPE_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
-    CYCLE_TYPE_DONE, // The command on the bus this is valid and this is the last cycle of data
+    CYCLE_TYPE_DONE // The command on the bus this is valid and this is the last cycle of data.
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
   type enum logic {
-    BOOL_TRUE, // This is true
-    BOOL_FALSE, // This is fals
+    BOOL_TRUE = 1, // This is true
+    BOOL_FALSE = 0 // This is false
   } BOOL_E; // Test for an enum that is width 1
   
   /////////////////////////////////////////////////////////////////////////////
