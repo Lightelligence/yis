@@ -1,4 +1,5 @@
 """YAML Interface Spec parser and generator."""
+# pylint: disable=too-many-lines
 ################################################################################
 # stdlib
 import argparse
@@ -290,6 +291,7 @@ class Pkg(YisNode):
         self.localparams = OrderedDict()
         self.enums = OrderedDict()
         self.structs = OrderedDict()
+        self.typedefs = OrderedDict()
         self.source_file = kwargs['source_file']
 
         for row in kwargs.get('localparams', []):
@@ -298,9 +300,11 @@ class Pkg(YisNode):
             PkgEnum(parent=self, log=self.log, **row)
         for row in kwargs.get('structs', []):
             PkgStruct(parent=self, log=self.log, **row)
+        for row in kwargs.get('typedefs', []):
+            PkgTypedef(parent=self, log=self.log, **row)
 
     def add_child(self, child):
-        """Override super add_child to add in differentiation between localparams, enums, and structs."""
+        """Override super add_child to add in differentiation between localparams, enums, structs, and typedefs."""
         super().add_child(child)
 
         self.children[child.name] = child
@@ -308,19 +312,22 @@ class Pkg(YisNode):
             self.localparams[child.name] = child
         elif isinstance(child, PkgEnum):
             self.enums[child.name] = child
+        elif isinstance(child, PkgTypedef):
+            self.typedefs[child.name] = child
         elif isinstance(child, PkgStruct):
             self.structs[child.name] = child
         else:
             raise ValueError(F"Can't add {child.name} to pkg {self.name} becuase it is a {type(child)}. "
-                             "Can only add localparams, enums, and structs.")
+                             "Can only add localparams, enums, structs, and typedefs.")
 
     def resolve_links(self):
-        """Find and resolve links between types starting at localparms, then enums, then structs."""
+        """Find and resolve links between types starting at localparms, then enums, then structs, then typdefs."""
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
         self._link_localparams()
         self._link_enums()
         self._link_structs()
+        self._link_typedefs()
 
     def _link_localparams(self):
         """Link localparam widths and values, then compute absolute widths and values."""
@@ -355,6 +362,10 @@ class Pkg(YisNode):
         for struct in self.structs.values():
             struct.compute_width()
 
+    def _link_typedefs(self):
+        for typedef in self.typedefs.values():
+            typedef.resolve_links()
+
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
         """Resolve links leaving this pkg."""
         self.log.debug("Attempting to resolve outbound link from %s to %s::%s", self.name, link_pkg, link_symbol)
@@ -388,9 +399,12 @@ class Pkg(YisNode):
                 "Localparams:\n  -{localparams}\n"
                 "Enums:\n  -{enums}\n"
                 "Structs:\n  -{structs}\n"
+                "Typedefs:\n  -{typedefs}\n"
                 .format(localparams="\n  -".join([str(param) for param in self.localparams.values()]),
                         enums="\n  -".join([str(param) for param in self.enums.values()]),
-                        structs="\n  -".join([str(param) for param in self.structs.values()])))
+                        structs="\n  -".join([str(param) for param in self.structs.values()]),
+                        typedefs="\n  -".join([str(param) for param in self.typedefs.values()])))
+
 
 
 class PkgItemBase(YisNode):
@@ -633,6 +647,78 @@ class PkgEnumValue(PkgItemBase):
         return ret_arr
 
 
+class PkgTypedef(PkgItemBase):
+    """Definition for a typedef inside a pkg."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.base_sv_type = kwargs.pop('base_type')
+        self.width = kwargs.pop('width')
+
+    def __repr__(self):
+        return F"typedef {id(self)} {self.base_type} {self.array_length}"
+
+    def _resolve_base_type_links(self):
+        """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct type."""
+        # If field_type is a logic or a wire, don't need to resolve a type
+        self.log.debug("%s type %s is a base_type that must be linked" % (self.name, self.base_sv_type))
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(self.base_sv_type)
+        # If it looks like we're scoping out of pkg
+        if match:
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+            try:
+                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
+                self.base_sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                                       link_symbol,
+                                                                       ["structs", "typedefs", "enums"])
+            except LinkError:
+                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
+        elif self.base_sv_type in parent_pkg.enums:
+            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
+            self.base_sv_type = parent_pkg.enums[self.base_sv_type]
+        elif self.base_sv_type in parent_pkg.typedefs:
+            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
+            self.base_sv_type = parent_pkg.typedefs[self.base_sv_type]
+        elif self.base_sv_type in parent_pkg.structs:
+            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
+            self.base_sv_type = parent_pkg.structs[self.base_sv_type]
+        else:
+            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
+
+    def _get_render_base_sv_type(self):
+        if self.base_sv_type in ["logic", "wire"]:
+            render_type = self.base_sv_type
+        elif self.get_parent_pkg() is not self.base_sv_type.get_parent_pkg():
+            render_type = F"{self.base_sv_type.parent.name}::{self.base_sv_type.name}"
+        else:
+            render_type = self.base_sv_type.name
+        return render_type
+
+    def resolve_links(self):
+        if self.base_sv_type not in ["logic", "wire"]:
+            self._resolve_base_type_links() # Link in any typedef, enum, struct
+        self._resolve_width_links()
+
+    def render_rtl_sv_pkg(self):
+        """Render RTL for an sv pkg.
+
+        The general form is:
+        // (optional) doc_verbose
+        typedef base_sv_type [width - 1:0] name; // doc_summary
+        """
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
+        render_type = self._get_render_base_sv_type()
+        render_width = self._get_render_attr("width")
+        ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name} // {self.doc_summary}")
+        return "\n  ".join(ret_arr)
+
 class PkgStruct(PkgItemBase):
     """Definition for a localparam inside a pkg."""
     def __init__(self, **kwargs):
@@ -745,18 +831,21 @@ class PkgStructField(PkgItemBase):
                 self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
                 self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
                                                                   link_symbol,
-                                                                  ["structs", "enums"])
+                                                                  ["structs", "typedefs", "enums"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
         elif self.sv_type in parent_pkg.enums:
             self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.enums[self.sv_type]
+        elif self.sv_type in parent_pkg.typedefs:
+            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.typedefs[self.sv_type]
         elif self.sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.structs[self.sv_type]
         else:
-            self.log.error("Couldn't resolve a width link for {self.name} to {self.width}")
+            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
@@ -799,7 +888,7 @@ class PkgStructField(PkgItemBase):
         return self.computed_width
 
     def render_rtl_sv_pkg(self):
-        """Render RTL in a SV pkg for this enun value."""
+        """Render RTL in a SV pkg for this struct field."""
         if self.sv_type in ["logic", "wire"]:
             render_type = self._render_formatted_width(self.sv_type)
         else:
@@ -922,7 +1011,7 @@ class IntfCompConn(IntfItemBase):
             link_symbol = match.group(2)
             try:
                 self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
-                self.sv_type = self.parent.resolve_symbol(link_pkg, link_symbol, ["enums", "structs"])
+                self.sv_type = self.parent.resolve_symbol(link_pkg, link_symbol, ["enums", "structs", "typedefs"])
                 self._render_type = F"{self.sv_type.get_parent_pkg().name}::{self.sv_type.name}"
                 self.log.debug("%s type is now %s" % (self.name, self.sv_type.name))
             except LinkError:

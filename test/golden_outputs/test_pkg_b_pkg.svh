@@ -19,6 +19,16 @@ package test_pkg_b; // Example of what a dependent package looks like
   /////////////////////////////////////////////////////////////////////////////
   
   /////////////////////////////////////////////////////////////////////////////
+  // typedefs
+  /////////////////////////////////////////////////////////////////////////////
+  
+  typedef test_pkg_a::CYCLE_TYPE_E [NEW_PARAM - 1:0] enum_based_typedef_t // Use another package's enum as the type and a local localparam as width
+  
+  typedef test_pkg_a::hero_write_t [test_pkg_a::DOUBLE_LINK_PARAM - 1:0] struct_based_typedef_t // Use another package's struct as the type and another packages's localparam as width
+  
+  typedef another_struct_t [2 - 1:0] local_struct_typedef_t // Use this package's struct as the type and an int for a width
+  
+  /////////////////////////////////////////////////////////////////////////////
   // structs
   /////////////////////////////////////////////////////////////////////////////
   

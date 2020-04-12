@@ -2,25 +2,38 @@
 ---
 doc_summary: Example of what a dependent package looks like
 localparams:
-        - name: NEW_PARAM
-          width: test_pkg_a::ANOTHER_PARAM
-          value: 5
-          doc_summary: This should link up
+  - name: NEW_PARAM
+    width: test_pkg_a::ANOTHER_PARAM
+    value: 5
+    doc_summary: This should link up
+typedefs:
+  - name: enum_based_typedef_t
+    doc_summary: Use another package's enum as the type and a local localparam as width
+    base_type: test_pkg_a::CYCLE_TYPE_E
+    width: NEW_PARAM
+  - name: struct_based_typedef_t
+    doc_summary: Use another package's struct as the type and another packages's localparam as width
+    base_type: test_pkg_a::hero_write_t
+    width: test_pkg_a::DOUBLE_LINK_PARAM
+  - name: local_struct_typedef_t
+    doc_summary: Use this package's struct as the type and an int for a width
+    base_type: another_struct_t
+    width: 2
 structs:
-        - name: another_struct_t
-          doc_summary: Testing inter-package dependencies within struct fields.
-          fields:
-                - name: fielda
-                  doc_summary: width.doc_summary
-                  type: logic
-                  width: test_pkg_a::HERO_WIDTH
-                - name: fieldb
-                  doc_summary: type.doc_summary
-                  type: test_pkg_a::hero_write_t
-                - name: fieldc
-                  doc_summary: type.doc_summary
-                  type: test_pkg_a::CYCLE_TYPE_E
-                - name: fieldd
-                  doc_summary: This summary is different than its base definition
-                  type: logic
-                  width: NEW_PARAM
+  - name: another_struct_t
+    doc_summary: Testing inter-package dependencies within struct fields.
+    fields:
+          - name: fielda
+            doc_summary: width.doc_summary
+            type: logic
+            width: test_pkg_a::HERO_WIDTH
+          - name: fieldb
+            doc_summary: type.doc_summary
+            type: test_pkg_a::hero_write_t
+          - name: fieldc
+            doc_summary: type.doc_summary
+            type: test_pkg_a::CYCLE_TYPE_E
+          - name: fieldd
+            doc_summary: This summary is different than its base definition
+            type: logic
+            width: NEW_PARAM
