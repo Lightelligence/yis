@@ -245,6 +245,14 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error(F"{self.name} is not a valid name - Can't contain any reserved words:\n"
                            F"{LIST_OF_RESERVED_WORDS}")
 
+    def _check_caps_name_ending(self):
+        if self.name[-2:] in ["_E", "_T"]:
+            self.log.error(F"{self.name} is invalid, it must not end with _E or _T")
+
+    def _check_lower_name_ending(self):
+        if self.name[-2:] in ["_e", "_t"]:
+            self.log.error(F"{self.name} is invalid, it must not end with _e or _t")
+
     def _naming_convention_callback(self):
         """Hook to allow subclasses to run additional naming convention checks."""
         pass # pylint: disable=unnecessary-pass
@@ -547,6 +555,9 @@ class PkgLocalparam(PkgItemBase):
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
 
+    def _naming_convention_callback(self):
+        self._check_caps_name_ending()
+
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
@@ -666,6 +677,7 @@ class PkgEnumValue(PkgItemBase):
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
+        self._check_caps_name_ending()
 
     def __repr__(self):
         return F"{id(self)} {self.name} {self.sv_value}"
@@ -696,6 +708,10 @@ class PkgTypedef(PkgItemBase):
 
     def __repr__(self):
         return F"typedef {id(self)} {self.base_type} {self.array_length}"
+
+    def _naming_convention_callback(self):
+        if self.name[-2:] == "_e":
+            self.log.error(F"{self.name} is invalid, typedef names can't end in _e")
 
     def _resolve_base_type_links(self):
         """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct type."""
@@ -867,6 +883,7 @@ class PkgStructField(PkgItemBase):
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
+        self._check_lower_name_ending()
 
     def __repr__(self):
         return F"{id(self)} type {self.sv_type} width {self.width}"
@@ -996,8 +1013,9 @@ class Intf(YisNode):
 
 class IntfItemBase(YisNode):
     """Base class for anything contained in an Intf."""
-    pass # pylint: disable=unnecessary-pass
-
+    def _naming_convention_callback(self):
+        """All IntfItems shouldn't end with _e or _t."""
+        self._check_lower_name_ending()
 
 class IntfComp(IntfItemBase):
     """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
@@ -1037,6 +1055,7 @@ class IntfCompConn(IntfItemBase):
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
+        self._check_lower_name_ending()
 
     def _check_extra_dunder_name(self):
         if self.name.count("__") > 2:
