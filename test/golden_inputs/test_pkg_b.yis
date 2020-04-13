@@ -23,17 +23,17 @@ structs:
   - name: another_struct_t
     doc_summary: Testing inter-package dependencies within struct fields.
     fields:
-          - name: fielda
-            doc_summary: width.doc_summary
-            type: logic
-            width: test_pkg_a::HERO_WIDTH
-          - name: fieldb
-            doc_summary: type.doc_summary
-            type: test_pkg_a::hero_write_t
-          - name: fieldc
-            doc_summary: type.doc_summary
-            type: test_pkg_a::CYCLE_TYPE_E
-          - name: fieldd
-            doc_summary: This summary is different than its base definition
-            type: logic
-            width: NEW_PARAM
+      - name: fielda
+        doc_summary: width.doc_summary
+        type: logic
+        width: test_pkg_a::HERO_WIDTH
+      - name: fieldb
+        doc_summary: type.doc_summary
+        type: test_pkg_a::hero_write_t
+      - name: fieldc
+        doc_summary: type.doc_summary
+        type: test_pkg_a::CYCLE_TYPE_E
+      - name: fieldd
+        doc_summary: This summary is different than its base definition
+        type: logic
+        width: NEW_PARAM
