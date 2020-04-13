@@ -247,11 +247,11 @@ class YisNode: # pylint: disable=too-few-public-methods
 
     def _check_caps_name_ending(self):
         if self.name[-2:] in ["_E", "_T"]:
-            self.log.error(F"{self.name} is invalid, it must not end with _E or _T")
+            self.log.error(F"{self.name} is an invalid name, it must not end with _E or _T")
 
     def _check_lower_name_ending(self):
         if self.name[-2:] in ["_e", "_t"]:
-            self.log.error(F"{self.name} is invalid, it must not end with _e or _t")
+            self.log.error(F"{self.name} is an invalid name, it must not end with _e or _t")
 
     def _naming_convention_callback(self):
         """Hook to allow subclasses to run additional naming convention checks."""
@@ -711,7 +711,7 @@ class PkgTypedef(PkgItemBase):
 
     def _naming_convention_callback(self):
         if self.name[-2:] == "_e":
-            self.log.error(F"{self.name} is invalid, typedef names can't end in _e")
+            self.log.error(F"{self.name} is an invalid name, typedef names can't end in _e")
 
     def _resolve_base_type_links(self):
         """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct type."""
