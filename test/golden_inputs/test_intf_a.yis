@@ -24,5 +24,5 @@ components:
         width: test_pkg_b::NEW_PARAM
         doc_summary: width.doc_summary
       - name: bog__try__csr_rsp
-        type: test_pkg_b::another_struct_t
+        type: test_pkg_b::several_things_t
         doc_summary: type.doc_summary

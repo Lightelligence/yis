@@ -58,14 +58,14 @@ enums:
         value: 0
     doc_summary: Test for an enum that is width 1
 typedefs:
-  - name: basic_logic_t
+  - name: vanilla_type_t
     doc_summary: This is a basic logic type and width
     doc_verbose: And it has a doc_verbose for good measure
     base_type: "logic"
     width: 6
   - name: nested_type_t
     doc_summary: Use another typedef as the base type, a localparam as the width
-    base_type: basic_logic_t
+    base_type: vanilla_type_t
     width: ANOTHER_PARAM
 structs:
   - name: hero_write_t
@@ -83,14 +83,14 @@ structs:
         width: HERO_WIDTH
         doc_summary: width.doc_summary
       - name: another_type_reference
-        type: sub_struct_t
+        type: sub_def_t
         doc_summary: Test a struct of a struct
       - name: clk_en
         type: logic
         width: 1
         doc_summary: Clock enable for the bus
 
-  - name: sub_struct_t
+  - name: sub_def_t
     doc_summary: "A sub-struct of hero_write_t that is declared afterwards."
     fields:
       - name: subfield_a

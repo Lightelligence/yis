@@ -25,7 +25,18 @@ from scripts import cmn_logging
 ################################################################################
 # Constants
 PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
-LOGIC_OR_WIRE_REGEXP = re.compile("logic|wire|enum|struct|bit|real|input|output|interface")
+LIST_OF_RESERVED_WORDS = ["logic",
+                          "wire",
+                          "enum",
+                          "struct",
+                          "bit",
+                          "real",
+                          "input",
+                          "output",
+                          "real",
+                          "interface",
+                          "typedef"]
+RESERVED_WORDS_REGEXP = re.compile("|".join(LIST_OF_RESERVED_WORDS))
 
 ################################################################################
 # Helpers
@@ -223,14 +234,20 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.parent.add_child(self)
         self.children = OrderedDict()
         self.computed_width = None
+        self._check_naming_conventions()
 
     def _check_naming_conventions(self):
-        self._check_dunder_name()
         self._check_reserved_word_name()
+        self._naming_convention_callback()
 
     def _check_reserved_word_name(self):
-        if LOGIC_OR_WIRE_REGEXP.search(self.name):
-            self.log.error(F"{self.name} is not a valid name - name can't contain 'logic' or 'wire'")
+        if RESERVED_WORDS_REGEXP.search(self.name):
+            self.log.error(F"{self.name} is not a valid name - Can't contain any reserved words:\n"
+                           F"{LIST_OF_RESERVED_WORDS}")
+
+    def _naming_convention_callback(self):
+        """Hook to allow subclasses to run additional naming convention checks."""
+        pass # pylint: disable=unnecessary-pass
 
     def _check_dunder_name(self):
         if "__" in self.name:
@@ -646,7 +663,9 @@ class PkgEnumValue(PkgItemBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_value = kwargs.pop('value', None)
-        self._check_naming_conventions()
+
+    def _naming_convention_callback(self):
+        self._check_dunder_name()
 
     def __repr__(self):
         return F"{id(self)} {self.name} {self.sv_value}"
@@ -706,7 +725,7 @@ class PkgTypedef(PkgItemBase):
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.structs[self.base_sv_type]
         else:
-            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
+            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
     def _get_render_base_sv_type(self):
         if self.base_sv_type in ["logic", "wire"]:
@@ -845,7 +864,9 @@ class PkgStructField(PkgItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
-        self._check_naming_conventions()
+
+    def _naming_convention_callback(self):
+        self._check_dunder_name()
 
     def __repr__(self):
         return F"{id(self)} type {self.sv_type} width {self.width}"
@@ -1013,10 +1034,8 @@ class IntfCompConn(IntfItemBase):
         self.width = kwargs.pop('width', None)
         self._render_type = self.sv_type
         self._render_width = self.width
-        self._check_naming_conventions()
 
-    def _check_naming_conventions(self):
-        self._check_reserved_word_name()
+    def _naming_convention_callback(self):
         self._check_extra_dunder_name()
 
     def _check_extra_dunder_name(self):

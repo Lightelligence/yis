@@ -50,9 +50,9 @@ package test_pkg_a; // This is an example of what a package file could look like
   /////////////////////////////////////////////////////////////////////////////
   
   // And it has a doc_verbose for good measure
-  typedef logic [6 - 1:0] basic_logic_t // This is a basic logic type and width
+  typedef logic [6 - 1:0] vanilla_type_t // This is a basic logic type and width
   
-  typedef basic_logic_t [ANOTHER_PARAM - 1:0] nested_type_t // Use another typedef as the base type, a localparam as the width
+  typedef vanilla_type_t [ANOTHER_PARAM - 1:0] nested_type_t // Use another typedef as the base type, a localparam as the width
   
   /////////////////////////////////////////////////////////////////////////////
   // structs
@@ -65,7 +65,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     // attempt to link in for cycle_type.
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [HERO_WIDTH - 1:0] wdat; // Width of hero bus around the bag.
-    sub_struct_t another_type_reference; // Test a struct of a struct
+    sub_def_t another_type_reference; // Test a struct of a struct
     logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
@@ -74,7 +74,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     wire [ANOTHER_PARAM - 1:0] subfield_b; // This is a different parameter than the first.
     wire [ANOTHER_PARAM - 1:0] subfield_c; // This is a different parameter than the first.
     wire [ANOTHER_PARAM - 1:0] subfield_d; // This is a different parameter than the first.
-  } sub_struct_t; // A sub-struct of hero_write_t that is declared afterwards.
+  } sub_def_t; // A sub-struct of hero_write_t that is declared afterwards.
   
 
 endpackage : test_pkg_a
