@@ -53,6 +53,50 @@ digital/rtl/scripts/yis/test/golden_inputs/test_pkg_b.yis - YIS</title>
 
 
 
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_b__enum_based_typedef_t"><a href="#test_pkg_b__enum_based_typedef_t">enum_based_typedef_t</a></td>
+      <td><a href="./test_pkg_a_pkg.html#test_pkg_a__CYCLE_TYPE_E">test_pkg_a_pkg::CYCLE_TYPE_E</a></td>
+      <td><a href="./test_pkg_b_pkg.html#test_pkg_b__NEW_PARAM">NEW_PARAM</a></td>
+      <td>10</td>
+      <td>Use another package's enum as the type and a local localparam as width</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__struct_based_typedef_t"><a href="#test_pkg_b__struct_based_typedef_t">struct_based_typedef_t</a></td>
+      <td><a href="./test_pkg_a_pkg.html#test_pkg_a__hero_write_t">test_pkg_a_pkg::hero_write_t</a></td>
+      <td><a href="./test_pkg_a_pkg.html#test_pkg_a__DOUBLE_LINK_PARAM">test_pkg_a_pkg::DOUBLE_LINK_PARAM</a></td>
+      <td>92</td>
+      <td>Use another package's struct as the type and another packages's localparam as width</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__local_struct_typedef_t"><a href="#test_pkg_b__local_struct_typedef_t">local_struct_typedef_t</a></td>
+      <td><a href="./test_pkg_b_pkg.html#test_pkg_b__another_struct_t">another_struct_t</a></td>
+      <td>2</td>
+      <td>178</td>
+      <td>Use this package's struct as the type and an int for a width</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
 <h3>Structs</h3>
 
 <h4 id="test_pkg_b__another_struct_t"><a href="#test_pkg_b__another_struct_t">another_struct_t</a></h4>

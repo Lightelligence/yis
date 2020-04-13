@@ -68,6 +68,32 @@
 {% endfor %}
 {% endif %}
 
+{% if target_pkg.typedefs|length %}
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for lp in target_pkg.typedefs.values() %}
+  <tr>
+      <td id="{{ lp.html_anchor() }}"><a href="#{{ lp.html_anchor() }}">{{ lp.name }}</a></td>
+      <td>{{ lp.html_link_attribute('base_sv_type') }}</td>
+      <td>{{ lp.html_link_attribute('width') }}</td>
+      <td>{{ lp.html_link_attribute('computed_width') }}</td>
+      <td>{{ lp.doc_summary }}</td>
+      <td>{% if lp.doc_verbose %}<pre>{{ lp.doc_verbose }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endif %}
+
 {% if target_pkg.structs|length %}
 <h3>Structs</h3>
 {% for struct in target_pkg.structs.values() %}

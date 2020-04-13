@@ -156,8 +156,12 @@ class Yis:
 
     def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
+        # Only do a link first. Skip computing widths until after link is finished
         for pkg in self._pkgs.values():
             pkg.resolve_links()
+        # Compute widths after link is finished
+        for pkg in self._pkgs.values():
+            pkg.compute_widths()
         if self._block_interface:
             self._block_interface.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
@@ -329,6 +333,14 @@ class Pkg(YisNode):
         self._link_structs()
         self._link_typedefs()
 
+    def compute_widths(self):
+        """Compute widths of all underlying items, assuming link process finished successfully."""
+        self.log.debug("Attempting to resolve links in %s", self.name)
+        self._compute_localparams()
+        self._compute_enums()
+        self._compute_typedefs()
+        self._compute_structs()
+
     def _link_localparams(self):
         """Link localparam widths and values, then compute absolute widths and values."""
         for localparam in self.localparams.values():
@@ -336,6 +348,7 @@ class Pkg(YisNode):
 
         self.log.exit_if_warnings_or_errors("Errors linking localparams")
 
+    def _compute_localparams(self):
         # Compute values after all localparams have been linked to ensure you don't try to compute width
         # from a localparam that hasn't been linked yet.
         for localparam in self.localparams.values():
@@ -348,6 +361,7 @@ class Pkg(YisNode):
 
         self.log.exit_if_warnings_or_errors("Errors linking enums")
 
+    def _compute_enums(self):
         for enum in self.enums.values():
             enum.compute_width()
 
@@ -357,6 +371,7 @@ class Pkg(YisNode):
 
         self.log.exit_if_warnings_or_errors("Errors linkings structs")
 
+    def _compute_structs(self):
         # Compute values after all structs have been linked to ensure you don't try to compute width
         # from a struct that hasn't been linked yet.
         for struct in self.structs.values():
@@ -365,6 +380,12 @@ class Pkg(YisNode):
     def _link_typedefs(self):
         for typedef in self.typedefs.values():
             typedef.resolve_links()
+
+        self.log.exit_if_warnings_or_errors("Errors linking typedefs")
+
+    def _compute_typedefs(self):
+        for typedef in self.typedefs.values():
+            typedef.compute_width()
 
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
         """Resolve links leaving this pkg."""
@@ -701,6 +722,29 @@ class PkgTypedef(PkgItemBase):
             self._resolve_base_type_links() # Link in any typedef, enum, struct
         self._resolve_width_links()
 
+    def compute_width(self):
+        """Computing width for a typedef requires two parts - width of the base_sv_type and *value* of the width."""
+        if self.computed_width is None:
+            # Default sv_type_width to 1 for logic/wire types
+            base_sv_type_width = 1
+            # If the base type is not a logic or a wire, it must be a linked type
+            if self.base_sv_type not in ["logic", "wire"]:
+                base_sv_type_width = self.base_sv_type.compute_width()
+
+            # int width is easy
+            if isinstance(self.width, int):
+                width_value = self.width
+            # localparam width means we need the *value* of the localparam
+            elif isinstance(self.width, PkgLocalparam):
+                # Note, can use width.computed_value instead of doing the call stack b/c enums compute before typedefs
+                width_value = self.width.computed_value
+            # Anything else means we need the width as usual
+            else:
+                width_value = self.width.compute_width()
+
+            self.computed_width = base_sv_type_width * width_value
+        return self.computed_width
+
     def render_rtl_sv_pkg(self):
         """Render RTL for an sv pkg.
 
@@ -921,6 +965,8 @@ class Intf(YisNode):
         for child in self.children.values():
             child.resolve_links()
 
+    def compute_width(self):
+        """Compute width of the each child object, then accumulate all widths to form master width."""
         cumulative_width = 0
         for child in self.children.values():
             cumulative_width += child.compute_width()

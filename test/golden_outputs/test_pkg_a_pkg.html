@@ -160,6 +160,41 @@ verbose documentation that none of the other values in this enum need.
 
 
 
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__basic_logic_t"><a href="#test_pkg_a__basic_logic_t">basic_logic_t</a></td>
+      <td>logic</td>
+      <td>6</td>
+      <td>6</td>
+      <td>This is a basic logic type and width</td>
+      <td><pre>And it has a doc_verbose for good measure</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__nested_type_t"><a href="#test_pkg_a__nested_type_t">nested_type_t</a></td>
+      <td><a href="./test_pkg_a_pkg.html#test_pkg_a__basic_logic_t">basic_logic_t</a></td>
+      <td><a href="./test_pkg_a_pkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM</a></td>
+      <td>12</td>
+      <td>Use another typedef as the base type, a localparam as the width</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
 <h3>Structs</h3>
 
 <h4 id="test_pkg_a__hero_write_t"><a href="#test_pkg_a__hero_write_t">hero_write_t</a></h4>
