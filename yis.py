@@ -1052,6 +1052,10 @@ class IntfCompConn(IntfItemBase):
         self.width = kwargs.pop('width', None)
         self._render_type = self.sv_type
         self._render_width = self.width
+        self._check_width_consistency()
+
+    def __repr__(self):
+        return F"Conn {self.name}, {self.sv_type}, {self.width}"
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
@@ -1062,8 +1066,10 @@ class IntfCompConn(IntfItemBase):
             self.log.error(F"{self.name} is not a valid name. Connection names must have exactly 2 underscores -"
                            " one between source and destination, one between destintation and \'functional\' name")
 
-    def __repr__(self):
-        return F"Conn {self.name}, {self.sv_type}, {self.width}"
+    def _check_width_consistency(self):
+        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int) and self.width != 1:
+            self.log.error(F"{self.name} has a {self.sv_type} type with a raw int greater than 1 as the width. "
+                           "The port width must be specified in a pkg and referenced by the connection.")
 
     def resolve_links(self):
         """Resolve links from IntfCompConn to a package.

@@ -3,7 +3,7 @@ YIS stands for YAML Interface Specification. It is a tool that allows designers 
 
 Specifications are broken up into two types of files - pkg (package) files and intf (interface) files. pkg files specify the underlying SV primitives (localparams, enums, typedefs, and structs) that need to be used for intf definitions. intf files contain no primitive declarations. Instead, they define one or more components that constitute a higher-level interface between two blocks (for example, a handshake protocol), and each component has one or more connections (the actual RTL ports).  
 
-Both pkgs and intfs may reference other pkgs, but intfs are considered to be top-level specifications and can't reference other intfs. Every item in any pkg must define a name and doc_summary (short form documentation). Additionally, every item may define a doc_verbose (long form multi-line documentation).
+Both pkgs and intfs may reference other pkgs, but intfs are considered to be top-level specifications and can't be referenced by pkgs or other intfs. Every item in any pkg must define a name and doc_summary (short form documentation). Additionally, every item may define a doc_verbose (long form multi-line documentation).
 
 # Running YIS
 YIS is run under bazel. In order to run YIS on pkgs and intfs, your BUILD file needs to load the appropriate rules from //digital/rtl/scripts/yis:yis.bzl and the rules need to be added to your BUILD file. YIS target in your BUILD file generates the collateral for one YIS file.
