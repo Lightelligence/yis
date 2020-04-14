@@ -53,6 +53,7 @@
   <thead>
     <tr>
       <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
       <th class="th-sm">Doc Summary</th>
       <th class="th-sm">Doc Verbose</th>
     </tr>
@@ -60,6 +61,7 @@
 {% for ev in enum.children.values() %}
   <tr>
       <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
+      <td>{{ ev.sv_value }}</td>
       <td>{{ ev.doc_summary }}</td>
       <td>{% if ev.doc_verbose %}<pre>{{ ev.doc_verbose }}</pre>{% endif %}</td>
   </tr>
