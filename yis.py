@@ -883,7 +883,7 @@ class PkgStruct(PkgItemBase):
         for child in reversed(self.children.values()):
             data["field_names"].insert(0, child.name)
             data["lsbs"].insert(0, current_bit)
-            current_bit += child.computed_width - 1;
+            current_bit += child.computed_width - 1
             data["msbs"].insert(0, current_bit)
             current_bit += 1
         return data
