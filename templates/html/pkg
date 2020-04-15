@@ -125,18 +125,62 @@
       <th class="th-sm">Doc Verbose</th>
     </tr>
   </thead>
-{% for ev in struct.children.values() %}
+{% for sf in struct.children.values() %}
   <tr>
-      <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
-      <td>{{ ev.html_link_attribute('sv_type') }}</td>
-      <td>{{ ev.html_link_attribute('width') }}</td>
-      <td>{{ ev.computed_width }}</td>
-      <td>{{ ev.doc_summary }}</td>
-      <td>{% if ev.doc_verbose %}<pre>{{ ev.doc_verbose }}</pre>{% endif %}</td>
+      <td id="{{ sf.html_anchor() }}"><a href="#{{ sf.html_anchor() }}">{{ sf.name }}</a></td>
+      <td>{{ sf.html_link_attribute('sv_type') }}</td>
+      <td>{{ sf.html_link_attribute('width') }}</td>
+      <td>{{ sf.computed_width }}</td>
+      <td>{{ sf.doc_summary }}</td>
+      <td>{% if sf.doc_verbose %}<pre>{{ sf.doc_verbose }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
 {% endfor %}
 {% endif %}
+
+{% if target_pkg.unions|length %}
+<h3>Unions</h3>
+{% for union in target_pkg.unions.values() %}
+<h4 id="{{ union.html_anchor() }}"><a href="#{{ union.html_anchor() }}">{{union.name}}</a></h4>
+<p>{{ union.doc_summary }}</p>
+{% if union.doc_verbose %}
+<pre>{{ union.doc_verbose }}</pre>
+{% endif %}
+<p> Calculated Width ={{ union.computed_width }}</p>
+
+<canvas id="{{ union.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ union.name }}_canvas");
+  var data = {{ union.html_canvas_data }};
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for uf in union.children.values() %}
+  <tr>
+      <td id="{{ uf.html_anchor() }}"><a href="#{{ uf.html_anchor() }}">{{ uf.name }}</a></td>
+      <td>{{ uf.html_link_attribute('sv_type') }}</td>
+      <td>{{ uf.html_link_attribute('width') }}</td>
+      <td>{{ uf.computed_width }}</td>
+      <td>{{ uf.doc_summary }}</td>
+      <td>{% if uf.doc_verbose %}<pre>{{ uf.doc_verbose }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
 
 {% endblock content %}

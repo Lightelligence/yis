@@ -32,6 +32,12 @@ package {{ pkg.name }}_rypkg; // {{ pkg.doc_summary }}
   {% for struct in pkg.structs.values() %}
   {{ struct.render_rtl_sv_pkg() }}
   {% endfor %}
+  /////////////////////////////////////////////////////////////////////////////
+  // unions
+  /////////////////////////////////////////////////////////////////////////////
+  {% for union in pkg.unions.values() %}
+  {{ union.render_rtl_sv_pkg() }}
+  {% endfor %}
 
 endpackage : {{ pkg.name }}_rypkg
 `endif // guard

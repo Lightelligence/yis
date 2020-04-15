@@ -8,7 +8,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF" crossorigin="anonymous"></script> -->
   <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF"></script> -->
-  <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js"></script>
+  <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.4/struct_canvas.js"></script>
 
   <title>{% block title %}{% endblock %} - YIS</title>
   {% block html_head %}{% endblock %}

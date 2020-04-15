@@ -35,7 +35,8 @@ LIST_OF_RESERVED_WORDS = ["logic",
                           "output",
                           "real",
                           "interface",
-                          "typedef"]
+                          "typedef",
+                          "union"]
 RESERVED_WORDS_REGEXP = re.compile("|".join(LIST_OF_RESERVED_WORDS))
 
 ################################################################################
@@ -321,6 +322,7 @@ class Pkg(YisNode):
         self.enums = OrderedDict()
         self.structs = OrderedDict()
         self.typedefs = OrderedDict()
+        self.unions = OrderedDict()
         self.source_file = kwargs['source_file']
 
         for row in kwargs.get('localparams', []):
@@ -331,9 +333,13 @@ class Pkg(YisNode):
             PkgStruct(parent=self, log=self.log, **row)
         for row in kwargs.get('typedefs', []):
             PkgTypedef(parent=self, log=self.log, **row)
+        for row in kwargs.get('unions', []):
+            PkgUnion(parent=self, log=self.log, **row)
 
     def add_child(self, child):
-        """Override super add_child to add in differentiation between localparams, enums, structs, and typedefs."""
+        """Override super add_child to add in differentiation between
+        localparams, enums, structs, typedefs, and unions.
+        """
         super().add_child(child)
 
         self.children[child.name] = child
@@ -345,17 +351,22 @@ class Pkg(YisNode):
             self.typedefs[child.name] = child
         elif isinstance(child, PkgStruct):
             self.structs[child.name] = child
+        elif isinstance(child, PkgUnion):
+            self.unions[child.name] = child
         else:
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
-                             "Can only add localparams, enums, structs, and typedefs.")
+                             "Can only add localparams, enums, structs, typedefs, and unions.")
 
     def resolve_links(self):
-        """Find and resolve links between types starting at localparms, then enums, then structs, then typdefs."""
+        """Find and resolve links between types starting at
+        localparms, then enums, then structs, then unions, then typdefs.
+        """
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
         self._link_localparams()
         self._link_enums()
         self._link_structs()
+        self._link_unions()
         self._link_typedefs()
 
     def compute_widths(self):
@@ -364,6 +375,7 @@ class Pkg(YisNode):
         self._compute_localparams()
         self._compute_enums()
         self._compute_typedefs()
+        self._compute_unions()
         self._compute_structs()
 
     def _link_localparams(self):
@@ -396,7 +408,19 @@ class Pkg(YisNode):
 
         self.log.exit_if_warnings_or_errors("Errors linking structs")
 
+    def _link_unions(self):
+        for union in self.unions.values():
+            union.resolve_links()
+
+        self.log.exit_if_warnings_or_errors("Errors linking unions")
+
     def _compute_structs(self):
+        # Compute values after all structs have been linked to ensure you don't try to compute width
+        # from a struct that hasn't been linked yet.
+        for struct in self.structs.values():
+            struct.compute_width()
+
+    def _compute_unions(self):
         # Compute values after all structs have been linked to ensure you don't try to compute width
         # from a struct that hasn't been linked yet.
         for struct in self.structs.values():
@@ -446,11 +470,12 @@ class Pkg(YisNode):
                 "Enums:\n  -{enums}\n"
                 "Structs:\n  -{structs}\n"
                 "Typedefs:\n  -{typedefs}\n"
+                "Unions:\n  -{unions}\n"
                 .format(localparams="\n  -".join([str(param) for param in self.localparams.values()]),
                         enums="\n  -".join([str(param) for param in self.enums.values()]),
                         structs="\n  -".join([str(param) for param in self.structs.values()]),
-                        typedefs="\n  -".join([str(param) for param in self.typedefs.values()])))
-
+                        typedefs="\n  -".join([str(param) for param in self.typedefs.values()]),
+                        unions="\n  -".join([str(param) for param in self.unions.values()])))
 
 
 class PkgItemBase(YisNode):
@@ -714,7 +739,7 @@ class PkgTypedef(PkgItemBase):
             self.log.error(F"{self.name} is an invalid name, typedef names can't end in _e")
 
     def _resolve_base_type_links(self):
-        """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct type."""
+        """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct/union type."""
         # If field_type is a logic or a wire, don't need to resolve a type
         self.log.debug("%s type %s is a base_type that must be linked" % (self.name, self.base_sv_type))
         parent_pkg = self.get_parent_pkg()
@@ -727,7 +752,7 @@ class PkgTypedef(PkgItemBase):
                 self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
                 self.base_sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
                                                                        link_symbol,
-                                                                       ["structs", "typedefs", "enums"])
+                                                                       ["structs", "typedefs", "enums", "unions"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
@@ -740,6 +765,9 @@ class PkgTypedef(PkgItemBase):
         elif self.base_sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.structs[self.base_sv_type]
+        elif self.base_sv_type in parent_pkg.unions:
+            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
+            self.base_sv_type = parent_pkg.unions[self.base_sv_type]
         else:
             self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
@@ -754,7 +782,7 @@ class PkgTypedef(PkgItemBase):
 
     def resolve_links(self):
         if self.base_sv_type not in ["logic", "wire"]:
-            self._resolve_base_type_links() # Link in any typedef, enum, struct
+            self._resolve_base_type_links() # Link in any typedef, enum, struct, union
         self._resolve_width_links()
 
     def compute_width(self):
@@ -927,7 +955,7 @@ class PkgStructField(PkgItemBase):
                 self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
                 self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
                                                                   link_symbol,
-                                                                  ["structs", "typedefs", "enums"])
+                                                                  ["structs", "typedefs", "enums", "unions"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
@@ -940,6 +968,9 @@ class PkgStructField(PkgItemBase):
         elif self.sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.structs[self.sv_type]
+        elif self.sv_type in parent_pkg.unions:
+            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.unions[self.sv_type]
         else:
             self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
 
@@ -998,6 +1029,229 @@ class PkgStructField(PkgItemBase):
         ret_arr.append(F"{render_type} {self.name}; // {self.doc_summary}")
 
         return ret_arr
+
+
+class PkgUnion(PkgItemBase):
+    """Definition for a union inside a pkg."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        for row in kwargs.pop('fields'):
+            PkgUnionField(parent=self, log=self.log, **row)
+
+    def __repr__(self):
+        fields = "\n    -".join([str(child) for child in self.children.values()])
+        return F"{id(self)} {self.name}, fields:\n    -{fields}"
+
+    def resolve_links(self):
+        """Resolve links for type and width, then check for width/type conflicts."""
+        self._resolve_width_links()
+        self._resolve_type_links()
+        self._resolve_doc_links()
+        self._check_type_width_conflicts()
+
+    def _resolve_width_links(self):
+        """Override superclass definition of resolve_width_links to know how to resolve width links in each field."""
+        for child in self.children.values():
+            child.resolve_width_links()
+
+    def _resolve_type_links(self):
+        """Resolve type links for each field in a union."""
+        for child in self.children.values():
+            if child.sv_type not in ['logic', 'wire']:
+                child.resolve_type_links()
+
+    def _resolve_doc_links(self):
+        """Resolve links to doc_verbose and doc_summary for each field in a union."""
+        for child in self.children.values():
+            child.resolve_doc_links()
+
+    def _check_type_width_conflicts(self):
+        for child in self.children.values():
+            child.check_type_width_conflicts()
+
+    def compute_width(self):
+        """Unions have a simple implemention. They must all be the same width for now (padding implemented by user)"""
+        width = 0
+        first = None
+        for i, child in enumerate(self.children.values()):
+            if i == 0:
+                first = child
+                width = child.compute_width()
+            else:
+                if child.compute_width() != width:
+                    self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
+                                    "Union fields must be padded to match widths exactly."),
+                                   self.name,
+                                   first.name,
+                                   child.name,
+                                   width,
+                                   child.computed_width)
+        self.computed_width = width
+        return self.computed_width
+
+    def render_rtl_sv_pkg(self):
+        """Render the SV for this union.
+
+        The general form is:
+        // (optional) doc_verbose
+        typedef union packed {
+          // union_fields
+        } NAME;
+        """
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
+        ret_arr.append(F"typedef union packed {{")
+
+        # Render each field, note they are 2 indented farther
+        field_arr = []
+        for child in self.children.values():
+            field_arr.extend(child.render_rtl_sv_pkg())
+
+        # Add leading spaces to make all fields line up
+        field_arr[0] = F"  {field_arr[0]}"
+
+        ret_arr.append("\n    ".join(field_arr))
+        ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
+        return "\n  ".join(ret_arr)
+
+    @property
+    def html_canvas_data(self):
+        """Return a dictionoary of data to render the struct-canvas in html."""
+        all_data = []
+        for child in self.children.values():
+            if isinstance(child.sv_type, PkgStruct):
+                all_data.append(child.sv_type.html_canvas_data)
+                continue
+            data = {"field_names" : [],
+                    "msbs" : [],
+                    "lsbs" : []}
+            current_bit = 0
+            data["field_names"].insert(0, child.name)
+            data["lsbs"].insert(0, current_bit)
+            current_bit += child.computed_width - 1
+            data["msbs"].insert(0, current_bit)
+            current_bit += 1
+            all_data.append(data)
+        return all_data
+
+class PkgUnionField(PkgItemBase):
+    """Definition for a single field inside a union."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.sv_type = kwargs.pop('type')
+        self.width = kwargs.pop('width', None)
+
+    def _naming_convention_callback(self):
+        self._check_dunder_name()
+        self._check_lower_name_ending()
+
+    def __repr__(self):
+        return F"{id(self)} type {self.sv_type} width {self.width}"
+
+    def _get_render_type(self):
+        if self.get_parent_pkg() is not self.sv_type.get_parent_pkg():
+            return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
+        return F"{self.sv_type.name}"
+
+    def resolve_width_links(self):
+        """Override superclass resolve_width_links to not call if type isn't a logic or a wire"""
+        if self.sv_type in ["logic", "wire"]:
+            self.log.debug("Resolving a width link for %s width %s", self.name, self.width)
+            super()._resolve_width_links()
+
+    def resolve_type_links(self):
+        """Resolve links in type."""
+        # If field_type is a logic or a wire, don't need to resolve a type
+        self.log.debug("%s type %s is a type that must be linked" % (self.name, self.sv_type))
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(self.sv_type)
+        # If it looks like we're scoping out of pkg
+        if match:
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+            try:
+                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
+                self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                                  link_symbol,
+                                                                  ["structs", "typedefs", "enums", "unions"])
+            except LinkError:
+                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
+        elif self.sv_type in parent_pkg.enums:
+            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.enums[self.sv_type]
+        elif self.sv_type in parent_pkg.typedefs:
+            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.typedefs[self.sv_type]
+        elif self.sv_type in parent_pkg.structs:
+            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.structs[self.sv_type]
+        elif self.sv_type in parent_pkg.unions:
+            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+            self.sv_type = parent_pkg.unions[self.sv_type]
+        else:
+            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
+
+    def resolve_doc_links(self):
+        """Resolve basic doc_* links from *.doc_* to the original definition."""
+        for doc_type in ['doc_summary', 'doc_verbose']:
+            self.log.debug(F"Looking for {doc_type} on {self.name}")
+            doc_attr = getattr(self, doc_type)
+            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.width, doc_type))
+                    self.log.debug("Linked up doc for %s" % (self.width.name))
+                except AttributeError:
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"width.{doc_type}\" "
+                                   F"{doc_type} link unless \"width\" field points to a localparam")
+            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
+                try:
+                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
+                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
+                except AttributeError:
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"type.{doc_type}\" "
+                                   F"{doc_type} link unless \"type\" field points to a valid type")
+
+    def check_type_width_conflicts(self):
+        """Check to see if this union field defines both a width and a non-logic/wire type."""
+        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+            self.log.error(F"Union field {self.parent.name}.{self.name} has width specified for "
+                           "a non-logic/wire type. Only logic/wire can have a width")
+
+    def compute_width(self):
+        """Compute width by looking at width and type."""
+        self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
+        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+            self.computed_width = self.width
+        elif self.sv_type in ["logic", "wire"]:
+            self.computed_width = self.width.compute_value()
+        else:
+            self.computed_width = self.sv_type.compute_width()
+
+        return self.computed_width
+
+    def render_rtl_sv_pkg(self):
+        """Render RTL in a SV pkg for this union field."""
+        if self.sv_type in ["logic", "wire"]:
+            render_type = self._render_formatted_width(self.sv_type)
+        else:
+            render_type = self._get_render_type()
+
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+        ret_arr.append(F"{render_type} {self.name}; // {self.doc_summary}")
+
+        return ret_arr
+
 
 class Intf(YisNode):
     """Class to hold IntfItemBase objects, representing a whole intf."""
