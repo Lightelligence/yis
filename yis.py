@@ -799,7 +799,7 @@ class PkgTypedef(PkgItemBase):
         return "\n  ".join(ret_arr)
 
 class PkgStruct(PkgItemBase):
-    """Definition for a localparam inside a pkg."""
+    """Definition for a struct inside a pkg."""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for row in kwargs.pop('fields'):
