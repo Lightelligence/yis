@@ -103,6 +103,15 @@
 <pre>{{ struct.doc_verbose }}</pre>
 {% endif %}
 <p> Calculated Width ={{ struct.computed_width }}</p>
+
+<canvas id="{{ struct.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ struct.name }}_canvas");
+  var data = [{{ struct.html_canvas_data }}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
 <table class="table table-striped table-bordered table-sm">
   <thead>
     <tr>

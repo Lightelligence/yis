@@ -873,6 +873,20 @@ class PkgStruct(PkgItemBase):
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
+    @property
+    def html_canvas_data(self):
+        """Return a dictionoary of data to render the struct-canvas in html."""
+        data = {"field_names" : [],
+                "msbs" : [],
+                "lsbs" : []}
+        current_bit = 0
+        for child in reversed(self.children.values()):
+            data["field_names"].insert(0, child.name)
+            data["lsbs"].insert(0, current_bit)
+            current_bit += child.computed_width - 1;
+            data["msbs"].insert(0, current_bit)
+            current_bit += 1
+        return data
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
