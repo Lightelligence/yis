@@ -71,7 +71,7 @@ def parse_args(argv):
 
     parser.add_argument('--output-file',
                         required=True,
-                        help="Path to the output file, which might either be a packge or a block interface.")
+                        help="Path to the output file, which might either be a package or a block interface.")
 
     parser.add_argument('--gen-html',
                         default=False,
@@ -281,7 +281,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         return getattr(self, computed_attr_name)
 
     def render_doc_verbose(self, indent_width):
-        """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceeding //"""
+        """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceding //"""
         indent_spaces = " " * indent_width
         if self.doc_verbose is not None:
             wrapper = textwrap.TextWrapper(initial_indent="// ", subsequent_indent=F"{indent_spaces}// ")
@@ -346,7 +346,7 @@ class Pkg(YisNode):
         elif isinstance(child, PkgStruct):
             self.structs[child.name] = child
         else:
-            raise ValueError(F"Can't add {child.name} to pkg {self.name} becuase it is a {type(child)}. "
+            raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, and typedefs.")
 
     def resolve_links(self):
@@ -394,7 +394,7 @@ class Pkg(YisNode):
         for struct in self.structs.values():
             struct.resolve_links()
 
-        self.log.exit_if_warnings_or_errors("Errors linkings structs")
+        self.log.exit_if_warnings_or_errors("Errors linking structs")
 
     def _compute_structs(self):
         # Compute values after all structs have been linked to ensure you don't try to compute width
