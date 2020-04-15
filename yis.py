@@ -33,11 +33,13 @@ LIST_OF_RESERVED_WORDS = ["logic",
                           "real",
                           "input",
                           "output",
-                          "real",
                           "interface",
                           "typedef",
-                          "union"]
-RESERVED_WORDS_REGEXP = re.compile("|".join(LIST_OF_RESERVED_WORDS))
+                          "union",
+                          "type",
+                          "class",
+]
+RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WORDS)))
 
 ################################################################################
 # Helpers
@@ -477,6 +479,10 @@ class Pkg(YisNode):
                         typedefs="\n  -".join([str(param) for param in self.typedefs.values()]),
                         unions="\n  -".join([str(param) for param in self.unions.values()])))
 
+    # def post_order_traversal(self):
+        
+        
+
 
 class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
@@ -675,7 +681,7 @@ class PkgEnum(PkgItemBase):
             ret_arr.append(doc_verbose)
 
         formatted_type = self._render_formatted_width("logic")
-        ret_arr.append(F"type enum {formatted_type} {{")
+        ret_arr.append(F"typedef enum {formatted_type} {{")
 
         # Render each enum_value, note they are 2 indented farther
         enum_value_arr = []
@@ -823,7 +829,7 @@ class PkgTypedef(PkgItemBase):
 
         render_type = self._get_render_base_sv_type()
         render_width = self._get_render_attr("width")
-        ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name} // {self.doc_summary}")
+        ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
 class PkgStruct(PkgItemBase):
