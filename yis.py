@@ -43,18 +43,15 @@ RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WOR
 ################################################################################
 # Helpers
 
-def only_run_once(fn):
+def only_run_once(function):
     """A cheap decorator to only allow a method to be invoked once."""
-    def null_func(self, *args, **kwargs):
-      pass
     def wrapper(self, *args, **kwargs):
         run_once_dict = getattr(self, f"_only_run_once", {})
-        if fn not in run_once_dict:
-            run_once_dict[fn] = True
+        if function not in run_once_dict:
+            run_once_dict[function] = True
             setattr(self, "_only_run_once", run_once_dict)
-            return fn(self, *args, **kwargs)
-        else:
-            return None
+            return function(self, *args, **kwargs)
+        return None
     return wrapper
 
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
@@ -343,11 +340,11 @@ class Pkg(YisNode):
     STRUCTS = 'structs'
     TYPEDEFS = 'typedefs'
     UNIONS = 'unions'
-    offspring = OrderedDict([(LOCALPARAMS , 'PkgLocalparam'),
-                             (ENUMS       , 'PkgEnum'),
-                             (STRUCTS     , 'PkgStruct'),
-                             (TYPEDEFS    , 'PkgTypedef'),
-                             (UNIONS      , 'PkgUnion'),])
+    offspring = OrderedDict([(LOCALPARAMS, 'PkgLocalparam'),
+                             (ENUMS, 'PkgEnum'),
+                             (STRUCTS, 'PkgStruct'),
+                             (TYPEDEFS, 'PkgTypedef'),
+                             (UNIONS, 'PkgUnion'),])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -358,7 +355,7 @@ class Pkg(YisNode):
             cls = getattr(sys.modules[__name__], self.offspring[offspring])
             for row in kwargs.get(offspring, []):
                 cls(parent=self, log=self.log, **row)
-            
+
         self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']
 
@@ -431,6 +428,7 @@ class Pkg(YisNode):
         return f"Pkg(name={self.name})"
 
     def pretty_print(self):
+        """Pretty print. Well, not so pretty."""
         return (F"Pkg name: {self.name}\n"
                 "Localparams:\n  -{localparams}\n"
                 "Enums:\n  -{enums}\n"
@@ -522,7 +520,7 @@ class PkgItemBase(YisNode):
         href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
-    def _resolve_link(self, attr_name, allowed_symbols=[]):
+    def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
         """Convert an attribute from a string to a linked object."""
         attr = getattr(self, attr_name)
 
@@ -542,7 +540,7 @@ class PkgItemBase(YisNode):
         else:
             link_pkg = parent_pkg.name
             link_symbol = attr
-            
+
         self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
         try:
             link = parent_pkg.resolve_outbound_symbol(link_pkg,
@@ -1150,7 +1148,7 @@ class IntfItemBase(YisNode):
         """All IntfItems shouldn't end with _e or _t."""
         self._check_lower_name_ending()
 
-    def _resolve_link(self, attr_name, allowed_symbols=[]):
+    def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
         """Convert an attribute from a string to a linked object."""
         attr = getattr(self, attr_name)
 
@@ -1172,9 +1170,9 @@ class IntfItemBase(YisNode):
         link_symbol = match.group(2)
 
         root = self
-        while (root.parent):
+        while root.parent:
             root = root.parent
-            
+
         self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
         try:
             link = root.resolve_symbol(link_pkg,
