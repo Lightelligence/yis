@@ -38,11 +38,6 @@ package test_pkg_a; // This is an example of what a package file could look like
     BOOL_FALSE = 0 // This is false
   } BOOL_E; // Test for an enum that is width 1
   
-  // And it has a doc_verbose for good measure
-  typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
-  
-  typedef vanilla_type_t [ANOTHER_PARAM - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
-  
   typedef struct packed {
     wire subfield_a; // Test that a width-1 wire field generates correctly
     wire [ANOTHER_PARAM - 1:0] subfield_b; // This is a different parameter than the first.
@@ -60,6 +55,11 @@ package test_pkg_a; // This is an example of what a package file could look like
     sub_def_t another_type_reference; // Test a struct of a struct
     logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
+  
+  // And it has a doc_verbose for good measure
+  typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
+  
+  typedef vanilla_type_t [ANOTHER_PARAM - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
   
 
 endpackage : test_pkg_a

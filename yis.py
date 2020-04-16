@@ -315,27 +315,28 @@ class YisNode: # pylint: disable=too-few-public-methods
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
+    offspring = OrderedDict([('localparams' , 'PkgLocalparam'),
+                             ('enums'       , 'PkgEnum'),
+                             ('structs'     , 'PkgStruct'),
+                             ('typedefs'    , 'PkgTypedef'),
+                             ('unions'      , 'PkgUnion'),])
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.finished_link = False
-        self.localparams = OrderedDict()
-        self.enums = OrderedDict()
-        self.structs = OrderedDict()
-        self.typedefs = OrderedDict()
-        self.unions = OrderedDict()
+        def initialize(offspring):
+            setattr(self, offspring, OrderedDict())
+            cls = getattr(sys.modules[__name__], self.offspring[offspring])
+            for row in kwargs.get(offspring, []):
+                cls(parent=self, log=self.log, **row)
+            
+        self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']
 
-        for row in kwargs.get('localparams', []):
-            PkgLocalparam(parent=self, log=self.log, **row)
-        for row in kwargs.get('enums', []):
-            PkgEnum(parent=self, log=self.log, **row)
-        for row in kwargs.get('structs', []):
-            PkgStruct(parent=self, log=self.log, **row)
-        for row in kwargs.get('typedefs', []):
-            PkgTypedef(parent=self, log=self.log, **row)
-        for row in kwargs.get('unions', []):
-            PkgUnion(parent=self, log=self.log, **row)
+    def _offspring_iterate(self, _fn, *args, **kwargs):
+        for offspring in self.offspring.keys():
+            _fn(offspring, *args, **kwargs)
 
     def add_child(self, child):
         """Override super add_child to add in differentiation between
@@ -344,16 +345,11 @@ class Pkg(YisNode):
         super().add_child(child)
 
         self.children[child.name] = child
-        if isinstance(child, PkgLocalparam):
-            self.localparams[child.name] = child
-        elif isinstance(child, PkgEnum):
-            self.enums[child.name] = child
-        elif isinstance(child, PkgTypedef):
-            self.typedefs[child.name] = child
-        elif isinstance(child, PkgStruct):
-            self.structs[child.name] = child
-        elif isinstance(child, PkgUnion):
-            self.unions[child.name] = child
+        for offspring, offspring_type in self.offspring.items():
+            if isinstance(child, getattr(sys.modules[__name__], offspring_type)):
+                offspring_handle = getattr(self, offspring)
+                offspring_handle[child.name] = child
+                break
         else:
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, typedefs, and unions.")
@@ -364,78 +360,19 @@ class Pkg(YisNode):
         """
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
-        self._link_localparams()
-        self._link_enums()
-        self._link_structs()
-        self._link_unions()
-        self._link_typedefs()
+        def resolve_link_offspring(offspring):
+            for child in getattr(self, offspring).values():
+                child.resolve_links()
+            self.log.exit_if_warnings_or_errors("Errors linking %s", offspring)
+        self._offspring_iterate(resolve_link_offspring)
 
     def compute_widths(self):
         """Compute widths of all underlying items, assuming link process finished successfully."""
         self.log.debug("Attempting to resolve links in %s", self.name)
-        self._compute_localparams()
-        self._compute_enums()
-        self._compute_typedefs()
-        self._compute_unions()
-        self._compute_structs()
-
-    def _link_localparams(self):
-        """Link localparam widths and values, then compute absolute widths and values."""
-        for localparam in self.localparams.values():
-            localparam.resolve_links()
-
-        self.log.exit_if_warnings_or_errors("Errors linking localparams")
-
-    def _compute_localparams(self):
-        # Compute values after all localparams have been linked to ensure you don't try to compute width
-        # from a localparam that hasn't been linked yet.
-        for localparam in self.localparams.values():
-            localparam.compute_width()
-            localparam.compute_value()
-
-    def _link_enums(self):
-        for enum in self.enums.values():
-            enum.resolve_links()
-
-        self.log.exit_if_warnings_or_errors("Errors linking enums")
-
-    def _compute_enums(self):
-        for enum in self.enums.values():
-            enum.compute_width()
-
-    def _link_structs(self):
-        for struct in self.structs.values():
-            struct.resolve_links()
-
-        self.log.exit_if_warnings_or_errors("Errors linking structs")
-
-    def _link_unions(self):
-        for union in self.unions.values():
-            union.resolve_links()
-
-        self.log.exit_if_warnings_or_errors("Errors linking unions")
-
-    def _compute_structs(self):
-        # Compute values after all structs have been linked to ensure you don't try to compute width
-        # from a struct that hasn't been linked yet.
-        for struct in self.structs.values():
-            struct.compute_width()
-
-    def _compute_unions(self):
-        # Compute values after all structs have been linked to ensure you don't try to compute width
-        # from a struct that hasn't been linked yet.
-        for struct in self.structs.values():
-            struct.compute_width()
-
-    def _link_typedefs(self):
-        for typedef in self.typedefs.values():
-            typedef.resolve_links()
-
-        self.log.exit_if_warnings_or_errors("Errors linking typedefs")
-
-    def _compute_typedefs(self):
-        for typedef in self.typedefs.values():
-            typedef.compute_width()
+        def compute_widths_offspring(offspring):
+            for child in getattr(self, offspring).values():
+                child.compute_width()
+        self._offspring_iterate(compute_widths_offspring)
 
     def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
         """Resolve links leaving this pkg."""
@@ -487,17 +424,16 @@ class Pkg(YisNode):
         """
         done = {}
         ordered = [] # This could be a yield, just annoying to debug in jinja
-        members = ['localparams', 'enums', 'typedefs', 'structs', 'unions']
-        for member in members:
-            for item in getattr(self, member).values():
+        for offspring in self.offspring:
+            for item in getattr(self, offspring).values():
                 for potll in item.post_order_traversal_local_links():
                     if potll in done:
                         continue
                     done[potll] = True
                     # children apparently have this function as well
                     # if hasattr(potll, 'render_rtl_sv_pkg'):
-                    for member_inner in members:
-                        if potll in getattr(self, member_inner).values():
+                    for offspring_inner in self.offspring:
+                        if potll in getattr(self, offspring_inner).values():
                             ordered.append(potll)
         return ordered
 
@@ -634,6 +570,7 @@ class PkgLocalparam(PkgItemBase):
     def compute_width(self):
         """Compute the raw width of this localparam."""
         self.compute_attr('width')
+        self.compute_value()
         return self.computed_width
 
     def compute_value(self):
@@ -798,23 +735,16 @@ class PkgTypedef(PkgItemBase):
                                                                        ["structs", "typedefs", "enums", "unions"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+            return
+
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        elif self.base_sv_type in parent_pkg.enums:
-            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
-            self.base_sv_type = parent_pkg.enums[self.base_sv_type]
-            self.local_links.append(self.base_sv_type)
-        elif self.base_sv_type in parent_pkg.typedefs:
-            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
-            self.base_sv_type = parent_pkg.typedefs[self.base_sv_type]
-            self.local_links.append(self.base_sv_type)
-        elif self.base_sv_type in parent_pkg.structs:
-            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
-            self.base_sv_type = parent_pkg.structs[self.base_sv_type]
-            self.local_links.append(self.base_sv_type)
-        elif self.base_sv_type in parent_pkg.unions:
-            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
-            self.base_sv_type = parent_pkg.unions[self.base_sv_type]
-            self.local_links.append(self.base_sv_type)
+        for offspring in parent_pkg.offspring:
+            offspring_handle = getattr(parent_pkg, offspring)
+            if self.base_sv_type in offspring_handle:
+                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
+                self.base_sv_type = offspring_handle[self.base_sv_type]
+                self.local_links.append(self.base_sv_type)
+                break
         else:
             self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
@@ -1006,25 +936,18 @@ class PkgStructField(PkgItemBase):
                                                                   ["structs", "typedefs", "enums", "unions"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+            return
+
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        elif self.sv_type in parent_pkg.enums:
-            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.enums[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.typedefs:
-            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.typedefs[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.structs:
-            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.structs[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.unions:
-            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.unions[self.sv_type]
-            self.local_links.append(self.sv_type)
+        for offspring in parent_pkg.offspring:
+            offspring_handle = getattr(parent_pkg, offspring)
+            if self.sv_type in offspring_handle:
+                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+                self.sv_type = offspring_handle[self.sv_type]
+                self.local_links.append(self.sv_type)
+                break
         else:
-            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
+            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
@@ -1232,25 +1155,18 @@ class PkgUnionField(PkgItemBase):
                                                                   ["structs", "typedefs", "enums", "unions"])
             except LinkError:
                 self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
+            return
+
         # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        elif self.sv_type in parent_pkg.enums:
-            self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.enums[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.typedefs:
-            self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.typedefs[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.structs:
-            self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.structs[self.sv_type]
-            self.local_links.append(self.sv_type)
-        elif self.sv_type in parent_pkg.unions:
-            self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-            self.sv_type = parent_pkg.unions[self.sv_type]
-            self.local_links.append(self.sv_type)
+        for offspring in parent_pkg.offspring:
+            offspring_handle = getattr(parent_pkg, offspring)
+            if self.sv_type in offspring_handle:
+                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
+                self.sv_type = offspring_handle[self.sv_type]
+                self.local_links.append(self.sv_type)
+                break
         else:
-            self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
+            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
