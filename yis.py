@@ -501,6 +501,7 @@ class Pkg(YisNode):
                             ordered.append(potll)
         return ordered
 
+
 class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
 
