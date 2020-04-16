@@ -37,8 +37,7 @@ LIST_OF_RESERVED_WORDS = ["logic",
                           "typedef",
                           "union",
                           "type",
-                          "class",
-]
+                          "class"]
 RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WORDS)))
 
 ################################################################################
@@ -479,13 +478,49 @@ class Pkg(YisNode):
                         typedefs="\n  -".join([str(param) for param in self.typedefs.values()]),
                         unions="\n  -".join([str(param) for param in self.unions.values()])))
 
-    # def post_order_traversal(self):
-        
-        
+    def post_order_traversal_for_rtl_render(self):
+        """Walk all "top_level" children to find the dependency order.
 
+        Generated compile won't compile if dependent types are previously
+        declared.
+
+        """
+        done = {}
+        ordered = [] # This could be a yield, just annoying to debug in jinja
+        members = ['localparams', 'enums', 'typedefs', 'structs', 'unions']
+        for member in members:
+            for item in getattr(self, member).values():
+                for potll in item.post_order_traversal_local_links():
+                    if potll in done:
+                        continue
+                    done[potll] = True
+                    # children apparently have this function as well
+                    # if hasattr(potll, 'render_rtl_sv_pkg'):
+                    for member_inner in members:
+                        if potll in getattr(self, member_inner).values():
+                            ordered.append(potll)
+        return ordered
 
 class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
+
+    def __init__(self, *args, **kwargs):
+        self.local_links = [] # Simplifies post-order-traversal algorithm
+                              # (basically just moving some smarts to
+                              # constructors)
+        super(PkgItemBase, self).__init__(*args, **kwargs)
+
+
+    def post_order_traversal_local_links(self):
+        """Post order traversal of this objects dependencies."""
+        for local_l in self.local_links:
+            for ll_potll in local_l.post_order_traversal_local_links():
+                yield ll_potll
+        for child in self.children.values():
+            for cpotll in child.post_order_traversal_local_links():
+                yield cpotll
+        yield self
+
     def _get_parent_localparams(self):
         parent = self.parent
         while True:
@@ -560,6 +595,7 @@ class PkgItemBase(YisNode):
             # If it doesn't look like we're scoping out of pkg, try to look in this pkg
             elif attr in localparams:
                 self.log.debug("%s is a valid localparam in pkg %s", attr_name, self.get_parent_pkg().name)
+                self.local_links.append(localparams[attr])
                 setattr(self, attr_name, localparams[attr])
             else:
                 self.log.error(F"Couldn't resolve a {attr_name} link for {self.name} to {attr}")
@@ -738,7 +774,7 @@ class PkgTypedef(PkgItemBase):
         self.width = kwargs.pop('width')
 
     def __repr__(self):
-        return F"typedef {id(self)} {self.base_type} {self.array_length}"
+        return F"typedef {id(self)} {self.name}"
 
     def _naming_convention_callback(self):
         if self.name[-2:] == "_e":
@@ -765,15 +801,19 @@ class PkgTypedef(PkgItemBase):
         elif self.base_sv_type in parent_pkg.enums:
             self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.enums[self.base_sv_type]
+            self.local_links.append(self.base_sv_type)
         elif self.base_sv_type in parent_pkg.typedefs:
             self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.typedefs[self.base_sv_type]
+            self.local_links.append(self.base_sv_type)
         elif self.base_sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.structs[self.base_sv_type]
+            self.local_links.append(self.base_sv_type)
         elif self.base_sv_type in parent_pkg.unions:
             self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
             self.base_sv_type = parent_pkg.unions[self.base_sv_type]
+            self.local_links.append(self.base_sv_type)
         else:
             self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
 
@@ -968,15 +1008,19 @@ class PkgStructField(PkgItemBase):
         elif self.sv_type in parent_pkg.enums:
             self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.enums[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.typedefs:
             self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.typedefs[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.structs[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.unions:
             self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.unions[self.sv_type]
+            self.local_links.append(self.sv_type)
         else:
             self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
 
@@ -1190,15 +1234,19 @@ class PkgUnionField(PkgItemBase):
         elif self.sv_type in parent_pkg.enums:
             self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.enums[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.typedefs:
             self.log.debug("%s type %s is a valid typedef in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.typedefs[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.structs:
             self.log.debug("%s type %s is a valid struct in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.structs[self.sv_type]
+            self.local_links.append(self.sv_type)
         elif self.sv_type in parent_pkg.unions:
             self.log.debug("%s type %s is a valid union in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
             self.sv_type = parent_pkg.unions[self.sv_type]
+            self.local_links.append(self.sv_type)
         else:
             self.log.error("Couldn't resolve a type link for {self.name} to {self.width}")
 
