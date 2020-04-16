@@ -114,10 +114,12 @@ class Yis:
     def __init__(self, block_interface, pkgs, log, options):
         self.log = log
         self.options = options
+        self.parent = None # Should never be set, but recursive walking easier
         self._pkgs = OrderedDict()
         self._block_interface = None
         self._parse_files(block_interface, pkgs)
         self._link_symbols()
+
 
     def _parse_files(self, block_interface, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
@@ -1148,6 +1150,43 @@ class IntfItemBase(YisNode):
         """All IntfItems shouldn't end with _e or _t."""
         self._check_lower_name_ending()
 
+    def _resolve_link(self, attr_name, allowed_symbols=[]):
+        """Convert an attribute from a string to a linked object."""
+        attr = getattr(self, attr_name)
+
+        if not isinstance(attr, str):
+            self.log.error("Attempting to resolve link from %s.%s, but %s was not a str: type(%s) = %s",
+                           self.name, attr_name, attr_name, attr_name, type(attr))
+
+        match = PKG_SCOPE_REGEXP.match(attr)
+        if not match:
+            self.log.error(("%s has invalid %s %s. "
+                            "%s references in RTL intf files must be package scoped"),
+                           self.name,
+                           attr_name,
+                           self.width,
+                           attr_name)
+
+        # If it looks like we're scoping out of pkg
+        link_pkg = match.group(1)
+        link_symbol = match.group(2)
+
+        root = self
+        while (root.parent):
+            root = root.parent
+            
+        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
+        try:
+            link = root.resolve_symbol(link_pkg,
+                                       link_symbol,
+                                       allowed_symbols)
+        except LinkError:
+            self.log.error("Couldn't resolve a link from %s to %s", self.name, attr)
+            return
+        else:
+            setattr(self, attr_name, link)
+
+
 class IntfComp(IntfItemBase):
     """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
     def __init__(self, **kwargs):
@@ -1202,12 +1241,13 @@ class IntfCompConn(IntfItemBase):
 
         Note that this is similar to resolve_width_links, but only external package links are allowed here.
         """
+        super().resolve_links()
         # If the sv_type is not a logic or wire, try to resolve the sv_type link
         if self.sv_type not in ['logic', 'wire']:
-            self._resolve_type_link()
+            self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
         # If sv_type is a logic or wire but width isn't an int, try to resolve the width link
         elif not isinstance(self.width, int):
-            self._resolve_width_link()
+            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
         # Else sv_type is a logic and it has an int width, so leave it alone
 
         self._resolve_doc_links()
@@ -1218,42 +1258,6 @@ class IntfCompConn(IntfItemBase):
         if self.sv_type not in ["logic", "wire"] and self.width is not None:
             self.log.error(F"Interface connection {self.parent.name}.{self.name} has width specified for a "
                            "non-logic/wire type. Only logic/wire can have a width")
-
-    def _resolve_type_link(self):
-        self.log.debug("%s, type %s must be linked" % (self.name, self.sv_type))
-        match = PKG_SCOPE_REGEXP.match(self.sv_type)
-        # If it looks like we're scoping out of pkg
-        if match:
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-            try:
-                self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
-                self.sv_type = self.parent.resolve_symbol(link_pkg, link_symbol, ["enums", "structs", "typedefs"])
-                self._render_type = F"{self.sv_type.get_parent_pkg().name}::{self.sv_type.name}"
-                self.log.debug("%s type is now %s" % (self.name, self.sv_type.name))
-            except LinkError:
-                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.sv_type))
-        else:
-            self.log.error(F"{self.name} has invalid type {self.sv_type}. "
-                           "Type references in RTL intf files must be package scoped")
-
-    def _resolve_width_link(self):
-        self.log.debug("%s, width %s is a type that must be linked" % (self.name, self.width))
-        match = PKG_SCOPE_REGEXP.match(self.width)
-        # If it looks like we're scoping out of pkg
-        if match:
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-            try:
-                self.log.debug("Attempting to resolve %s::%s" % (link_pkg, link_symbol))
-                self.width = self.parent.resolve_symbol(link_pkg, link_symbol, ["localparams"])
-                self._render_width = F"{self.width.get_parent_pkg().name}_rypkg::{self.width.name}"
-                self.log.debug("%s width is now %s" % (self.name, self.width.name))
-            except LinkError:
-                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
-        else:
-            self.log.error(F"{self.name} has invalid width {self.width}. "
-                           "Width references in RTL intf files must be package scoped")
 
     def _resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
