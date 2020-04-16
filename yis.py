@@ -43,6 +43,20 @@ RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WOR
 ################################################################################
 # Helpers
 
+def only_run_once(fn):
+    """A cheap decorator to only allow a method to be invoked once."""
+    def null_func(self, *args, **kwargs):
+      pass
+    def wrapper(self, *args, **kwargs):
+        run_once_dict = getattr(self, f"_only_run_once", {})
+        if fn not in run_once_dict:
+            run_once_dict[fn] = True
+            setattr(self, "_only_run_once", run_once_dict)
+            return fn(self, *args, **kwargs)
+        else:
+            return None
+    return wrapper
+
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
     """
     Having some bazel dependency issues where some deps aren't getting built.
@@ -185,7 +199,7 @@ class Yis:
         try:
             return self._pkgs[link_pkg].resolve_inbound_symbol(link_symbol, symbol_types)
         except KeyError:
-            self.log.error(F"{link_pkg} not a defined pkg")
+            self.log.error("%s not a defined pkg", link_pkg)
             raise LinkError
 
     def render_output(self, output_file):
@@ -290,6 +304,13 @@ class YisNode: # pylint: disable=too-few-public-methods
             return wrapper.fill(self.doc_verbose)
         return ""
 
+    @only_run_once
+    def resolve_links(self):
+        """Resolve links in all children."""
+        for child in self.children.values():
+            child.resolve_links()
+            self.log.exit_if_warnings_or_errors("Errors linking %s", child)
+
     def add_child(self, child):
         """Add a child item to this pkg."""
         if child.name in self.children:
@@ -315,11 +336,16 @@ class YisNode: # pylint: disable=too-few-public-methods
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
-    offspring = OrderedDict([('localparams' , 'PkgLocalparam'),
-                             ('enums'       , 'PkgEnum'),
-                             ('structs'     , 'PkgStruct'),
-                             ('typedefs'    , 'PkgTypedef'),
-                             ('unions'      , 'PkgUnion'),])
+    LOCALPARAMS = 'localparams'
+    ENUMS = 'enums'
+    STRUCTS = 'structs'
+    TYPEDEFS = 'typedefs'
+    UNIONS = 'unions'
+    offspring = OrderedDict([(LOCALPARAMS , 'PkgLocalparam'),
+                             (ENUMS       , 'PkgEnum'),
+                             (STRUCTS     , 'PkgStruct'),
+                             (TYPEDEFS    , 'PkgTypedef'),
+                             (UNIONS      , 'PkgUnion'),])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -354,17 +380,14 @@ class Pkg(YisNode):
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, typedefs, and unions.")
 
+    @only_run_once
     def resolve_links(self):
         """Find and resolve links between types starting at
         localparms, then enums, then structs, then unions, then typdefs.
         """
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
-        def resolve_link_offspring(offspring):
-            for child in getattr(self, offspring).values():
-                child.resolve_links()
-            self.log.exit_if_warnings_or_errors("Errors linking %s", offspring)
-        self._offspring_iterate(resolve_link_offspring)
+        super().resolve_links()
 
     def compute_widths(self):
         """Compute widths of all underlying items, assuming link process finished successfully."""
@@ -403,6 +426,9 @@ class Pkg(YisNode):
         raise LinkError
 
     def __repr__(self):
+        return f"Pkg(name={self.name})"
+
+    def pretty_print(self):
         return (F"Pkg name: {self.name}\n"
                 "Localparams:\n  -{localparams}\n"
                 "Enums:\n  -{enums}\n"
@@ -440,6 +466,7 @@ class Pkg(YisNode):
 
 class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
+    allowed_symbols_for_linking = []
 
     def __init__(self, *args, **kwargs):
         self.local_links = [] # Simplifies post-order-traversal algorithm
@@ -493,49 +520,38 @@ class PkgItemBase(YisNode):
         href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
-    def resolve_links(self):
-        """Resolve links in widths and values."""
-        self._resolve_width_links()
-
-    def _resolve_width_links(self):
-        """Resolve width links. A width can only be an int or a localparam, so call resolve_localparam_links."""
-        self._resolve_localparam_links('width')
-
-    def _resolve_value_links(self):
-        """Resolve value links. A value can only be an int or a localparam, so call resolve_localparam_links."""
-        self._resolve_localparam_links('value')
-
-    def _resolve_localparam_links(self, attr_name):
-        """Resolve links to localparams for the specified object attr."""
-        valid_attrs = ['width', 'value']
-        if attr_name not in valid_attrs:
-            raise ValueError(F"Can't resolve localparam for {attr_name}, only {valid_attrs} are allowed")
-
-        # If attr is already an int, don't try to resolve a link
+    def _resolve_link(self, attr_name, allowed_symbols=[]):
+        """Convert an attribute from a string to a linked object."""
         attr = getattr(self, attr_name)
-        if not isinstance(attr, int):
-            self.log.debug("%s, %s %s is a type that must be linked", self.name, attr_name, attr)
-            localparams = self._get_parent_localparams()
-            match = PKG_SCOPE_REGEXP.match(attr)
+
+        if isinstance(attr, int):
+            return # Not a link
+
+        if not isinstance(attr, str):
+            self.log.error("Attempting to resolve link from %s.%s, but %s was not a str: type(%s) = %s",
+                           self.name, attr_name, attr_name, attr_name, type(attr))
+
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(attr)
+        if match:
             # If it looks like we're scoping out of pkg
-            if match:
-                link_pkg = match.group(1)
-                link_symbol = match.group(2)
-                try:
-                    self.log.debug("Attempting to resolve external %s::%s", link_pkg, link_symbol)
-                    new_attr = self.get_parent_pkg().resolve_outbound_symbol(link_pkg,
-                                                                             link_symbol,
-                                                                             ["localparams"])
-                    setattr(self, attr_name, new_attr)
-                except LinkError:
-                    self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, attr))
-            # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-            elif attr in localparams:
-                self.log.debug("%s is a valid localparam in pkg %s", attr_name, self.get_parent_pkg().name)
-                self.local_links.append(localparams[attr])
-                setattr(self, attr_name, localparams[attr])
-            else:
-                self.log.error(F"Couldn't resolve a {attr_name} link for {self.name} to {attr}")
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+        else:
+            link_pkg = parent_pkg.name
+            link_symbol = attr
+            
+        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
+        try:
+            link = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                      link_symbol,
+                                                      allowed_symbols)
+        except LinkError:
+            self.log.error("Couldn't resolve a link from %s to %s", self.name, attr)
+            return
+        else:
+            self.local_links.append(link)
+            setattr(self, attr_name, link)
 
     def _get_render_attr(self, attr_name):
         attr = getattr(self, attr_name)
@@ -550,6 +566,8 @@ class PkgItemBase(YisNode):
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
+    allowed_symbols_for_linking = [Pkg.LOCALPARAMS]
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
@@ -562,10 +580,12 @@ class PkgLocalparam(PkgItemBase):
     def _naming_convention_callback(self):
         self._check_caps_name_ending()
 
+    @only_run_once
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
-        self._resolve_value_links()
+        self._resolve_link("width", self.allowed_symbols_for_linking)
+        self._resolve_link("value", self.allowed_symbols_for_linking)
 
     def compute_width(self):
         """Compute the raw width of this localparam."""
@@ -607,6 +627,12 @@ class PkgEnum(PkgItemBase):
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
         self._check_enum_value_consistency()
+
+    @only_run_once
+    def resolve_links(self):
+        """Call superclass to resolve width links, then resolve type links."""
+        super().resolve_links()
+        self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
@@ -718,36 +744,6 @@ class PkgTypedef(PkgItemBase):
         if self.name[-2:] == "_e":
             self.log.error(F"{self.name} is an invalid name, typedef names can't end in _e")
 
-    def _resolve_base_type_links(self):
-        """Resolve links in base_type, which can be wire/logic, or it can be any enum/typedef/struct/union type."""
-        # If field_type is a logic or a wire, don't need to resolve a type
-        self.log.debug("%s type %s is a base_type that must be linked" % (self.name, self.base_sv_type))
-        parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(self.base_sv_type)
-        # If it looks like we're scoping out of pkg
-        if match:
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-            try:
-                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
-                self.base_sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                                       link_symbol,
-                                                                       ["structs", "typedefs", "enums", "unions"])
-            except LinkError:
-                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
-            return
-
-        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        for offspring in parent_pkg.offspring:
-            offspring_handle = getattr(parent_pkg, offspring)
-            if self.base_sv_type in offspring_handle:
-                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.base_sv_type, parent_pkg.name))
-                self.base_sv_type = offspring_handle[self.base_sv_type]
-                self.local_links.append(self.base_sv_type)
-                break
-        else:
-            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
-
     def _get_render_base_sv_type(self):
         if self.base_sv_type in ["logic", "wire"]:
             render_type = self.base_sv_type
@@ -757,10 +753,12 @@ class PkgTypedef(PkgItemBase):
             render_type = self.base_sv_type.name
         return render_type
 
+    @only_run_once
     def resolve_links(self):
         if self.base_sv_type not in ["logic", "wire"]:
-            self._resolve_base_type_links() # Link in any typedef, enum, struct, union
-        self._resolve_width_links()
+            self._resolve_link("base_sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
+        self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+        super().resolve_links()
 
     def compute_width(self):
         """Computing width for a typedef requires two parts - width of the base_sv_type and *value* of the width."""
@@ -813,33 +811,6 @@ class PkgStruct(PkgItemBase):
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
-
-    def resolve_links(self):
-        """Resolve links for type and width, then check for width/type conflicts."""
-        self._resolve_width_links()
-        self._resolve_type_links()
-        self._resolve_doc_links()
-        self._check_type_width_conflicts()
-
-    def _resolve_width_links(self):
-        """Override superclass definition of resolve_width_links to know how to resolve width links in each field."""
-        for child in self.children.values():
-            child.resolve_width_links()
-
-    def _resolve_type_links(self):
-        """Resolve type links for each field in a struct."""
-        for child in self.children.values():
-            if child.sv_type not in ['logic', 'wire']:
-                child.resolve_type_links()
-
-    def _resolve_doc_links(self):
-        """Resolve links to doc_verbose and doc_summary for each field in a struct."""
-        for child in self.children.values():
-            child.resolve_doc_links()
-
-    def _check_type_width_conflicts(self):
-        for child in self.children.values():
-            child.check_type_width_conflicts()
 
     def compute_width(self):
         """Compute the width of a struct by computing width of all fields."""
@@ -913,41 +884,16 @@ class PkgStructField(PkgItemBase):
             return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
         return F"{self.sv_type.name}"
 
-    def resolve_width_links(self):
-        """Override superclass resolve_width_links to not call if type isn't a logic or a wire"""
+    @only_run_once
+    def resolve_links(self):
+        super().resolve_links()
         if self.sv_type in ["logic", "wire"]:
-            self.log.debug("Resolving a width link for %s width %s", self.name, self.width)
-            super()._resolve_width_links()
-
-    def resolve_type_links(self):
-        """Resolve links in type."""
-        # If field_type is a logic or a wire, don't need to resolve a type
-        self.log.debug("%s type %s is a type that must be linked" % (self.name, self.sv_type))
-        parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(self.sv_type)
-        # If it looks like we're scoping out of pkg
-        if match:
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-            try:
-                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
-                self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                                  link_symbol,
-                                                                  ["structs", "typedefs", "enums", "unions"])
-            except LinkError:
-                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
-            return
-
-        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        for offspring in parent_pkg.offspring:
-            offspring_handle = getattr(parent_pkg, offspring)
-            if self.sv_type in offspring_handle:
-                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-                self.sv_type = offspring_handle[self.sv_type]
-                self.local_links.append(self.sv_type)
-                break
+            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
         else:
-            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
+            self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
+        self.resolve_doc_links()
+        self.check_type_width_conflicts()
+
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
@@ -1016,33 +962,6 @@ class PkgUnion(PkgItemBase):
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
-
-    def resolve_links(self):
-        """Resolve links for type and width, then check for width/type conflicts."""
-        self._resolve_width_links()
-        self._resolve_type_links()
-        self._resolve_doc_links()
-        self._check_type_width_conflicts()
-
-    def _resolve_width_links(self):
-        """Override superclass definition of resolve_width_links to know how to resolve width links in each field."""
-        for child in self.children.values():
-            child.resolve_width_links()
-
-    def _resolve_type_links(self):
-        """Resolve type links for each field in a union."""
-        for child in self.children.values():
-            if child.sv_type not in ['logic', 'wire']:
-                child.resolve_type_links()
-
-    def _resolve_doc_links(self):
-        """Resolve links to doc_verbose and doc_summary for each field in a union."""
-        for child in self.children.values():
-            child.resolve_doc_links()
-
-    def _check_type_width_conflicts(self):
-        for child in self.children.values():
-            child.check_type_width_conflicts()
 
     def compute_width(self):
         """Unions have a simple implemention. They must all be the same width for now (padding implemented by user)"""
@@ -1132,41 +1051,18 @@ class PkgUnionField(PkgItemBase):
             return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
         return F"{self.sv_type.name}"
 
-    def resolve_width_links(self):
-        """Override superclass resolve_width_links to not call if type isn't a logic or a wire"""
+    @only_run_once
+    def resolve_links(self):
+        super().resolve_links()
+
         if self.sv_type in ["logic", "wire"]:
-            self.log.debug("Resolving a width link for %s width %s", self.name, self.width)
-            super()._resolve_width_links()
-
-    def resolve_type_links(self):
-        """Resolve links in type."""
-        # If field_type is a logic or a wire, don't need to resolve a type
-        self.log.debug("%s type %s is a type that must be linked" % (self.name, self.sv_type))
-        parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(self.sv_type)
-        # If it looks like we're scoping out of pkg
-        if match:
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-            try:
-                self.log.debug("Attempting to resolve external %s::%s" % (link_pkg, link_symbol))
-                self.sv_type = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                                  link_symbol,
-                                                                  ["structs", "typedefs", "enums", "unions"])
-            except LinkError:
-                self.log.error(F"Couldn't resolve a link from %s to %s" % (self.name, self.width))
-            return
-
-        # If it doesn't look like we're scoping out of pkg, try to look in this pkg
-        for offspring in parent_pkg.offspring:
-            offspring_handle = getattr(parent_pkg, offspring)
-            if self.sv_type in offspring_handle:
-                self.log.debug("%s type %s is a valid enum in pkg %s" % (self.name, self.sv_type, parent_pkg.name))
-                self.sv_type = offspring_handle[self.sv_type]
-                self.local_links.append(self.sv_type)
-                break
+            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
         else:
-            self.log.error(F"Couldn't resolve a type link for {self.name} to {self.base_sv_type}")
+            self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
+
+        self.resolve_doc_links()
+        self.check_type_width_conflicts()
+
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
@@ -1238,11 +1134,6 @@ class Intf(YisNode):
                 "Components:\n  -{components}\n"
                 .format(components="\n  -".join([repr(component) for component in self.children.values()])))
 
-    def resolve_links(self):
-        """Find and resolve type links in all components."""
-        for child in self.children.values():
-            child.resolve_links()
-
     def compute_width(self):
         """Compute width of the each child object, then accumulate all widths to form master width."""
         cumulative_width = 0
@@ -1268,12 +1159,6 @@ class IntfComp(IntfItemBase):
         return (F"Component name: {self.name}\n"
                 "Connections:\n  -{connections}\n"
                 .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
-
-    def resolve_links(self):
-        """Resolve links for each CompConn child."""
-        for child in self.children.values():
-            child.resolve_links()
-            child.check_type_width_conflicts()
 
     def compute_width(self):
         """Compute width for this Component by iterating through all children."""
@@ -1311,6 +1196,7 @@ class IntfCompConn(IntfItemBase):
             self.log.error(F"{self.name} has a {self.sv_type} type with a raw int greater than 1 as the width. "
                            "The port width must be specified in a pkg and referenced by the connection.")
 
+    @only_run_once
     def resolve_links(self):
         """Resolve links from IntfCompConn to a package.
 
@@ -1325,6 +1211,7 @@ class IntfCompConn(IntfItemBase):
         # Else sv_type is a logic and it has an int width, so leave it alone
 
         self._resolve_doc_links()
+        self.check_type_width_conflicts()
 
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
