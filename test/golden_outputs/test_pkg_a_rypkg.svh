@@ -8,13 +8,6 @@
 
 package test_pkg_a; // This is an example of what a package file could look like.
 
-  /////////////////////////////////////////////////////////////////////////////
-  // localparams
-  /////////////////////////////////////////////////////////////////////////////
-  
-  localparam [DOUBLE_LINK_PARAM - 1:0] TRIPLE_NESTED_PARAM = ANOTHER_PARAM; // This paramter has a paramterized width and a parameterized type.
-  
-  localparam [HERO_WIDTH - 1:0] DOUBLE_LINK_PARAM = ANOTHER_PARAM; // This paramter has a paramterized width and a parameterized type.
   
   localparam [32 - 1:0] HERO_WIDTH = 36; // Width of hero bus around the bag.
   
@@ -26,13 +19,13 @@ package test_pkg_a; // This is an example of what a package file could look like
   // definition for the whole long-form documentation.
   localparam [6 - 1:0] ANOTHER_PARAM = 2; // This is a different parameter than the first.
   
-  /////////////////////////////////////////////////////////////////////////////
-  // enums
-  /////////////////////////////////////////////////////////////////////////////
+  localparam [HERO_WIDTH - 1:0] DOUBLE_LINK_PARAM = ANOTHER_PARAM; // This paramter has a paramterized width and a parameterized type.
+  
+  localparam [DOUBLE_LINK_PARAM - 1:0] TRIPLE_NESTED_PARAM = ANOTHER_PARAM; // This paramter has a paramterized width and a parameterized type.
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
-  type enum logic [TRIPLE_NESTED_PARAM - 1:0] {
+  typedef enum logic [TRIPLE_NESTED_PARAM - 1:0] {
     CYCLE_TYPE_IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
@@ -40,23 +33,22 @@ package test_pkg_a; // This is an example of what a package file could look like
     CYCLE_TYPE_DONE // The command on the bus this is valid and this is the last cycle of data.
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
-  type enum logic {
+  typedef enum logic {
     BOOL_TRUE = 1, // This is true
     BOOL_FALSE = 0 // This is false
   } BOOL_E; // Test for an enum that is width 1
   
-  /////////////////////////////////////////////////////////////////////////////
-  // typedefs
-  /////////////////////////////////////////////////////////////////////////////
-  
   // And it has a doc_verbose for good measure
-  typedef logic [6 - 1:0] vanilla_type_t // This is a basic logic type and width
+  typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
   
-  typedef vanilla_type_t [ANOTHER_PARAM - 1:0] nested_type_t // Use another typedef as the base type, a localparam as the width
+  typedef vanilla_type_t [ANOTHER_PARAM - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
   
-  /////////////////////////////////////////////////////////////////////////////
-  // structs
-  /////////////////////////////////////////////////////////////////////////////
+  typedef struct packed {
+    wire subfield_a; // Test that a width-1 wire field generates correctly
+    wire [ANOTHER_PARAM - 1:0] subfield_b; // This is a different parameter than the first.
+    wire [ANOTHER_PARAM - 1:0] subfield_c; // This is a different parameter than the first.
+    wire [ANOTHER_PARAM - 1:0] subfield_d; // This is a different parameter than the first.
+  } sub_def_t; // A sub-struct of hero_write_t that is declared afterwards.
   
   // This is a verbose doc. I'm writing it to provide that my verbose
   // doc links are working correctly.
@@ -68,13 +60,6 @@ package test_pkg_a; // This is an example of what a package file could look like
     sub_def_t another_type_reference; // Test a struct of a struct
     logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
-  
-  typedef struct packed {
-    wire subfield_a; // Test that a width-1 wire field generates correctly
-    wire [ANOTHER_PARAM - 1:0] subfield_b; // This is a different parameter than the first.
-    wire [ANOTHER_PARAM - 1:0] subfield_c; // This is a different parameter than the first.
-    wire [ANOTHER_PARAM - 1:0] subfield_d; // This is a different parameter than the first.
-  } sub_def_t; // A sub-struct of hero_write_t that is declared afterwards.
   
 
 endpackage : test_pkg_a
