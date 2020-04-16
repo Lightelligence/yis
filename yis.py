@@ -948,12 +948,13 @@ class PkgStruct(PkgItemBase):
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
-    @property
-    def html_canvas_data(self):
+    def html_canvas_data(self, label=""):
         """Return a dictionoary of data to render the struct-canvas in html."""
         data = {"field_names" : [],
                 "msbs" : [],
                 "lsbs" : []}
+        if label:
+            data["label"] = label
         current_bit = 0
         for child in reversed(self.children.values()):
             data["field_names"].insert(0, child.name)
@@ -1169,17 +1170,17 @@ class PkgUnion(PkgItemBase):
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
-    @property
     def html_canvas_data(self):
         """Return a dictionoary of data to render the struct-canvas in html."""
         all_data = []
         for child in self.children.values():
             if isinstance(child.sv_type, PkgStruct):
-                all_data.append(child.sv_type.html_canvas_data)
+                all_data.append(child.sv_type.html_canvas_data(label=child.name))
                 continue
             data = {"field_names" : [],
                     "msbs" : [],
-                    "lsbs" : []}
+                    "lsbs" : [],
+                    "label" : child.name}
             current_bit = 0
             data["field_names"].insert(0, child.name)
             data["lsbs"].insert(0, current_bit)

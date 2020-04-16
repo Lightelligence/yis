@@ -109,7 +109,7 @@
 <canvas id="{{ struct.name}}_canvas"></canvas>
 <script>
   var canvas = document.getElementById("{{ struct.name }}_canvas");
-  var data = [{{ struct.html_canvas_data }}];
+  var data = [{{ struct.html_canvas_data() }}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -152,7 +152,7 @@
 <canvas id="{{ union.name}}_canvas"></canvas>
 <script>
   var canvas = document.getElementById("{{ union.name }}_canvas");
-  var data = {{ union.html_canvas_data }};
+  var data = {{ union.html_canvas_data() }};
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
