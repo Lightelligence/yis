@@ -46,6 +46,10 @@ RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WOR
 
 ################################################################################
 # Helpers
+def is_verilog_primitive(value):
+    """Encapsulate frequent check for primitive types."""
+    return value in ["logic", "wire"]
+
 def bits(value):
     """Equivalent to $bits system call in Verilog.
     Requires a lot of typing in python.
@@ -936,7 +940,7 @@ class PkgTypedef(PkgItemBase):
             self.log.error(F"{self.name} is an invalid name, typedef names can't end in _e")
 
     def _get_render_base_sv_type(self):
-        if self.base_sv_type in ["logic", "wire"]:
+        if is_verilog_primitive(self.base_sv_type):
             render_type = self.base_sv_type
         elif self.get_parent_pkg() is not self.base_sv_type.get_parent_pkg():
             render_type = F"{self.base_sv_type.parent.name}::{self.base_sv_type.name}"
@@ -946,7 +950,7 @@ class PkgTypedef(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
-        if self.base_sv_type not in ["logic", "wire"]:
+        if not is_verilog_primitive(self.base_sv_type):
             self._resolve_link("base_sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
         self.width = Equation(self, self.width)
         super().resolve_links()
@@ -957,7 +961,7 @@ class PkgTypedef(PkgItemBase):
             # Default sv_type_width to 1 for logic/wire types
             base_sv_type_width = 1
             # If the base type is not a logic or a wire, it must be a linked type
-            if self.base_sv_type not in ["logic", "wire"]:
+            if not is_verilog_primitive(self.base_sv_type):
                 base_sv_type_width = self.base_sv_type.compute_width()
 
             # int width is easy
@@ -1079,7 +1083,7 @@ class PkgStructField(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
-        if self.sv_type in ["logic", "wire"]:
+        if is_verilog_primitive(self.sv_type):
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
@@ -1088,16 +1092,16 @@ class PkgStructField(PkgItemBase):
 
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
-        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+        if not is_verilog_primitive(self.sv_type) and self.width is not None:
             self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
                            "a non-logic/wire type. Only logic/wire can have a width")
 
     def compute_width(self):
         """Compute width by looking at width and type."""
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
-        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+        if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             self.computed_width = self.width
-        elif self.sv_type in ["logic", "wire"]:
+        elif is_verilog_primitive(self.sv_type):
             self.computed_width = self.width.compute_value()
         else:
             self.computed_width = self.sv_type.compute_width()
@@ -1106,7 +1110,7 @@ class PkgStructField(PkgItemBase):
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this struct field."""
-        if self.sv_type in ["logic", "wire"]:
+        if is_verilog_primitive(self.sv_type):
             render_type = self._render_formatted_width(self.sv_type)
         else:
             render_type = self._get_render_type()
@@ -1222,7 +1226,7 @@ class PkgUnionField(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
-        if self.sv_type in ["logic", "wire"]:
+        if is_verilog_primitive(self.sv_type):
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
@@ -1232,16 +1236,16 @@ class PkgUnionField(PkgItemBase):
 
     def check_type_width_conflicts(self):
         """Check to see if this union field defines both a width and a non-logic/wire type."""
-        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+        if not is_verilog_primitive(self.sv_type) and self.width is not None:
             self.log.error(F"Union field {self.parent.name}.{self.name} has width specified for "
                            "a non-logic/wire type. Only logic/wire can have a width")
 
     def compute_width(self):
         """Compute width by looking at width and type."""
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
-        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+        if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             self.computed_width = self.width
-        elif self.sv_type in ["logic", "wire"]:
+        elif is_verilog_primitive(self.sv_type):
             self.computed_width = self.width.compute_value()
         else:
             self.computed_width = self.sv_type.compute_width()
@@ -1250,7 +1254,7 @@ class PkgUnionField(PkgItemBase):
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this union field."""
-        if self.sv_type in ["logic", "wire"]:
+        if is_verilog_primitive(self.sv_type):
             render_type = self._render_formatted_width(self.sv_type)
         else:
             render_type = self._get_render_type()
@@ -1373,7 +1377,7 @@ class IntfCompConn(IntfItemBase):
                            " one between source and destination, one between destintation and \'functional\' name")
 
     def _check_width_consistency(self):
-        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int) and self.width != 1:
+        if is_verilog_primitive(self.sv_type) and isinstance(self.width, int) and self.width != 1:
             self.log.error(F"{self.name} has a {self.sv_type} type with a raw int greater than 1 as the width. "
                            "The port width must be specified in a pkg and referenced by the connection.")
 
@@ -1395,15 +1399,15 @@ class IntfCompConn(IntfItemBase):
 
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
-        if self.sv_type not in ["logic", "wire"] and self.width is not None:
+        if not is_verilog_primitive(self.sv_type) and self.width is not None:
             self.log.error(F"Interface connection {self.parent.name}.{self.name} has width specified for a "
                            "non-logic/wire type. Only logic/wire can have a width")
 
     def compute_width(self):
         """Compute width by looking at width and type."""
-        if self.sv_type in ["logic", "wire"] and isinstance(self.width, int):
+        if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             self.computed_width = self.width
-        elif self.sv_type in ["logic", "wire"]:
+        elif is_verilog_primitive(self.sv_type):
             self.computed_width = self.width.computed_width
         else:
             self.computed_width = self.sv_type.computed_width
