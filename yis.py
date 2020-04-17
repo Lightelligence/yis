@@ -3,12 +3,16 @@
 ################################################################################
 # stdlib
 import argparse
+import math
 import sys
 import os
 import re
 import textwrap
 from collections import OrderedDict
 from datetime import date
+
+import ast
+import astor
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -42,9 +46,20 @@ RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WOR
 
 ################################################################################
 # Helpers
+def bits(value):
+    """Equivalent to $bits system call in Verilog.
+    Requires a lot of typing in python.
+    """
+    return int(math.ceil(math.log2(value)))
 
 def only_run_once(function):
-    """A cheap decorator to only allow a method to be invoked once."""
+    """A cheap decorator to only allow a method to be invoked once.
+
+    This is helpful when trying walk a dependency graph with possible circular
+    links to make sure that a particular node only invokes a 'setup' function
+    once.
+
+    """
     def wrapper(self, *args, **kwargs):
         run_once_dict = getattr(self, f"_only_run_once", {})
         if function not in run_once_dict:
@@ -53,6 +68,128 @@ def only_run_once(function):
             return function(self, *args, **kwargs)
         return None
     return wrapper
+
+class EquationError(Exception):
+    """Any error raised by the Equation class"""
+    pass # pylint: disable=unnecessary-pass
+
+
+class Equation(ast.NodeTransformer):
+    """Allow some math to happen (referring to other nodes)"""
+
+    class LinkNode(ast.Num): # pylint: disable=too-few-public-methods
+        """Custom node to store information to another YisNode"""
+        def __init__(self, value, link, attribute):
+            self.link = link
+            self.attribute = attribute
+            super().__init__(value)
+
+    # This is a hack to allow custom source generators in astor
+    astor.op_util.precedence_data[LinkNode] = astor.op_util.precedence_data[ast.Num]
+
+    class TextSourceGenerator(astor.SourceGenerator): # pylint: disable=too-few-public-methods
+        """Support of LinkNode rendering"""
+        def visit_LinkNode(self, node):
+            """For text generation, just give the computed numerical value."""
+            self.visit_Num(node)
+
+    class HtmlSourceGenerator(astor.SourceGenerator): # pylint: disable=too-few-public-methods
+        """Rerender the equation, but replace node references with html links to the objects."""
+        link_map = {}
+        def visit_LinkNode(self, node):
+            """Return the precalculated link."""
+            html_link = self.link_map[node]
+            self.write(html_link)
+
+    def __init__(self, yisnode, equation):
+        super().__init__()
+        self.yisnode = yisnode
+        self.equation = equation
+        self.simple_eq = False
+
+        if isinstance(equation, int):
+            self.computed_value = equation
+            self.computed_width = equation
+            self.simple_eq = True
+            return
+
+        self.linked_nodes = []
+
+        # Change package refereces to . scoping to make python compiler happy
+        equation = equation.replace("::", ".")
+        self.tree_root = ast.parse(equation)
+        # Transform the equation
+        self.visit(self.tree_root)
+        # Regenerate the equation with subsituted values
+        new_eq = astor.to_source(self.tree_root, source_generator_class=self.TextSourceGenerator)
+
+        try:
+            self.computed_value = eval(new_eq) # pylint: disable=eval-used
+            self.computed_width = self.computed_value # This dichotomy fiedls wrong, need to merge this
+        except Exception as exc:
+            raise EquationError(exc)
+
+    def compute_attr(self, attr_name):
+        """Return the computed value of {attr_name}"""
+        return getattr(self, f"computed_{attr_name}")
+
+    def compute_value(self):
+        """Return the computed value"""
+        return self.computed_value
+
+    def compute_width(self):
+        """Return the computed width. This is the same as value. Pattern should be fixed."""
+        return self.computed_width
+
+    def visit_Attribute(self, node): # pylint: disable=invalid-name
+        """Override of ast.NodeTransformer function to find names and convert them to yisnode links."""
+        if isinstance(node.value, ast.Name):
+            # Local package
+            symbol = node.value.id
+            pkg = self.yisnode.get_parent_pkg().name
+        elif isinstance(node.value, ast.Attribute):
+            symbol = node.value.attr
+            pkg = node.value.value.id
+        else:
+            raise EquationError(f"Couldn't parse symbol in equation:", astor.to_source(node))
+
+        if "math" in [symbol, pkg]:
+            return super().generic_visit(node)
+
+        attribute = node.attr
+
+        link_name = f"{pkg}::{symbol}"
+        link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS])
+
+        if not hasattr(link, f"compute_{attribute}"):
+            raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")
+
+        value = getattr(link, f"compute_{attribute}")()
+
+        replacement_node = self.LinkNode(value, link, attribute)
+        self.linked_nodes.append(replacement_node)
+        return replacement_node
+
+    def visit_Expr(self, node): # pylint: disable=invalid-name
+        """Override of ast.NodeTransformer to find the top expression which makes eval easier."""
+        if not isinstance(self.tree_root, ast.Expr):
+            self.tree_root = node
+        return super().generic_visit(node)
+
+    def render_html(self, reference_yisnode):
+        """Walk the AST and generate links for all the yis nodes."""
+        if self.simple_eq:
+            return self.equation
+        html_map = {}
+        for node in self.linked_nodes:
+            html_map[node] = reference_yisnode.html_link_attribute_from_link(node.link, extra_text=f".{node.attribute}")
+        class LocalHtmlSourceGenerator(self.HtmlSourceGenerator): # pylint: disable=too-few-public-methods
+            """A derived class to have access to set link_map.
+            Would prefer to pass this in, but not easy due to astor invoking by class, not instance.
+            """
+            link_map = html_map
+        return astor.to_source(self.top_expr, source_generator_class=LocalHtmlSourceGenerator)
+
 
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
     """
@@ -508,17 +645,48 @@ class PkgItemBase(YisNode):
             if attr is None:
                 return ""
             return attr
+        return self.html_link_attribute_from_link(attr)
 
+    def html_link_attribute_from_link(self, link, extra_text=""):
+        """Pass a reference to another yisnode to create a relative HTML link from this object to that object."""
         my_root = self.get_parent_pkg()
-        ref_root = attr.get_parent_pkg()
+        ref_root = link.get_parent_pkg()
         relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
 
         pkg_prefix = ""
         if ref_root is not my_root:
             pkg_prefix = f"{ref_root.name}_rypkg::"
 
-        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
-        return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
+        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{link.html_anchor()}")
+        return f'<a href="{href_target}">{pkg_prefix}{link.name}{extra_text}</a>'
+
+    def resolve_link_from_str(self, link_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
+        """Given a string, attempt to likn to a matching YisNode."""
+        if not isinstance(link_name, str):
+            self.log.error("Attempting to resolve link from %s. Expected str, but got %s %s",
+                           self.name, link_name, type(link_name))
+
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(link_name)
+        if match:
+            # If it looks like we're scoping out of pkg
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+        else:
+            link_pkg = parent_pkg.name
+            link_symbol = link_name
+
+        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
+        try:
+            link = parent_pkg.resolve_outbound_symbol(link_pkg,
+                                                      link_symbol,
+                                                      allowed_symbols)
+        except LinkError:
+            self.log.error("Couldn't resolve a link from %s to %s", self.name, link_name)
+            return None
+        else:
+            self.local_links.append(link)
+        return link
 
     def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
         """Convert an attribute from a string to a linked object."""
@@ -527,34 +695,15 @@ class PkgItemBase(YisNode):
         if isinstance(attr, int):
             return # Not a link
 
-        if not isinstance(attr, str):
-            self.log.error("Attempting to resolve link from %s.%s, but %s was not a str: type(%s) = %s",
-                           self.name, attr_name, attr_name, attr_name, type(attr))
-
-        parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(attr)
-        if match:
-            # If it looks like we're scoping out of pkg
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-        else:
-            link_pkg = parent_pkg.name
-            link_symbol = attr
-
-        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
-        try:
-            link = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                      link_symbol,
-                                                      allowed_symbols)
-        except LinkError:
-            self.log.error("Couldn't resolve a link from %s to %s", self.name, attr)
-            return
-        else:
-            self.local_links.append(link)
-            setattr(self, attr_name, link)
+        link = self.resolve_link_from_str(attr, allowed_symbols=allowed_symbols)
+        setattr(self, attr_name, link)
 
     def _get_render_attr(self, attr_name):
         attr = getattr(self, attr_name)
+        if isinstance(attr, Equation):
+            # WRS I'm pretty sure that this will always execute and just
+            # render numerical values rather than linking to types.
+            return str(attr.computed_value)
         if not isinstance(attr, int) and (self.get_parent_pkg() is not attr.get_parent_pkg()):
             ret_str = F"{attr.parent.name}_rypkg::{attr.name}"
         elif isinstance(attr, int):
@@ -563,6 +712,12 @@ class PkgItemBase(YisNode):
             ret_str = attr.name
         return ret_str
 
+    def render_equation_as_html(self, attr_name):
+        """If attribute is an equation, render it as html."""
+        equation = getattr(self, attr_name)
+        if not equation:
+            return ""
+        return equation.render_html(self)
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -584,8 +739,8 @@ class PkgLocalparam(PkgItemBase):
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
-        self._resolve_link("width", self.allowed_symbols_for_linking)
-        self._resolve_link("value", self.allowed_symbols_for_linking)
+        self.width = Equation(self, self.width)
+        self.value = Equation(self, self.value)
 
     def compute_width(self):
         """Compute the raw width of this localparam."""
@@ -632,7 +787,7 @@ class PkgEnum(PkgItemBase):
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
-        self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+        self.width = Equation(self, self.width)
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
@@ -757,7 +912,7 @@ class PkgTypedef(PkgItemBase):
     def resolve_links(self):
         if self.base_sv_type not in ["logic", "wire"]:
             self._resolve_link("base_sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
-        self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+        self.width = Equation(self, self.width)
         super().resolve_links()
 
     def compute_width(self):
@@ -778,6 +933,8 @@ class PkgTypedef(PkgItemBase):
                 width_value = self.width.computed_value
             # Anything else means we need the width as usual
             else:
+                # Gross dependency failure here, compute_widths getting called before resolve links?
+                self.resolve_links()
                 width_value = self.width.compute_width()
 
             self.computed_width = base_sv_type_width * width_value
@@ -888,7 +1045,7 @@ class PkgStructField(PkgItemBase):
     def resolve_links(self):
         super().resolve_links()
         if self.sv_type in ["logic", "wire"]:
-            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+            self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
         self.resolve_doc_links()
@@ -1056,7 +1213,7 @@ class PkgUnionField(PkgItemBase):
         super().resolve_links()
 
         if self.sv_type in ["logic", "wire"]:
-            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+            self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
 
@@ -1245,7 +1402,7 @@ class IntfCompConn(IntfItemBase):
             self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
         # If sv_type is a logic or wire but width isn't an int, try to resolve the width link
         elif not isinstance(self.width, int):
-            self._resolve_link("width", allowed_symbols=[Pkg.LOCALPARAMS])
+            self.width = Equation(self, self.width)
         # Else sv_type is a logic and it has an int width, so leave it alone
 
         self._resolve_doc_links()
@@ -1307,6 +1464,7 @@ class IntfCompConn(IntfItemBase):
 
         href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
+
 
 def main(options, log):
     """Main execution."""
