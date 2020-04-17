@@ -608,11 +608,6 @@ class Pkg(YisNode):
                 child.compute_width()
         self._offspring_iterate(compute_widths_offspring)
 
-    def resolve_outbound_symbol(self, link_pkg, link_symbol, symbol_types):
-        """Resolve links leaving this pkg."""
-        self.log.debug("Attempting to resolve outbound link from %s to %s::%s", self.name, link_pkg, link_symbol)
-        return self.parent.resolve_symbol(link_pkg, link_symbol, symbol_types)
-
     def resolve_inbound_symbol(self, link_symbol, symbol_types):
         """Resolve a link from another pkg attempting to reference a symbol in this pkg."""
         self.log.debug("Attempting to resolve an inbound link %s::%s of types %s",
