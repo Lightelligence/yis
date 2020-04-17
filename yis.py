@@ -1370,7 +1370,7 @@ class IntfCompConn(IntfItemBase):
         Note that this is similar to resolve_width_links, but only external package links are allowed here.
         """
         # If the sv_type is not a logic or wire, try to resolve the sv_type link
-        if self.sv_type not in ['logic', 'wire']:
+        if not is_verilog_primitive(self.sv_type):
             self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
         # If sv_type is a logic or wire but width isn't an int, try to resolve the width link
         elif not isinstance(self.width, int):
