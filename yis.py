@@ -513,7 +513,6 @@ class YisNode: # pylint: disable=too-few-public-methods
                 linked_attr = getattr(self, yis_internal_name)
                 if isinstance(linked_attr, Equation):
                     linked_attr = linked_attr.get_doc_link()
-                    print(self.name)
                 try:
                     setattr(self, doc_type, getattr(linked_attr, doc_type))
                     self.log.debug("Linked up doc for %s", linked_attr.name)
