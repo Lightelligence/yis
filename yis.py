@@ -397,6 +397,9 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.children = OrderedDict()
         self.computed_width = None
         self._check_naming_conventions()
+        self.local_links = [] # Simplifies post-order-traversal algorithm
+                              # (basically just moving some smarts to
+                              # constructors)
 
     def _check_naming_conventions(self):
         self._check_reserved_word_name()
@@ -450,6 +453,40 @@ class YisNode: # pylint: disable=too-few-public-methods
             wrapper = textwrap.TextWrapper(initial_indent="// ", subsequent_indent=F"{indent_spaces}// ")
             return wrapper.fill(self.doc_verbose)
         return ""
+
+    def resolve_link_from_str(self, link_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
+        """Given a string, attempt to likn to a matching YisNode."""
+        if not isinstance(link_name, str):
+            self.log.error("Attempting to resolve link from %s. Expected str, but got %s %s",
+                           self.name, link_name, type(link_name))
+
+        link_pkg, link_symbol = self._extract_link_pieces(link_name)
+
+        root = self
+        while root.parent:
+            root = root.parent
+
+        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
+        try:
+            link = root.resolve_symbol(link_pkg,
+                                       link_symbol,
+                                       allowed_symbols)
+        except LinkError:
+            self.log.error("Couldn't resolve a link from %s to %s", self.name, link_name)
+            return None
+        else:
+            self.local_links.append(link)
+        return link
+
+    def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
+        """Convert an attribute from a string to a linked object."""
+        attr = getattr(self, attr_name)
+
+        if isinstance(attr, int):
+            return # Not a link
+
+        link = self.resolve_link_from_str(attr, allowed_symbols=allowed_symbols)
+        setattr(self, attr_name, link)
 
     @only_run_once
     def resolve_links(self):
@@ -644,12 +681,17 @@ class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
     allowed_symbols_for_linking = []
 
-    def __init__(self, *args, **kwargs):
-        self.local_links = [] # Simplifies post-order-traversal algorithm
-                              # (basically just moving some smarts to
-                              # constructors)
-        super(PkgItemBase, self).__init__(*args, **kwargs)
-
+    def _extract_link_pieces(self, link_name):
+        parent_pkg = self.get_parent_pkg()
+        match = PKG_SCOPE_REGEXP.match(link_name)
+        if match:
+            # If it looks like we're scoping out of pkg
+            link_pkg = match.group(1)
+            link_symbol = match.group(2)
+        else:
+            link_pkg = parent_pkg.name
+            link_symbol = link_name
+        return link_pkg, link_symbol
 
     def post_order_traversal_local_links(self):
         """Post order traversal of this objects dependencies."""
@@ -698,44 +740,6 @@ class PkgItemBase(YisNode):
 
         href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{link.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{link.name}{extra_text}</a>'
-
-    def resolve_link_from_str(self, link_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
-        """Given a string, attempt to likn to a matching YisNode."""
-        if not isinstance(link_name, str):
-            self.log.error("Attempting to resolve link from %s. Expected str, but got %s %s",
-                           self.name, link_name, type(link_name))
-
-        parent_pkg = self.get_parent_pkg()
-        match = PKG_SCOPE_REGEXP.match(link_name)
-        if match:
-            # If it looks like we're scoping out of pkg
-            link_pkg = match.group(1)
-            link_symbol = match.group(2)
-        else:
-            link_pkg = parent_pkg.name
-            link_symbol = link_name
-
-        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
-        try:
-            link = parent_pkg.resolve_outbound_symbol(link_pkg,
-                                                      link_symbol,
-                                                      allowed_symbols)
-        except LinkError:
-            self.log.error("Couldn't resolve a link from %s to %s", self.name, link_name)
-            return None
-        else:
-            self.local_links.append(link)
-        return link
-
-    def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
-        """Convert an attribute from a string to a linked object."""
-        attr = getattr(self, attr_name)
-
-        if isinstance(attr, int):
-            return # Not a link
-
-        link = self.resolve_link_from_str(attr, allowed_symbols=allowed_symbols)
-        setattr(self, attr_name, link)
 
     def _get_render_attr(self, attr_name):
         attr = getattr(self, attr_name)
@@ -1296,42 +1300,20 @@ class IntfItemBase(YisNode):
         """All IntfItems shouldn't end with _e or _t."""
         self._check_lower_name_ending()
 
-    def _resolve_link(self, attr_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
-        """Convert an attribute from a string to a linked object."""
-        attr = getattr(self, attr_name)
-
-        if not isinstance(attr, str):
-            self.log.error("Attempting to resolve link from %s.%s, but %s was not a str: type(%s) = %s",
-                           self.name, attr_name, attr_name, attr_name, type(attr))
-
-        match = PKG_SCOPE_REGEXP.match(attr)
+    def _extract_link_pieces(self, link_name):
+        match = PKG_SCOPE_REGEXP.match(link_name)
         if not match:
-            self.log.error(("%s has invalid %s %s. "
+            self.log.error(("%s has invalid %s"
                             "%s references in RTL intf files must be package scoped"),
                            self.name,
-                           attr_name,
-                           self.width,
-                           attr_name)
+                           link_name,
+                           link_name)
 
         # If it looks like we're scoping out of pkg
         link_pkg = match.group(1)
         link_symbol = match.group(2)
 
-        root = self
-        while root.parent:
-            root = root.parent
-
-        self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
-        try:
-            link = root.resolve_symbol(link_pkg,
-                                       link_symbol,
-                                       allowed_symbols)
-        except LinkError:
-            self.log.error("Couldn't resolve a link from %s to %s", self.name, attr)
-            return
-        else:
-            setattr(self, attr_name, link)
-
+        return link_pkg, link_symbol
 
 class IntfComp(IntfItemBase):
     """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
