@@ -2,6 +2,8 @@ doc_summary: include('doc_summary')
 doc_verbose: include('doc_verbose', required=False)
 components: list(include('component'))
 ---
+equation: any(str(min=1), int(min=0))
+---
 sv_name: str(min=3, exclude='=+!@#$%^&*()-|\/?.,[{]}\`~:;')
 port_name: regex('^[a-z][a-z0-9_]{,}__[a-z][a-z0-9_]{,}__[a-z][a-z0-9_]{2,}$', name='valid port name. Valid port names are <src>__<dst>__<symbol> and must start with a letter.')
 doc_verbose: str(min=3)
@@ -19,6 +21,6 @@ component:
 connection:
   name: include('port_name')
   type: include('sv_type')
-  width: any(int(min=1), include('pkg_localparam'), required=False)
+  width: include('equation', required=False)
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)

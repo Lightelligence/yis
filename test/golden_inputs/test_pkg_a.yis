@@ -3,13 +3,13 @@
 doc_summary: This is an example of what a package file could look like.
 localparams:
   - name: TRIPLE_NESTED_PARAM
-    width: DOUBLE_LINK_PARAM
-    value: ANOTHER_PARAM
+    width: DOUBLE_LINK_PARAM.value
+    value: ANOTHER_PARAM.value
     doc_summary: This paramter has a paramterized width and a parameterized type.
 
   - name: DOUBLE_LINK_PARAM
-    width: HERO_WIDTH
-    value: ANOTHER_PARAM
+    width: HERO_WIDTH.width
+    value: ANOTHER_PARAM.value
     doc_summary: This paramter has a paramterized width and a parameterized type.
 
   - name: HERO_WIDTH
@@ -31,7 +31,7 @@ localparams:
 
 enums:
   - name: CYCLE_TYPE_E
-    width: TRIPLE_NESTED_PARAM
+    width: TRIPLE_NESTED_PARAM.value
     values:
       - name: IDLE
         doc_summary: The bus is idle this cycle.
@@ -66,7 +66,7 @@ typedefs:
   - name: nested_type_t
     doc_summary: Use another typedef as the base type, a localparam as the width
     base_type: vanilla_type_t
-    width: ANOTHER_PARAM
+    width: ANOTHER_PARAM.value
 structs:
   - name: hero_write_t
     doc_summary: "A struct that wraps all fields needed for a single hero write."
@@ -80,7 +80,7 @@ structs:
         doc_verbose: type.doc_verbose
       - name: wdat
         type: logic
-        width: HERO_WIDTH
+        width: HERO_WIDTH.value
         doc_summary: width.doc_summary
       - name: another_type_reference
         type: sub_def_t
@@ -99,14 +99,14 @@ structs:
         doc_summary: Test that a width-1 wire field generates correctly
       - name: subfield_b
         type: wire
-        width: ANOTHER_PARAM
+        width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
       - name: subfield_c
         type: wire
-        width: ANOTHER_PARAM
+        width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
       - name: subfield_d
         type: wire
-        width: ANOTHER_PARAM
+        width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
 

@@ -126,8 +126,9 @@ class Equation(ast.NodeTransformer):
         try:
             self.computed_value = eval(new_eq) # pylint: disable=eval-used
             self.computed_width = self.computed_value # This dichotomy fiedls wrong, need to merge this
-        except Exception as exc:
-            raise EquationError(exc)
+        except NameError as exc:
+            name = re.search("name '(.*)' is not defined", exc.args[0]).group(1)
+            raise EquationError(f"Did you forget to add '.width' or '.value' on the end of '{name}'")
 
     def compute_attr(self, attr_name):
         """Return the computed value of {attr_name}"""
@@ -140,6 +141,11 @@ class Equation(ast.NodeTransformer):
     def compute_width(self):
         """Return the computed width. This is the same as value. Pattern should be fixed."""
         return self.computed_width
+
+    def get_doc_link(self):
+        if len(self.linked_nodes) != 1:
+            raise EquationError("May not use doc linking unless attribute has exactly one link.")
+        return self.linked_nodes[0].link
 
     def visit_Attribute(self, node): # pylint: disable=invalid-name
         """Override of ast.NodeTransformer function to find names and convert them to yisnode links."""
@@ -188,7 +194,7 @@ class Equation(ast.NodeTransformer):
             Would prefer to pass this in, but not easy due to astor invoking by class, not instance.
             """
             link_map = html_map
-        return astor.to_source(self.top_expr, source_generator_class=LocalHtmlSourceGenerator)
+        return astor.to_source(self.tree_root, source_generator_class=LocalHtmlSourceGenerator)
 
 
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
@@ -422,6 +428,7 @@ class YisNode: # pylint: disable=too-few-public-methods
 
     def compute_attr(self, attr_name):
         """Compute the raw value of an attr, recursively computing the value of a linked attr."""
+        self.resolve_links() # Another dep failure
         attr = getattr(self, attr_name)
         computed_attr_name = F"computed_{attr_name}"
         current_computed_attr = getattr(self, computed_attr_name)
@@ -718,6 +725,38 @@ class PkgItemBase(YisNode):
         if not equation:
             return ""
         return equation.render_html(self)
+
+    @only_run_once
+    def resolve_links(self):
+        super().resolve_links()
+        self.resolve_doc_links()
+
+    def resolve_doc_links(self):
+        """Resolve basic doc_* links from *.doc_* to the original definition."""
+        attr_name_map = {'width' : 'width',
+                         'type' : 'sv_type'}
+        for doc_type in ['doc_summary', 'doc_verbose']:
+            self.log.debug(F"Looking for {doc_type} on {self.name}")
+            doc_attr = getattr(self, doc_type)
+            for human_name, yis_internal_name in attr_name_map.items():
+                if (doc_attr == F"{human_name}.{doc_type}"):
+                    if not hasattr(self, yis_internal_name):
+                        log.error("Attempting to use %s.%s, but %s doesn't have a %s member.", human_name, doc_type, self.__class__)
+                        continue
+                else:
+                    continue
+                linked_attr = getattr(self, yis_internal_name)
+                if isinstance(linked_attr, Equation):
+                    linked_attr = linked_attr.get_doc_link()
+                    print(self.name)
+                try:
+                    setattr(self, doc_type, getattr(linked_attr, doc_type))
+                    self.log.debug("Linked up doc for %s", linked_attr.name)
+                except AttributeError:
+                    import pdb; pdb.set_trace()
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"{human_name}.{doc_type}\" "
+                                   F"{doc_type} link unless \"{human_name}\" field points links to exactly one object")
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -1043,36 +1082,12 @@ class PkgStructField(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
-        super().resolve_links()
         if self.sv_type in ["logic", "wire"]:
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
-        self.resolve_doc_links()
+        super().resolve_links()
         self.check_type_width_conflicts()
-
-
-    def resolve_doc_links(self):
-        """Resolve basic doc_* links from *.doc_* to the original definition."""
-        for doc_type in ['doc_summary', 'doc_verbose']:
-            self.log.debug(F"Looking for {doc_type} on {self.name}")
-            doc_attr = getattr(self, doc_type)
-            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.width, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.width.name))
-                except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"width.{doc_type}\" "
-                                   F"{doc_type} link unless \"width\" field points to a localparam")
-            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
-                except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"type.{doc_type}\" "
-                                   F"{doc_type} link unless \"type\" field points to a valid type")
 
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
@@ -1210,38 +1225,13 @@ class PkgUnionField(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
-        super().resolve_links()
-
         if self.sv_type in ["logic", "wire"]:
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
-
-        self.resolve_doc_links()
+        super().resolve_links()
         self.check_type_width_conflicts()
 
-
-    def resolve_doc_links(self):
-        """Resolve basic doc_* links from *.doc_* to the original definition."""
-        for doc_type in ['doc_summary', 'doc_verbose']:
-            self.log.debug(F"Looking for {doc_type} on {self.name}")
-            doc_attr = getattr(self, doc_type)
-            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.width, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.width.name))
-                except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"width.{doc_type}\" "
-                                   F"{doc_type} link unless \"width\" field points to a localparam")
-            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
-                except AttributeError:
-                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"type.{doc_type}\" "
-                                   F"{doc_type} link unless \"type\" field points to a valid type")
 
     def check_type_width_conflicts(self):
         """Check to see if this union field defines both a width and a non-logic/wire type."""

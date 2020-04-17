@@ -21,7 +21,7 @@ components:
     connections:                  
       - name: try__bog__csr_req
         type: logic
-        width: test_pkg_b::NEW_PARAM
+        width: test_pkg_b::NEW_PARAM.value
         doc_summary: width.doc_summary
       - name: bog__try__csr_rsp
         type: test_pkg_b::several_things_t

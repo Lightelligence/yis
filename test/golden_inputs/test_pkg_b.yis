@@ -3,21 +3,21 @@
 doc_summary: Example of what a dependent package looks like
 localparams:
   - name: NEW_PARAM
-    width: test_pkg_a::ANOTHER_PARAM
+    width: test_pkg_a::ANOTHER_PARAM.value
     value: 5
     doc_summary: This should link up
 typedefs:
   - name: first_defined_type_t
     doc_summary: Use another package's enum as the type and a local localparam as width
     base_type: test_pkg_a::CYCLE_TYPE_E
-    width: NEW_PARAM
+    width: NEW_PARAM.value
   - name: second_defined_type_t
     doc_summary: Use another package's struct as the type and another packages's localparam as width
     doc_verbose: |
       This verbose doc is several lines in order to demonstrate 
       that we can have a multi-line verbose doc that can be linked through
     base_type: test_pkg_a::hero_write_t
-    width: test_pkg_a::DOUBLE_LINK_PARAM
+    width: test_pkg_a::DOUBLE_LINK_PARAM.value
   - name: local_item_type_t
     doc_summary: Use this package's struct as the type and an int for a width
     base_type: several_things_t
@@ -29,7 +29,7 @@ structs:
       - name: fielda
         doc_summary: width.doc_summary
         type: logic
-        width: test_pkg_a::HERO_WIDTH
+        width: test_pkg_a::HERO_WIDTH.value
       - name: fieldb
         doc_summary: type.doc_summary
         type: test_pkg_a::hero_write_t
@@ -39,7 +39,7 @@ structs:
       - name: fieldd
         doc_summary: This summary is different than its base definition
         type: logic
-        width: NEW_PARAM
+        width: NEW_PARAM.value
   - name: type_links_t
     doc_summary: Link in a local typedef, a scoped typdef, and a scoped enum
     fields:
