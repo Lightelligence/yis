@@ -92,7 +92,7 @@ def memoize_property(function):
             return result
     return wrapper
 
-        
+
 class EquationError(Exception):
     """Any error raised by the Equation class"""
     pass # pylint: disable=unnecessary-pass
@@ -163,6 +163,7 @@ class Equation(ast.NodeTransformer):
         return self._result
 
     def get_doc_link(self):
+        """Return a linked node."""
         if len(self.linked_nodes) != 1:
             raise EquationError("May not use doc linking unless attribute has exactly one link.")
         return self.linked_nodes[0].link
@@ -188,7 +189,6 @@ class Equation(ast.NodeTransformer):
         link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS])
 
         if not hasattr(link, f"computed_{attribute}"):
-            import pdb; pdb.set_trace()
             raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")
 
         value = getattr(link, f"computed_{attribute}")
@@ -511,9 +511,10 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.debug(F"Looking for {doc_type} on {self.name}")
             doc_attr = getattr(self, doc_type)
             for human_name, yis_internal_name in attr_name_map.items():
-                if (doc_attr == F"{human_name}.{doc_type}"):
+                if doc_attr == F"{human_name}.{doc_type}":
                     if not hasattr(self, yis_internal_name):
-                        log.error("Attempting to use %s.%s, but %s doesn't have a %s member.", human_name, doc_type, self.__class__)
+                        self.log.error("Attempting to use %s.%s, but %s doesn't have a %s member.",
+                                       human_name, doc_type, self.__class__)
                         continue
                 else:
                     continue
@@ -524,7 +525,6 @@ class YisNode: # pylint: disable=too-few-public-methods
                     setattr(self, doc_type, getattr(linked_attr, doc_type))
                     self.log.debug("Linked up doc for %s", linked_attr.name)
                 except AttributeError:
-                    import pdb; pdb.set_trace()
                     self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
                                    F"can't use a \"{human_name}.{doc_type}\" "
                                    F"{doc_type} link unless \"{human_name}\" field points links to exactly one object")
@@ -783,16 +783,14 @@ class PkgLocalparam(PkgItemBase):
         """Recurse if necessary"""
         if isinstance(self.width, int):
             return self.width
-        else:
-            return self.width.computed_width
+        return self.width.computed_width
 
     @memoize_property
     def computed_value(self):
         """Recurse if necessary"""
         if isinstance(self.value, int):
             return self.value
-        else:
-            return self.value.computed_value
+        return self.value.computed_value
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
@@ -855,11 +853,10 @@ class PkgEnum(PkgItemBase):
         """Compute the raw width of this enum."""
         if isinstance(self.width, int):
             return self.width
-        else:
-            # We need a localparam value for the enum width
-            # For example, if you have a localparam [31:0] MY_PARAM = 5, then an enum of width MY_PARAM,
-            # the enum width is the 5, not the localparam width
-            return self.width.computed_value
+        # We need a localparam value for the enum width
+        # For example, if you have a localparam [31:0] MY_PARAM = 5, then an enum of width MY_PARAM,
+        # the enum width is the 5, not the localparam width
+        return self.width.computed_value
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this enum.
@@ -1098,10 +1095,9 @@ class PkgStructField(PkgItemBase):
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
-        elif is_verilog_primitive(self.sv_type):
+        if is_verilog_primitive(self.sv_type):
             return self.width.computed_value
-        else:
-            return self.sv_type.computed_width
+        return self.sv_type.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this struct field."""
@@ -1241,10 +1237,9 @@ class PkgUnionField(PkgItemBase):
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
-        elif is_verilog_primitive(self.sv_type):
+        if is_verilog_primitive(self.sv_type):
             return self.width.computed_value
-        else:
-            return self.sv_type.computed_width
+        return self.sv_type.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this union field."""
@@ -1375,10 +1370,9 @@ class IntfCompConn(IntfItemBase):
         """Compute width by looking at width and type."""
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
-        elif is_verilog_primitive(self.sv_type):
+        if is_verilog_primitive(self.sv_type):
             return self.width.computed_width
-        else:
-            return self.sv_type.computed_width
+        return self.sv_type.computed_width
 
     def html_link_attribute(self, attr_name):
         """Build HTML string to render for an attribute that can be linked (e.g. width)."""
