@@ -65,7 +65,7 @@ def only_run_once(function):
 
     """
     def wrapper(self, *args, **kwargs):
-        run_once_dict = getattr(self, f"_only_run_once", {})
+        run_once_dict = getattr(self, "_only_run_once", {})
         if function not in run_once_dict:
             run_once_dict[function] = True
             setattr(self, "_only_run_once", run_once_dict)
@@ -73,6 +73,26 @@ def only_run_once(function):
         return None
     return wrapper
 
+def memoize_property(function):
+    """Memoize a class method. Intentionally only works on functions without args for now.
+
+    If arguments added, need to make hash inputs to make unique key instead of
+    just using function name.
+
+    """
+    @property
+    def wrapper(self):
+        memoize_properties = getattr(self, "_memoize_properties", {})
+        try:
+            return memoize_properties[function]
+        except KeyError:
+            result = function(self)
+            memoize_properties[function] = result
+            setattr(self, "_memoize_properties", memoize_properties)
+            return result
+    return wrapper
+
+        
 class EquationError(Exception):
     """Any error raised by the Equation class"""
     pass # pylint: disable=unnecessary-pass
@@ -112,8 +132,7 @@ class Equation(ast.NodeTransformer):
         self.simple_eq = False
 
         if isinstance(equation, int):
-            self.computed_value = equation
-            self.computed_width = equation
+            self._result = equation
             self.simple_eq = True
             return
 
@@ -128,23 +147,20 @@ class Equation(ast.NodeTransformer):
         new_eq = astor.to_source(self.tree_root, source_generator_class=self.TextSourceGenerator)
 
         try:
-            self.computed_value = eval(new_eq) # pylint: disable=eval-used
-            self.computed_width = self.computed_value # This dichotomy fiedls wrong, need to merge this
+            self._result = eval(new_eq) # pylint: disable=eval-used
         except NameError as exc:
             name = re.search("name '(.*)' is not defined", exc.args[0]).group(1)
             raise EquationError(f"Did you forget to add '.width' or '.value' on the end of '{name}'")
 
-    def compute_attr(self, attr_name):
-        """Return the computed value of {attr_name}"""
-        return getattr(self, f"computed_{attr_name}")
+    @property
+    def computed_value(self):
+        """Return previously calculated value."""
+        return self._result
 
-    def compute_value(self):
-        """Return the computed value"""
-        return self.computed_value
-
-    def compute_width(self):
-        """Return the computed width. This is the same as value. Pattern should be fixed."""
-        return self.computed_width
+    @property
+    def computed_width(self):
+        """Return previously calculated value."""
+        return self._result
 
     def get_doc_link(self):
         if len(self.linked_nodes) != 1:
@@ -171,10 +187,11 @@ class Equation(ast.NodeTransformer):
         link_name = f"{pkg}::{symbol}"
         link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS])
 
-        if not hasattr(link, f"compute_{attribute}"):
+        if not hasattr(link, f"computed_{attribute}"):
+            import pdb; pdb.set_trace()
             raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")
 
-        value = getattr(link, f"compute_{attribute}")()
+        value = getattr(link, f"computed_{attribute}")
 
         replacement_node = self.LinkNode(value, link, attribute)
         self.linked_nodes.append(replacement_node)
@@ -332,9 +349,6 @@ class Yis:
         # Only do a link first. Skip computing widths until after link is finished
         for pkg in self._pkgs.values():
             pkg.resolve_links()
-        # Compute widths after link is finished
-        for pkg in self._pkgs.values():
-            pkg.compute_widths()
         if self._block_interface:
             self._block_interface.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
@@ -395,11 +409,17 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.parent = kwargs.pop('parent')
         self.parent.add_child(self)
         self.children = OrderedDict()
-        self.computed_width = None
         self._check_naming_conventions()
         self.local_links = [] # Simplifies post-order-traversal algorithm
                               # (basically just moving some smarts to
                               # constructors)
+
+    def __getattribute__(self, attr):
+        """Override the default behaviour to make sure links are resolved before
+        accessing any computed functions."""
+        if attr.startswith("computed_"):
+            self.resolve_links()
+        return super().__getattribute__(attr)
 
     def _check_naming_conventions(self):
         self._check_reserved_word_name()
@@ -432,19 +452,6 @@ class YisNode: # pylint: disable=too-few-public-methods
         if render_width == 1:
             return F"{raw_type}"
         return F"{raw_type} [{render_width} - 1:0]"
-
-    def compute_attr(self, attr_name):
-        """Compute the raw value of an attr, recursively computing the value of a linked attr."""
-        self.resolve_links() # Another dep failure
-        attr = getattr(self, attr_name)
-        computed_attr_name = F"computed_{attr_name}"
-        current_computed_attr = getattr(self, computed_attr_name)
-        if isinstance(attr, int):
-            setattr(self, computed_attr_name, attr)
-        elif not isinstance(attr, int) and not current_computed_attr:
-            setattr(self, computed_attr_name, attr.compute_attr(attr_name))
-
-        return getattr(self, computed_attr_name)
 
     def render_doc_verbose(self, indent_width):
         """Render doc_verbose for a RTL_PKG template, requires an indent_width for spaces preceding //"""
@@ -599,14 +606,6 @@ class Pkg(YisNode):
         self.log.debug("Attempting to resolve links in %s", self.name)
         self.finished_link = True
         super().resolve_links()
-
-    def compute_widths(self):
-        """Compute widths of all underlying items, assuming link process finished successfully."""
-        self.log.debug("Attempting to resolve links in %s", self.name)
-        def compute_widths_offspring(offspring):
-            for child in getattr(self, offspring).values():
-                child.compute_width()
-        self._offspring_iterate(compute_widths_offspring)
 
     def resolve_inbound_symbol(self, link_symbol, symbol_types):
         """Resolve a link from another pkg attempting to reference a symbol in this pkg."""
@@ -765,7 +764,6 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         self.value = kwargs.pop('value')
-        self.computed_value = None
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
@@ -780,15 +778,21 @@ class PkgLocalparam(PkgItemBase):
         self.width = Equation(self, self.width)
         self.value = Equation(self, self.value)
 
-    def compute_width(self):
-        """Compute the raw width of this localparam."""
-        self.compute_attr('width')
-        self.compute_value()
-        return self.computed_width
+    @memoize_property
+    def computed_width(self):
+        """Recurse if necessary"""
+        if isinstance(self.width, int):
+            return self.width
+        else:
+            return self.width.computed_width
 
-    def compute_value(self):
-        """Computing localparam value is straightforward - use YisNode.compute_attr to resolve value."""
-        return self.compute_attr('value')
+    @memoize_property
+    def computed_value(self):
+        """Recurse if necessary"""
+        if isinstance(self.value, int):
+            return self.value
+        else:
+            return self.value.computed_value
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
@@ -846,16 +850,16 @@ class PkgEnum(PkgItemBase):
         if explicit_values and implicit_values:
             self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values")
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute the raw width of this enum."""
         if isinstance(self.width, int):
-            self.computed_width = self.width
+            return self.width
         else:
             # We need a localparam value for the enum width
             # For example, if you have a localparam [31:0] MY_PARAM = 5, then an enum of width MY_PARAM,
             # the enum width is the 5, not the localparam width
-            self.computed_width = self.width.compute_value()
-        return self.computed_width
+            return self.width.computed_value
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this enum.
@@ -953,30 +957,27 @@ class PkgTypedef(PkgItemBase):
         self.width = Equation(self, self.width)
         super().resolve_links()
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Computing width for a typedef requires two parts - width of the base_sv_type and *value* of the width."""
-        if self.computed_width is None:
-            # Default sv_type_width to 1 for logic/wire types
-            base_sv_type_width = 1
-            # If the base type is not a logic or a wire, it must be a linked type
-            if not is_verilog_primitive(self.base_sv_type):
-                base_sv_type_width = self.base_sv_type.compute_width()
+        # Default sv_type_width to 1 for logic/wire types
+        base_sv_type_width = 1
+        # If the base type is not a logic or a wire, it must be a linked type
+        if not is_verilog_primitive(self.base_sv_type):
+            base_sv_type_width = self.base_sv_type.computed_width
 
-            # int width is easy
-            if isinstance(self.width, int):
-                width_value = self.width
-            # localparam width means we need the *value* of the localparam
-            elif isinstance(self.width, PkgLocalparam):
-                # Note, can use width.computed_value instead of doing the call stack b/c enums compute before typedefs
-                width_value = self.width.computed_value
-            # Anything else means we need the width as usual
-            else:
-                # Gross dependency failure here, compute_widths getting called before resolve links?
-                self.resolve_links()
-                width_value = self.width.compute_width()
+        # int width is easy
+        if isinstance(self.width, int):
+            width_value = self.width
+        # localparam width means we need the *value* of the localparam
+        elif isinstance(self.width, PkgLocalparam):
+            # Note, can use width.computed_value instead of doing the call stack b/c enums compute before typedefs
+            width_value = self.width.computed_value
+        # Anything else means we need the width as usual
+        else:
+            width_value = self.width.computed_width
 
-            self.computed_width = base_sv_type_width * width_value
-        return self.computed_width
+        return base_sv_type_width * width_value
 
     def render_rtl_sv_pkg(self):
         """Render RTL for an sv pkg.
@@ -1007,13 +1008,13 @@ class PkgStruct(PkgItemBase):
         fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute the width of a struct by computing width of all fields."""
         cumulative_width = 0
         for child in self.children.values():
-            cumulative_width += child.compute_width()
-        self.computed_width = cumulative_width
-        return self.computed_width
+            cumulative_width += child.computed_width
+        return cumulative_width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this struct.
@@ -1094,17 +1095,16 @@ class PkgStructField(PkgItemBase):
             self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
                            "a non-logic/wire type. Only logic/wire can have a width")
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute width by looking at width and type."""
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
-            self.computed_width = self.width
+            return self.width
         elif is_verilog_primitive(self.sv_type):
-            self.computed_width = self.width.compute_value()
+            return self.width.computed_value
         else:
-            self.computed_width = self.sv_type.compute_width()
-
-        return self.computed_width
+            return self.sv_type.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this struct field."""
@@ -1134,16 +1134,17 @@ class PkgUnion(PkgItemBase):
         fields = "\n    -".join([str(child) for child in self.children.values()])
         return F"{id(self)} {self.name}, fields:\n    -{fields}"
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Unions have a simple implemention. They must all be the same width for now (padding implemented by user)"""
         width = 0
         first = None
         for i, child in enumerate(self.children.values()):
             if i == 0:
                 first = child
-                width = child.compute_width()
+                width = child.computed_width
             else:
-                if child.compute_width() != width:
+                if child.computed_width != width:
                     self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
                                     "Union fields must be padded to match widths exactly."),
                                    self.name,
@@ -1151,8 +1152,7 @@ class PkgUnion(PkgItemBase):
                                    child.name,
                                    width,
                                    child.computed_width)
-        self.computed_width = width
-        return self.computed_width
+        return width
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this union.
@@ -1238,17 +1238,16 @@ class PkgUnionField(PkgItemBase):
             self.log.error(F"Union field {self.parent.name}.{self.name} has width specified for "
                            "a non-logic/wire type. Only logic/wire can have a width")
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute width by looking at width and type."""
         self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
-            self.computed_width = self.width
+            return self.width
         elif is_verilog_primitive(self.sv_type):
-            self.computed_width = self.width.compute_value()
+            return self.width.computed_value
         else:
-            self.computed_width = self.sv_type.compute_width()
-
-        return self.computed_width
+            return self.sv_type.computed_width
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this union field."""
@@ -1280,12 +1279,13 @@ class Intf(YisNode):
                 "Components:\n  -{components}\n"
                 .format(components="\n  -".join([repr(component) for component in self.children.values()])))
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute width of the each child object, then accumulate all widths to form master width."""
         cumulative_width = 0
         for child in self.children.values():
-            cumulative_width += child.compute_width()
-        self.computed_width = cumulative_width
+            cumulative_width += child.computed_width
+        return cumulative_width
 
 
 class IntfItemBase(YisNode):
@@ -1321,13 +1321,13 @@ class IntfComp(IntfItemBase):
                 "Connections:\n  -{connections}\n"
                 .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute width for this Component by iterating through all children."""
         cumulative_width = 0
         for child in self.children.values():
-            cumulative_width += child.compute_width()
-        self.computed_width = cumulative_width
-        return self.computed_width
+            cumulative_width += child.computed_width
+        return cumulative_width
 
 
 class IntfCompConn(IntfItemBase):
@@ -1379,15 +1379,15 @@ class IntfCompConn(IntfItemBase):
             self.log.error(F"Interface connection {self.parent.name}.{self.name} has width specified for a "
                            "non-logic/wire type. Only logic/wire can have a width")
 
-    def compute_width(self):
+    @memoize_property
+    def computed_width(self):
         """Compute width by looking at width and type."""
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
-            self.computed_width = self.width
+            return self.width
         elif is_verilog_primitive(self.sv_type):
-            self.computed_width = self.width.computed_width
+            return self.width.computed_width
         else:
-            self.computed_width = self.sv_type.computed_width
-        return self.computed_width
+            return self.sv_type.computed_width
 
     def html_link_attribute(self, attr_name):
         """Build HTML string to render for an attribute that can be linked (e.g. width)."""
