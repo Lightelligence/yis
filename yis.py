@@ -453,6 +453,34 @@ class YisNode: # pylint: disable=too-few-public-methods
         for child in self.children.values():
             child.resolve_links()
             self.log.exit_if_warnings_or_errors("Errors linking %s", child)
+        self.resolve_doc_links()
+
+    def resolve_doc_links(self):
+        """Resolve basic doc_* links from *.doc_* to the original definition."""
+        attr_name_map = {'width' : 'width',
+                         'type' : 'sv_type'}
+        for doc_type in ['doc_summary', 'doc_verbose']:
+            self.log.debug(F"Looking for {doc_type} on {self.name}")
+            doc_attr = getattr(self, doc_type)
+            for human_name, yis_internal_name in attr_name_map.items():
+                if (doc_attr == F"{human_name}.{doc_type}"):
+                    if not hasattr(self, yis_internal_name):
+                        log.error("Attempting to use %s.%s, but %s doesn't have a %s member.", human_name, doc_type, self.__class__)
+                        continue
+                else:
+                    continue
+                linked_attr = getattr(self, yis_internal_name)
+                if isinstance(linked_attr, Equation):
+                    linked_attr = linked_attr.get_doc_link()
+                    print(self.name)
+                try:
+                    setattr(self, doc_type, getattr(linked_attr, doc_type))
+                    self.log.debug("Linked up doc for %s", linked_attr.name)
+                except AttributeError:
+                    import pdb; pdb.set_trace()
+                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
+                                   F"can't use a \"{human_name}.{doc_type}\" "
+                                   F"{doc_type} link unless \"{human_name}\" field points links to exactly one object")
 
     def add_child(self, child):
         """Add a child item to this pkg."""
@@ -726,37 +754,6 @@ class PkgItemBase(YisNode):
             return ""
         return equation.render_html(self)
 
-    @only_run_once
-    def resolve_links(self):
-        super().resolve_links()
-        self.resolve_doc_links()
-
-    def resolve_doc_links(self):
-        """Resolve basic doc_* links from *.doc_* to the original definition."""
-        attr_name_map = {'width' : 'width',
-                         'type' : 'sv_type'}
-        for doc_type in ['doc_summary', 'doc_verbose']:
-            self.log.debug(F"Looking for {doc_type} on {self.name}")
-            doc_attr = getattr(self, doc_type)
-            for human_name, yis_internal_name in attr_name_map.items():
-                if (doc_attr == F"{human_name}.{doc_type}"):
-                    if not hasattr(self, yis_internal_name):
-                        log.error("Attempting to use %s.%s, but %s doesn't have a %s member.", human_name, doc_type, self.__class__)
-                        continue
-                else:
-                    continue
-                linked_attr = getattr(self, yis_internal_name)
-                if isinstance(linked_attr, Equation):
-                    linked_attr = linked_attr.get_doc_link()
-                    print(self.name)
-                try:
-                    setattr(self, doc_type, getattr(linked_attr, doc_type))
-                    self.log.debug("Linked up doc for %s", linked_attr.name)
-                except AttributeError:
-                    import pdb; pdb.set_trace()
-                    self.log.error(F"{self.get_parent_pkg().name}::{self.parent.name}.{self.name} "
-                                   F"can't use a \"{human_name}.{doc_type}\" "
-                                   F"{doc_type} link unless \"{human_name}\" field points links to exactly one object")
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -1386,7 +1383,6 @@ class IntfCompConn(IntfItemBase):
 
         Note that this is similar to resolve_width_links, but only external package links are allowed here.
         """
-        super().resolve_links()
         # If the sv_type is not a logic or wire, try to resolve the sv_type link
         if self.sv_type not in ['logic', 'wire']:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
@@ -1394,8 +1390,7 @@ class IntfCompConn(IntfItemBase):
         elif not isinstance(self.width, int):
             self.width = Equation(self, self.width)
         # Else sv_type is a logic and it has an int width, so leave it alone
-
-        self._resolve_doc_links()
+        super().resolve_links()
         self.check_type_width_conflicts()
 
     def check_type_width_conflicts(self):
@@ -1403,28 +1398,6 @@ class IntfCompConn(IntfItemBase):
         if self.sv_type not in ["logic", "wire"] and self.width is not None:
             self.log.error(F"Interface connection {self.parent.name}.{self.name} has width specified for a "
                            "non-logic/wire type. Only logic/wire can have a width")
-
-    def _resolve_doc_links(self):
-        """Resolve basic doc_* links from *.doc_* to the original definition."""
-        for doc_type in ['doc_summary', 'doc_verbose']:
-            self.log.debug(F"Looking for {doc_type} on {self.name}")
-            doc_attr = getattr(self, doc_type)
-            if (self.sv_type in ["logic", "wire"]) and (doc_attr == F"width.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.width, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.width.name))
-                except AttributeError:
-                    self.log.error(F"{self.parent.name}.{self.name} "
-                                   F"can't use a \"width.{doc_type}\" "
-                                   F"{doc_type} link unless \"width\" points to a localparam")
-            elif (self.sv_type not in ["logic", "wire"]) and (doc_attr == F"type.{doc_type}"):
-                try:
-                    setattr(self, doc_type, getattr(self.sv_type, doc_type))
-                    self.log.debug("Linked up doc for %s" % (self.sv_type.name))
-                except AttributeError:
-                    self.log.error(F"{self.parent.name}.{self.name} "
-                                   F"can't use a \"type.{doc_type}\" "
-                                   F"{doc_type} link unless \"type\" points to a valid type")
 
     def compute_width(self):
         """Compute width by looking at width and type."""
