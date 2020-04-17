@@ -1011,10 +1011,7 @@ class PkgStruct(PkgItemBase):
     @memoize_property
     def computed_width(self):
         """Compute the width of a struct by computing width of all fields."""
-        cumulative_width = 0
-        for child in self.children.values():
-            cumulative_width += child.computed_width
-        return cumulative_width
+        return sum([c.computed_width for c in self.children.values()])
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this struct.
@@ -1282,10 +1279,7 @@ class Intf(YisNode):
     @memoize_property
     def computed_width(self):
         """Compute width of the each child object, then accumulate all widths to form master width."""
-        cumulative_width = 0
-        for child in self.children.values():
-            cumulative_width += child.computed_width
-        return cumulative_width
+        return sum([c.computed_width for c in self.children.values()])
 
 
 class IntfItemBase(YisNode):
@@ -1324,10 +1318,7 @@ class IntfComp(IntfItemBase):
     @memoize_property
     def computed_width(self):
         """Compute width for this Component by iterating through all children."""
-        cumulative_width = 0
-        for child in self.children.values():
-            cumulative_width += child.computed_width
-        return cumulative_width
+        return sum([c.computed_width for c in self.children.values()])
 
 
 class IntfCompConn(IntfItemBase):
