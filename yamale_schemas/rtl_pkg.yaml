@@ -10,8 +10,8 @@ equation: any(str(min=1), int(min=0))
 doc_verbose: str(min=3)
 doc_summary: str(min=3)
 ---
-localparam_name: regex('^[A-Z0-9_]{3,}$', name="valid localparam name. localparams must be all caps, start with a letter, and can only contain letters, numbers, and _")
-pkg_scoped_localparam_name: regex('^[a-z0-9_]{3,}::[A-Z0-9_]{3,}$', name="valid package scoped localparam name. localparams must be all caps, start with a letter, and can only contain letters, numbers, and _. The package must be all lowercase and start with a letter")
+localparam_name: regex('^[A-Z][A-Z0-9_]+[A-Z0-9]$', name="valid localparam name. localparams must be at least 3 characters, all caps, start with a letter, and can only contain letters, numbers, and _")
+pkg_scoped_localparam_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[A-Z][A-Z0-9_]+[A-Z0-9]$', name="valid package scoped localparam name. localparams must be at least 3 letters, all caps, start with a letter, and can only contain letters, numbers, and _. The package must be all lowercase and start with a letter")
 any_localparam_name: any(include('localparam_name'), include('pkg_scoped_localparam_name'))
 ---
 localparam:
@@ -21,9 +21,9 @@ localparam:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
 ---
-enum_name: regex('^[A-Z][A-Z0-9_]{2,}_E$', name="valid enum name. enums must be all caps, start with a letter, only contain letters, numbers, and _, and must end with _E")
-enum_value_name: regex('^[A-Z][A-Z0-9_]{2,}$', name="valid enum value name. enum value names must be all caps, start with a letter, and only contain letters, numbers, and _")
-pkg_scoped_enum_name: regex('^[a-z][a-z0-9_]{2,}::[A-Z][A-Z0-9_]{2,}_E$', name="valid package scoped enum name. enums must be all caps, start with a letter, can only contain letters, numbers, and _, and must end with _E. The package must be all lowercase and start with a letter.")
+enum_name: regex('^[A-Z][A-Z0-9_]+[A-Z0-9]_E$', name="valid enum name. enums must be at least 3 characters, all caps, start with a letter, only contain letters, numbers, and _, and must end with _E")
+enum_value_name: regex('^[A-Z][A-Z0-9_]*[A-Z0-9]$', name="valid enum value name. enum value names must be at least 2 letters, all caps, start with a letter, and only contain letters, numbers, and _")
+pkg_scoped_enum_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[A-Z][A-Z0-9_]+[A-Z0-9]_E$', name="valid package scoped enum name. enums must be at least 3 letters, all caps, start with a letter, can only contain letters, numbers, and _, and must end with _E. The package must be all lowercase and start with a letter.")
 any_enum_name: any(include('enum_name'), include('pkg_scoped_enum_name'))
 enum:
   name: include('enum_name')
@@ -37,9 +37,9 @@ enum_value:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
 ---
-typedef_name: regex('^[a-z][a-z0-9_]{2,}_t$', name="valid typedef name. typedefs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
+typedef_name: regex('^[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid typedef name. typedefs must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
 any_typedef_name: any(include('typedef_name'), include('pkg_scoped_typedef_name'))
-pkg_scoped_typedef_name: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}_t$', name="valid package scoped typedef name. typedefs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
+pkg_scoped_typedef_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid package scoped typedef name. typedefs must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 typedef:  
   name: include('typedef_name')
   doc_summary: include('doc_summary')
@@ -47,10 +47,10 @@ typedef:
   base_type: any(enum('wire', 'logic'), include('any_enum_name'), include('any_typedef_name'), include('any_struct_name'), include('any_union_name'))
   width: include('equation')
 ---
-struct_name: regex('^[a-z][a-z0-9_]{2,}_t$', name="valid struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
-pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}_t$', name="valid package scoped struct name. structs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
+struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid struct name. structs must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
+pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid package scoped struct name. structs must be at least 3 characters all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 any_struct_name: any(include('struct_name'), include('pkg_scoped_struct_name'))
-struct_field_name: regex('^[a-z][a-z0-9_]{2,}$', name="valid struct field name. struct field names must be all lowercase, start with a letter, only contain letters, numbers, and _")
+struct_field_name: regex('^[a-z][a-z0-9_]*[a-z0-9]$', name="valid struct field name. struct field names must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _")
 struct:
   name: include('struct_name')
   fields: list(include('struct_field'))
@@ -60,13 +60,13 @@ struct_field:
   name: include('struct_field_name')
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
-  type: any(enum('wire', 'logic'), include('any_localparam_name'), include('any_enum_name'), include('any_struct_name'), include('any_typedef_name'), include('any_union_name'))
+  type: any(enum('wire', 'logic'), include('any_enum_name'), include('any_struct_name'), include('any_typedef_name'), include('any_union_name'))
   width: any(include('equation'), required=False)
 ---
-union_name: regex('^[a-z][a-z0-9_]{2,}_t$', name="valid union name. unions must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
-pkg_scoped_union_name: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}_t$', name="valid package scoped union name. unions must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
+union_name: regex('^[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid union name. unions must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
+pkg_scoped_union_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid package scoped union name. unions must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 any_union_name: any(include('union_name'), include('pkg_scoped_union_name'))
-union_field_name: regex('^[a-z][a-z0-9_]{2,}$', name="valid union field name. union field names must be all lowercase, start with a letter, only contain letters, numbers, and _")
+union_field_name: regex('^[a-z][a-z0-9_]*[a-z0-9]$', name="valid union field name. union field names must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _")
 union:
   name: include('union_name')
   fields: list(include('union_field'))
