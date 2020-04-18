@@ -22,21 +22,21 @@ A pkg defines the SV primitives that can be used in an intf definition. Addition
 Any type or width field within a package can reference local and external definitions. External definitions must be referenced with the pkg scope operator "::".
 
 ## localparams
-localparams require a name, doc_summary, width, and value. width and value may either be int or can reference other localparams. localparams names must be ALL_CAPS and must not end in _E.
+localparams require a name, doc_summary, width, and value. width and value may either be int or can reference other localparams. localparams names must be ALL_CAPS and must not end in `_E`.
 
 ## enums
-enums require a name, doc_summary, width, and a list of values. width can either be an int or reference a localparam. enums names must be ALL_CAPS and end in _E.
+enums require a name, doc_summary, width, and a list of values. width can either be an int or reference a localparam. enums names must be ALL_CAPS and end in `_E`.
 
 ### enum-values
-enum-values require a name, doc_summary, and optionally specify a value. If a value is specified, all enum-values under the same enum type must have a value specified. enum-value names must be ALL_CAPS and must not end with _E.
+enum-values require a name, doc_summary, and optionally specify a value. If a value is specified, all enum-values under the same enum type must have a value specified. enum-value names must be ALL_CAPS and must not end with `_E`.
 
 ## typedefs
-typedefs require a name, doc_summary, a base_type (basically, the thing you're arraying) and a width (the number of base_types that you're arraying). typedef names msut be lower_case and end in _t. base_type can be "logic", "wire", an enum, a struct, or another typedef. width can be an int or a localparam.
+typedefs require a name, doc_summary, a base_type (basically, the thing you're arraying) and a width (the number of base_types that you're arraying). typedef names msut be lower_case and end in `_t`. base_type can be "logic", "wire", an enum, a struct, or another typedef. width can be an int or a localparam.
 
 Explicit multidimensional typedefs are not supported. Instead, multidimensional typedefs can be created by cascading several typedefs.
 
 ## structs
-typdefs require a name, doc_summary, and a list of fields. struct names must be lower_case and end with _t.
+typdefs require a name, doc_summary, and a list of fields. struct names must be lower_case and end with `_t`.
 
 ### struct fields
 struct fields require a name, a doc_summary, a type, and optionally a width. Width is required if type is "logic" or "wire" and is illegal otherwise. A width can be a localparam. A type can be "logic", "wire", or an enum, struct, or typedef.  
