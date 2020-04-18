@@ -12,9 +12,10 @@ from collections import OrderedDict
 from datetime import date
 
 import ast
-import astor
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+import astor
 
 import yaml
 try:
@@ -572,8 +573,12 @@ class Pkg(YisNode):
         def initialize(offspring):
             setattr(self, offspring, OrderedDict())
             cls = getattr(sys.modules[__name__], self.offspring[offspring])
-            for row in kwargs.get(offspring, []):
-                cls(parent=self, log=self.log, **row)
+            # Use try/except to handle the case when an offspring is defined in the .yis file but is empty
+            try:
+                for row in kwargs.get(offspring, []):
+                    cls(parent=self, log=self.log, **row)
+            except TypeError:
+                pass
 
         self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']

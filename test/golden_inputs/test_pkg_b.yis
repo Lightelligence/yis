@@ -6,6 +6,7 @@ localparams:
     width: test_pkg_a::ANOTHER_PARAM.value
     value: 5
     doc_summary: This should link up
+enums:
 typedefs:
   - name: first_defined_type_t
     doc_summary: Use another package's enum as the type and a local localparam as width
