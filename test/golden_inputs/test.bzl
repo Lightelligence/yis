@@ -1,5 +1,7 @@
 load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_html_pkg", "yis_html_intf")
 
+golden_out_location = "//digital/rtl/scripts/yis/test/golden_outputs:"
+
 def golden_rtl_pkg_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
 
@@ -15,9 +17,9 @@ def golden_rtl_pkg_test(name, pkg_deps):
         srcs = ["//digital/rtl/scripts/yis/test:passthrough.sh"],
         data = [
             ":{}_rypkg_svh".format(name),
-            ":{}_rypkg.svh".format(name),
+            "{}{}_rypkg.svh".format(golden_out_location, name),
         ],
-        args = ["diff $(location :{name}_rypkg_svh) $(location {name}_rypkg.svh)".format(name=name)],
+        args = ["diff $(location :{name}_rypkg_svh) $(location {gout}{name}_rypkg.svh)".format(gout=golden_out_location, name=name)],
         tags = ["gold"],
     )
 
