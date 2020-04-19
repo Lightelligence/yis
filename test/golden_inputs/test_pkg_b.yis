@@ -6,7 +6,25 @@ localparams:
     width: test_pkg_a::ANOTHER_PARAM.value
     value: 5
     doc_summary: This should link up
+  - name: MAX_WR_CYCLES
+    width: 32
+    value: 4
+    doc_summary: Maximum number of write cycles allowed for the pipelined write
+  - name: WR_WIDTH
+    width: 32
+    value: 8
+    doc_summary: Width of a single write cycle
 enums:
+  - name: WRITE_TYPE_E
+    doc_summary: Specifies how the write should be handled
+    width: 3
+    values:
+      - name: STD
+        doc_summary: Standard write, nothing special
+      - name: MULTI_WDONE
+        doc_summary: Send a wdone for each individual cycle completing
+      - name: SINGLE_WDONE
+        doc_summary: Send a wdone only for the entire write xaction
 typedefs:
   - name: first_defined_type_t
     doc_summary: Use another package's enum as the type and a local localparam as width
@@ -41,6 +59,7 @@ structs:
         doc_summary: This summary is different than its base definition
         type: logic
         width: NEW_PARAM.value
+
   - name: type_links_t
     doc_summary: Link in a local typedef, a scoped typdef, and a scoped enum
     fields:
@@ -55,3 +74,55 @@ structs:
         type: test_pkg_a::CYCLE_TYPE_E
         doc_summary: This is a custom doc summary, not inherited from the type
         doc_verbose: This also a custom verbose doc
+
+  - name: write_cmd_t
+    doc_summary: The command cycle of a pipelined write
+    fields:
+      - name: rsvd
+        type: logic
+        width: test_pkg_a::CYCLE_TYPE_E.width + 2
+        doc_summary: Reserved
+      - name: val
+        type: logic
+        width: 1
+        doc_summary: This cmd is valid, this is the start of a new pipelined write
+      - name: num_cycles
+        type: logic
+        width: bits(MAX_WR_CYCLES.value - 1)
+        doc_summary: Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
+      - name: write_type
+        type: WRITE_TYPE_E
+        doc_summary: type.doc_summary
+
+  - name: write_dat_t
+    doc_summary: Data cycle of a pipelined write
+    fields:
+      - name: cycle_type
+        type: test_pkg_a::CYCLE_TYPE_E
+        doc_summary: type.doc_summary
+      - name: dat
+        type: logic
+        width: WR_WIDTH.value
+        doc_summary: One data cycle
+
+unions:
+      
+xactions:
+  - name: pipelined_write_t
+    doc_summary: Defines a pipelined write transaction
+    cycles:
+      - name: cmd_cycle
+        type: write_cmd_t
+        doc_summary: type.doc_summary
+      - name: dat0
+        type: write_dat_t
+        doc_summary: type.doc_summary
+      - name: dat1
+        type: write_dat_t
+        doc_summary: type.doc_summary
+      - name: dat2
+        type: write_dat_t
+        doc_summary: type.doc_summary
+      - name: dat3
+        type: write_dat_t
+        doc_summary: type.doc_summary

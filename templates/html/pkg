@@ -182,5 +182,48 @@
 {% endfor %}
 {% endif %}
 
+{% if target_pkg.xactions|length %}
+<h3>Xactions</h3>
+{% for xaction in target_pkg.xactions.values() %}
+<h4 id="{{ xaction.html_anchor() }}"><a href="#{{ xaction.html_anchor() }}">{{xaction.name}}</a></h4>
+<p>{{ xaction.doc_summary }}</p>
+{% if xaction.doc_verbose %}
+<pre>{{ xaction.doc_verbose }}</pre>
+{% endif %}
+<p> Calculated Width ={{ xaction.computed_width }}</p>
+
+<canvas id="{{ xaction.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ xaction.name }}_canvas");
+  var data = {{ xaction.html_canvas_data() }};
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for xc in xaction.children.values() %}
+  <tr>
+      <td id="{{ xc.html_anchor() }}"><a href="#{{ xc.html_anchor() }}">{{ xc.name }}</a></td>
+      <td>{{ xc.html_link_attribute('sv_type') }}</td>
+      <td>{{ xc.render_equation_as_html('width') }}</td>
+      <td>{{ xc.computed_width }}</td>
+      <td>{{ xc.doc_summary }}</td>
+      <td>{% if xc.doc_verbose %}<pre>{{ xc.doc_verbose }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
 
 {% endblock content %}

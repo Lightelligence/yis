@@ -11,17 +11,35 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [2 - 1:0] NEW_PARAM = 5; // This should link up
   
-  typedef test_pkg_a::CYCLE_TYPE_E [NEW_PARAM - 1:0] first_defined_type_t; // Use another package's enum as the type and a local localparam as width
+  localparam [32 - 1:0] MAX_WR_CYCLES = 4; // Maximum number of write cycles allowed for the pipelined write
   
-  // This verbose doc is several lines in order to demonstrate  that we
-  // can have a multi-line verbose doc that can be linked through
-  typedef test_pkg_a::hero_write_t [test_pkg_a_rypkg::DOUBLE_LINK_PARAM - 1:0] second_defined_type_t; // Use another package's struct as the type and another packages's localparam as width
+  localparam [32 - 1:0] WR_WIDTH = 8; // Width of a single write cycle
   
-  typedef several_things_t [2 - 1:0] local_item_type_t // Use this package's struct as the type and an int for a width
+  typedef enum logic [3 - 1:0] {
+    WRITE_TYPE_STD, // Standard write, nothing special
+    WRITE_TYPE_MULTI_WDONE, // Send a wdone for each individual cycle completing
+    WRITE_TYPE_SINGLE_WDONE // Send a wdone only for the entire write xaction
+  } WRITE_TYPE_E; // Specifies how the write should be handled
   
-  /////////////////////////////////////////////////////////////////////////////
-  // structs
-  /////////////////////////////////////////////////////////////////////////////
+  typedef struct packed {
+    logic [4 - 1:0] rsvd; // Reserved
+    logic [1 - 1:0] val; // This cmd is valid, this is the start of a new pipelined write
+    logic [2 - 1:0] num_cycles; // Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
+    WRITE_TYPE_E write_type; // Specifies how the write should be handled
+  } write_cmd_t; // The command cycle of a pipelined write
+  
+  typedef struct packed {
+    test_pkg_a_rypkg::CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
+    logic [8 - 1:0] dat; // One data cycle
+  } write_dat_t; // Data cycle of a pipelined write
+  
+  typedef struct packed {
+    write_cmd_t cmd_cycle; // The command cycle of a pipelined write
+    write_dat_t dat0; // Data cycle of a pipelined write
+    write_dat_t dat1; // Data cycle of a pipelined write
+    write_dat_t dat2; // Data cycle of a pipelined write
+    write_dat_t dat3; // Data cycle of a pipelined write
+  } pipelined_write_t; // Defines a pipelined write transaction
   
   typedef struct packed {
     logic [36 - 1:0] fielda; // Width of hero bus around the bag.

@@ -557,11 +557,13 @@ class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
     LOCALPARAMS = 'localparams'
     ENUMS = 'enums'
+    XACTIONS = 'xactions'
     STRUCTS = 'structs'
     TYPEDEFS = 'typedefs'
     UNIONS = 'unions'
     offspring = OrderedDict([(LOCALPARAMS, 'PkgLocalparam'),
                              (ENUMS, 'PkgEnum'),
+                             (XACTIONS, 'PkgXaction'), # This is cheating - we need this before structs otherwise we'll attempt to create PkgXactions as PkgStructs # pylint: disable=line-too-long
                              (STRUCTS, 'PkgStruct'),
                              (TYPEDEFS, 'PkgTypedef'),
                              (UNIONS, 'PkgUnion'),])
@@ -573,12 +575,13 @@ class Pkg(YisNode):
         def initialize(offspring):
             setattr(self, offspring, OrderedDict())
             cls = getattr(sys.modules[__name__], self.offspring[offspring])
-            # Use try/except to handle the case when an offspring is defined in the .yis file but is empty
-            try:
-                for row in kwargs.get(offspring, []):
-                    cls(parent=self, log=self.log, **row)
-            except TypeError:
-                pass
+
+            # Handle case when an item type is defined but it's empty
+            if kwargs.get(offspring) is None:
+                return
+
+            for row in kwargs.get(offspring, []):
+                cls(parent=self, log=self.log, **row)
 
         self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']
@@ -1045,7 +1048,7 @@ class PkgStruct(PkgItemBase):
         return "\n  ".join(ret_arr)
 
     def html_canvas_data(self, label=""):
-        """Return a dictionoary of data to render the struct-canvas in html."""
+        """Return a dictionary of data to render the struct-canvas in html."""
         data = {"field_names" : [],
                 "msbs" : [],
                 "lsbs" : []}
@@ -1121,6 +1124,59 @@ class PkgStructField(PkgItemBase):
         return ret_arr
 
 
+class PkgXaction(PkgStruct):
+    """An Xaction is basically a struct with a few special properties.
+
+    Instead of fields, an Xaction has cycles
+    All cycles must be the same width (like a union), but the computed width is aggregate across all cycles.
+    HTML rendering for an Xaction borrows the enum implementation where it renders at depth 1 instead of depth 0.
+    """
+    def __init__(self, **kwargs):
+        kwargs['fields'] = kwargs.pop('cycles')
+        super().__init__(**kwargs)
+
+    @memoize_property
+    def computed_width(self):
+        """Xactions must have equal width cycles, but the total width is aggregrate across all cycles."""
+        width = 0
+        first = None
+        for i, child in enumerate(self.children.values()):
+            if i == 0:
+                first = child
+                width = child.computed_width
+            else:
+                if child.computed_width != width:
+                    self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
+                                    "Union fields must be padded to match widths exactly."),
+                                   self.name,
+                                   first.name,
+                                   child.name,
+                                   width,
+                                   child.computed_width)
+
+        return width * len(self.children)
+
+    def html_canvas_data(self):
+        """Return a dictionary of data to render the struct-canvas in html."""
+        all_data = []
+        for child in self.children.values():
+            if isinstance(child.sv_type, PkgStruct):
+                all_data.append(child.sv_type.html_canvas_data(label=child.name))
+                continue
+            data = {"field_names" : [],
+                    "msbs" : [],
+                    "lsbs" : [],
+                    "label" : child.name}
+            current_bit = 0
+            data["field_names"].insert(0, child.name)
+            data["lsbs"].insert(0, current_bit)
+            current_bit += child.computed_width - 1
+            data["msbs"].insert(0, current_bit)
+            current_bit += 1
+            all_data.append(data)
+        return all_data
+
+
 class PkgUnion(PkgItemBase):
     """Definition for a union inside a pkg."""
     def __init__(self, **kwargs):
@@ -1182,7 +1238,7 @@ class PkgUnion(PkgItemBase):
         return "\n  ".join(ret_arr)
 
     def html_canvas_data(self):
-        """Return a dictionoary of data to render the struct-canvas in html."""
+        """Return a dictionary of data to render the struct-canvas in html."""
         all_data = []
         for child in self.children.values():
             if isinstance(child.sv_type, PkgStruct):

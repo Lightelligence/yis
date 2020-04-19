@@ -5,6 +5,7 @@ enums: list(include('enum'), required=False)
 typedefs: list(include('typedef'), required=False)
 structs: list(include('struct'), required=False)
 unions: list(include('union'), required=False)
+xactions: list(include('xaction'), required=False)
 ---
 equation: any(str(min=1), int(min=0))
 doc_verbose: str(min=3)
@@ -77,4 +78,16 @@ union_field:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
   type: any(enum('wire', 'logic'), include('any_localparam_name'), include('any_enum_name'), include('any_struct_name'), include('any_typedef_name'), include('any_union_name'))
+  width: any(include('equation'), required=False)
+---
+xaction:
+  name: include('struct_name')
+  cycles: list(include('xaction_cycle'))
+  doc_summary: include('doc_summary')
+  doc_verbose: include('doc_verbose', required=False)
+xaction_cycle:
+  name: include('struct_field_name')
+  doc_summary: include('doc_summary')
+  doc_verbose: include('doc_verbose', required=False)
+  type: any(enum('wire', 'logic'), include('any_enum_name'), include('any_struct_name'), include('any_typedef_name'), include('any_union_name'))
   width: any(include('equation'), required=False)
