@@ -7,9 +7,9 @@
 {% block content %}
 <h2>{{ target_pkg.name }}</h2>
 {% if target_pkg.localparams|length %}
-<h5>{{ target_pkg.doc_summary }}</h5>
+<h5>{{ target_pkg.html_render_doc("doc_summary") }}</h5>
 {% if target_pkg.doc_verbose %}
-<pre>{{ target_pkg.doc_verbose }}</pre>
+<pre>{{ target_pkg.html_render_doc("doc_verbose") }}</pre>
 {% endif %}
 <br/>
 <h3> Localparams </h3>
@@ -32,8 +32,8 @@
       <td>{{ lp.html_link_attribute('computed_width') }}</td>
       <td>{{ lp.render_equation_as_html('value') }}</td>
       <td>{{ lp.html_link_attribute('computed_value') }}</td>
-      <td>{{ lp.doc_summary }}</td>
-      <td>{% if lp.doc_verbose %}<pre>{{ lp.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ lp.html_render_doc("doc_summary") }}</td>
+      <td>{% if lp.doc_verbose %}<pre>{{ lp.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
@@ -43,9 +43,9 @@
 <h3>Enums</h3>
 {% for enum in target_pkg.enums.values() %}
 <h4 id="{{ enum.html_anchor() }}"><a href="#{{ enum.html_anchor() }}">{{enum.name}}</a></h4>
-<p>{{ enum.doc_summary }}</p>
+<p>{{ enum.html_render_doc("doc_summary") }}</p>
 {% if enum.doc_verbose %}
-<pre>{{ enum.doc_verbose }}</pre>
+<pre>{{ enum.html_render_doc("doc_verbose") }}</pre>
 {% endif %}
 <p> Width ={{ enum.render_equation_as_html('width') }}</p>
 <p> Calculated Width = {{ enum.computed_width }}</p>
@@ -62,8 +62,8 @@
   <tr>
       <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
       <td>{{ ev.sv_value }}</td>
-      <td>{{ ev.doc_summary }}</td>
-      <td>{% if ev.doc_verbose %}<pre>{{ ev.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ ev.html_render_doc("doc_summary") }}</td>
+      <td>{% if ev.doc_verbose %}<pre>{{ ev.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
@@ -89,8 +89,8 @@
       <td>{{ lp.html_link_attribute('base_sv_type') }}</td>
       <td>{{ lp.render_equation_as_html('width') }}</td>
       <td>{{ lp.html_link_attribute('computed_width') }}</td>
-      <td>{{ lp.doc_summary }}</td>
-      <td>{% if lp.doc_verbose %}<pre>{{ lp.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ lp.html_render_doc("doc_summary") }}</td>
+      <td>{% if lp.doc_verbose %}<pre>{{ lp.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
@@ -100,9 +100,9 @@
 <h3>Structs</h3>
 {% for struct in target_pkg.structs.values() %}
 <h4 id="{{ struct.html_anchor() }}"><a href="#{{ struct.html_anchor() }}">{{struct.name}}</a></h4>
-<p>{{ struct.doc_summary }}</p>
+<p>{{ struct.html_render_doc("doc_summary") }}</p>
 {% if struct.doc_verbose %}
-<pre>{{ struct.doc_verbose }}</pre>
+<pre>{{ struct.html_render_doc("doc_verbose") }}</pre>
 {% endif %}
 <p> Calculated Width ={{ struct.computed_width }}</p>
 
@@ -131,8 +131,8 @@
       <td>{{ sf.html_link_attribute('sv_type') }}</td>
       <td>{{ sf.render_equation_as_html('width') }}</td>
       <td>{{ sf.computed_width }}</td>
-      <td>{{ sf.doc_summary }}</td>
-      <td>{% if sf.doc_verbose %}<pre>{{ sf.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ sf.html_render_doc("doc_summary") }}</td>
+      <td>{% if sf.doc_verbose %}<pre>{{ sf.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
@@ -143,9 +143,9 @@
 <h3>Unions</h3>
 {% for union in target_pkg.unions.values() %}
 <h4 id="{{ union.html_anchor() }}"><a href="#{{ union.html_anchor() }}">{{union.name}}</a></h4>
-<p>{{ union.doc_summary }}</p>
+<p>{{ union.html_render_doc("doc_summary") }}</p>
 {% if union.doc_verbose %}
-<pre>{{ union.doc_verbose }}</pre>
+<pre>{{ union.html_render_doc("doc_verbose") }}</pre>
 {% endif %}
 <p> Calculated Width ={{ union.computed_width }}</p>
 
@@ -174,8 +174,8 @@
       <td>{{ uf.html_link_attribute('sv_type') }}</td>
       <td>{{ uf.render_equation_as_html('width') }}</td>
       <td>{{ uf.computed_width }}</td>
-      <td>{{ uf.doc_summary }}</td>
-      <td>{% if uf.doc_verbose %}<pre>{{ uf.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ uf.html_render_doc("doc_summary") }}</td>
+      <td>{% if uf.doc_verbose %}<pre>{{ uf.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>
@@ -186,9 +186,9 @@
 <h3>Xactions</h3>
 {% for xaction in target_pkg.xactions.values() %}
 <h4 id="{{ xaction.html_anchor() }}"><a href="#{{ xaction.html_anchor() }}">{{xaction.name}}</a></h4>
-<p>{{ xaction.doc_summary }}</p>
+<p>{{ xaction.html_render_doc("doc_summary") }}</p>
 {% if xaction.doc_verbose %}
-<pre>{{ xaction.doc_verbose }}</pre>
+<pre>{{ xaction.html_render_doc("doc_verbose") }}</pre>
 {% endif %}
 <p> Calculated Width ={{ xaction.computed_width }}</p>
 
@@ -217,8 +217,8 @@
       <td>{{ xc.html_link_attribute('sv_type') }}</td>
       <td>{{ xc.render_equation_as_html('width') }}</td>
       <td>{{ xc.computed_width }}</td>
-      <td>{{ xc.doc_summary }}</td>
-      <td>{% if xc.doc_verbose %}<pre>{{ xc.doc_verbose }}</pre>{% endif %}</td>
+      <td>{{ xc.html_render_doc("doc_summary") }}</td>
+      <td>{% if xc.doc_verbose %}<pre>{{ xc.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>
 {% endfor %}
 </table>

@@ -608,6 +608,21 @@ class YisNode: # pylint: disable=too-few-public-methods
         href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{link.html_anchor()}")
         return f'<a href="{href_target}">{pkg_prefix}{link.name}{extra_text}</a>'
 
+    def html_render_doc(self, attr_name):
+        """Add cross references in documentation."""
+        assert attr_name in ["doc_summary", "doc_verbose"]
+
+        doc_link_re = re.compile("\[([a-zA-Z0-9_:]+)\]")
+        
+        attr = getattr(self, attr_name)
+        def repl(match):
+            name = match.group(1)
+            link = self.resolve_link_from_str(name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS, Pkg.STRUCTS, Pkg.UNIONS])
+            return self.html_link_attribute_from_link(link)
+            
+        attr = doc_link_re.sub(repl, attr)
+        return attr
+
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
