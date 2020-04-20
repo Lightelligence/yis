@@ -19,13 +19,13 @@ package test_pkg_a; // This is an example of what a package file could look like
   // definition for the whole long-form documentation.
   localparam [6 - 1:0] ANOTHER_PARAM = 2; // This is a different parameter than the first.
   
-  localparam [32 - 1:0] DOUBLE_LINK_PARAM = 2; // This paramter has a paramterized width and a parameterized type.
+  localparam [/* HERO_WIDTH.width */ 32 - 1:0] DOUBLE_LINK_PARAM = /* ANOTHER_PARAM.value */ 2; // This paramter has a paramterized width and a parameterized type.
   
-  localparam [2 - 1:0] TRIPLE_NESTED_PARAM = 2; // This paramter has a paramterized width and a parameterized type.
+  localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This paramter has a paramterized width and a parameterized type.
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
-  typedef enum logic [2 - 1:0] {
+  typedef enum logic [/* TRIPLE_NESTED_PARAM.value */ 2 - 1:0] {
     CYCLE_TYPE_IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
@@ -40,9 +40,9 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   typedef struct packed {
     wire [1 - 1:0] subfield_a; // Test that a width-1 wire field generates correctly
-    wire [2 - 1:0] subfield_b; // This is a different parameter than the first.
-    wire [2 - 1:0] subfield_c; // This is a different parameter than the first.
-    wire [2 - 1:0] subfield_d; // This is a different parameter than the first.
+    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_b; // This is a different parameter than the first.
+    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_c; // This is a different parameter than the first.
+    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_d; // This is a different parameter than the first.
   } sub_def_t; // A sub-struct of hero_write_t that is declared afterwards.
   
   // This is a verbose doc. I'm writing it to provide that my verbose
@@ -51,7 +51,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     // I'm writing this verbose documentation so that we have something to
     // attempt to link in for cycle_type.
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
-    logic [36 - 1:0] wdat; // Width of hero bus around the bag.
+    logic [/* HERO_WIDTH.value */ 36 - 1:0] wdat; // Width of hero bus around the bag.
     sub_def_t another_type_reference; // Test a struct of a struct
     logic [1 - 1:0] clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
@@ -59,7 +59,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   // And it has a doc_verbose for good measure
   typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
   
-  typedef vanilla_type_t [2 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
+  typedef vanilla_type_t [/* ANOTHER_PARAM.value */ 2 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
   
 
 endpackage : test_pkg_a
