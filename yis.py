@@ -810,8 +810,18 @@ class PkgLocalparam(PkgItemBase):
     def computed_value(self):
         """Recurse if necessary"""
         if isinstance(self.value, int):
-            return self.value
-        return self.value.computed_value
+            value = self.value
+        else:
+            value = self.value.computed_value
+
+        max_value = (1 << self.width.computed_value) - 1
+        if value > max_value:
+            self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)",
+                           self.name,
+                           value,
+                           max_value,
+                           self.width.computed_value)
+        return value
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.

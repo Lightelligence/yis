@@ -4,7 +4,7 @@ doc_summary: Example of what a dependent package looks like
 localparams:
   - name: NEW_PARAM
     width: test_pkg_a::ANOTHER_PARAM.value
-    value: 5
+    value: 3
     doc_summary: This should link up
   - name: MAX_WR_CYCLES
     width: 32
