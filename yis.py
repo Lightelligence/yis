@@ -226,6 +226,16 @@ class Equation(ast.NodeTransformer):
             link_map = html_map
         return astor.to_source(self.tree_root, source_generator_class=LocalHtmlSourceGenerator)
 
+    def render_rtl(self):
+        """Render the value of the eqaution for generated rtl.
+        Adds the raw equation if the equation is not simple.
+        """
+        if self.simple_eq:
+            comment = ""
+        else:
+            comment = f"/* {self.equation} */ "
+        return f"{comment}{self.computed_value}"
+
 
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
     """
@@ -466,7 +476,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         return parent
 
     def _render_formatted_width(self, raw_type):
-        render_width = self._get_render_attr('width')
+        render_width = self.width.render_rtl()
         if render_width == 1:
             return F"{raw_type}"
         return F"{raw_type} [{render_width} - 1:0]"
@@ -766,20 +776,6 @@ class PkgItemBase(YisNode):
                 return parent
             parent = parent.parent
 
-    def _get_render_attr(self, attr_name):
-        attr = getattr(self, attr_name)
-        if isinstance(attr, Equation):
-            # WRS I'm pretty sure that this will always execute and just
-            # render numerical values rather than linking to types.
-            return str(attr.computed_value)
-        if not isinstance(attr, int) and (self.get_parent_pkg() is not attr.get_parent_pkg()):
-            ret_str = F"{attr.parent.name}_rypkg::{attr.name}"
-        elif isinstance(attr, int):
-            ret_str = attr
-        else:
-            ret_str = attr.name
-        return ret_str
-
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -833,8 +829,8 @@ class PkgLocalparam(PkgItemBase):
         doc_verbose = self.render_doc_verbose(2)
         if doc_verbose:
             ret_arr.append(doc_verbose)
-        render_width = self._get_render_attr('width')
-        render_value = self._get_render_attr('value')
+        render_width = self.width.render_rtl()
+        render_value = self.value.render_rtl()
         ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {render_value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
@@ -1015,7 +1011,7 @@ class PkgTypedef(PkgItemBase):
             ret_arr.append(doc_verbose)
 
         render_type = self._get_render_base_sv_type()
-        render_width = self._get_render_attr("width")
+        render_width = self.width.render_rtl()
         ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
