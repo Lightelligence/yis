@@ -153,6 +153,14 @@ class Equation(ast.NodeTransformer):
             name = re.search("name '(.*)' is not defined", exc.args[0]).group(1)
             raise EquationError(f"Did you forget to add '.width' or '.value' on the end of '{name}'")
 
+        if self._result < 0:
+            self.yisnode.log.error("Equation for %s evaluated to a negative number (%s).\n"
+                                   "Only non-negative evaluations allowed.\n"
+                                   "Original equation: '%s'",
+                                   yisnode.name,
+                                   self._result,
+                                   equation)
+
     @property
     def computed_value(self):
         """Return previously calculated value."""
