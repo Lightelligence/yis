@@ -64,12 +64,12 @@ def only_run_once(function):
     once.
 
     """
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self):
         run_once_dict = getattr(self, "_only_run_once", {})
         if function not in run_once_dict:
             run_once_dict[function] = True
             setattr(self, "_only_run_once", run_once_dict)
-            return function(self, *args, **kwargs)
+            return function(self)
         return None
     return wrapper
 
