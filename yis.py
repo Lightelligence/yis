@@ -612,14 +612,19 @@ class YisNode: # pylint: disable=too-few-public-methods
         """Add cross references in documentation."""
         assert attr_name in ["doc_summary", "doc_verbose"]
 
-        doc_link_re = re.compile("\[([a-zA-Z0-9_:]+)\]")
-        
+        doc_link_re = re.compile(r"\[([a-zA-Z0-9_:]+)\]")
+
         attr = getattr(self, attr_name)
         def repl(match):
             name = match.group(1)
-            link = self.resolve_link_from_str(name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS, Pkg.STRUCTS, Pkg.UNIONS])
+            link = self.resolve_link_from_str(name,
+                                              allowed_symbols=[Pkg.LOCALPARAMS,
+                                                               Pkg.ENUMS,
+                                                               Pkg.TYPEDEFS,
+                                                               Pkg.STRUCTS,
+                                                               Pkg.UNIONS])
             return self.html_link_attribute_from_link(link)
-            
+
         attr = doc_link_re.sub(repl, attr)
         return attr
 
