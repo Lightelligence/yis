@@ -61,7 +61,7 @@
 {% for ev in enum.children.values() %}
   <tr>
       <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
-      <td>{{ ev.sv_value }}</td>
+      <td>{{ ev.render_html_value() }}</td>
       <td>{{ ev.html_render_doc("doc_summary") }}</td>
       <td>{% if ev.doc_verbose %}<pre>{{ ev.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
   </tr>

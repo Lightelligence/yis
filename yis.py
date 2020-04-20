@@ -584,6 +584,8 @@ class YisNode: # pylint: disable=too-few-public-methods
         equation = getattr(self, attr_name)
         if isinstance(equation, Equation):
             return equation.render_html(self)
+        if equation is None:
+            return ""
         return equation
 
     def html_link_attribute(self, attr_name):
@@ -974,6 +976,12 @@ class PkgEnumValue(PkgItemBase):
         ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}, // {self.doc_summary}")
         return ret_arr
 
+    def render_html_value(self):
+        """Render for html."""
+        if self.sv_value is None:
+            return ""
+        else:
+            return self.sv_value
 
 class PkgTypedef(PkgItemBase):
     """Definition for a typedef inside a pkg."""
