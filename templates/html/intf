@@ -33,7 +33,7 @@
         <tr>
             <td id="{{ component.html_anchor() }}"><a href="#{{ component.html_anchor() }}">{{ component.name }}</a></td>
             <td>{{ component.html_link_attribute('sv_type') }}</td>
-            <td>{{ component.html_link_attribute('width') }}</td>
+            <td>{{ component.render_equation_as_html('width') }}</td>
             <td>{{ component.computed_width }}</td>
             <td>{{ component.doc_summary }}</td>
             <td>{% if component.doc_verbose %}<pre>{{ component.doc_verbose }}</pre>{% endif %}</td>

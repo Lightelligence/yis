@@ -448,6 +448,15 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
                            "names in this context.")
 
+    def get_nonyis_root(self):
+        """Return second-highest level of the tree.
+        Don't want the Yis root node, but either an a Pkg or Intf.
+        """
+        parent = self
+        while parent and not isinstance(parent.parent, Yis):
+            parent = parent.parent
+        return parent
+
     def _render_formatted_width(self, raw_type):
         render_width = self._get_render_attr('width')
         if render_width == 1:
@@ -551,6 +560,35 @@ class YisNode: # pylint: disable=too-few-public-methods
             anchor_hierarchy.append(parent.name)
             parent = parent.parent
         return "__".join(reversed(anchor_hierarchy))
+
+    def render_equation_as_html(self, attr_name):
+        """If attribute is an equation, render it as html."""
+        equation = getattr(self, attr_name)
+        if isinstance(equation, Equation):
+            return equation.render_html(self)
+        return equation
+
+    def html_link_attribute(self, attr_name):
+        """Build HTML string to render for an attribute that can be linked (e.g. width)."""
+        attr = getattr(self, attr_name)
+        if not isinstance(attr, (PkgItemBase, IntfItemBase)):
+            if attr is None:
+                return ""
+            return attr
+        return self.html_link_attribute_from_link(attr)
+
+    def html_link_attribute_from_link(self, link, extra_text=""):
+        """Pass a reference to another yisnode to create a relative HTML link from this object to that object."""
+        my_root = self.get_nonyis_root()
+        ref_root = link.get_nonyis_root()
+        relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
+
+        pkg_prefix = ""
+        if ref_root is not my_root:
+            pkg_prefix = f"{ref_root.name}_rypkg::"
+
+        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{link.html_anchor()}")
+        return f'<a href="{href_target}">{pkg_prefix}{link.name}{extra_text}</a>'
 
 
 class Pkg(YisNode):
@@ -720,28 +758,6 @@ class PkgItemBase(YisNode):
                 return parent
             parent = parent.parent
 
-    def html_link_attribute(self, attr_name):
-        """Build HTML string to render for an attribute that can be linked (e.g. width)."""
-        attr = getattr(self, attr_name)
-        if not isinstance(attr, PkgItemBase):
-            if attr is None:
-                return ""
-            return attr
-        return self.html_link_attribute_from_link(attr)
-
-    def html_link_attribute_from_link(self, link, extra_text=""):
-        """Pass a reference to another yisnode to create a relative HTML link from this object to that object."""
-        my_root = self.get_parent_pkg()
-        ref_root = link.get_parent_pkg()
-        relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
-
-        pkg_prefix = ""
-        if ref_root is not my_root:
-            pkg_prefix = f"{ref_root.name}_rypkg::"
-
-        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{link.html_anchor()}")
-        return f'<a href="{href_target}">{pkg_prefix}{link.name}{extra_text}</a>'
-
     def _get_render_attr(self, attr_name):
         attr = getattr(self, attr_name)
         if isinstance(attr, Equation):
@@ -755,13 +771,6 @@ class PkgItemBase(YisNode):
         else:
             ret_str = attr.name
         return ret_str
-
-    def render_equation_as_html(self, attr_name):
-        """If attribute is an equation, render it as html."""
-        equation = getattr(self, attr_name)
-        if not equation:
-            return ""
-        return equation.render_html(self)
 
 
 class PkgLocalparam(PkgItemBase):
@@ -1434,25 +1443,6 @@ class IntfCompConn(IntfItemBase):
         if is_verilog_primitive(self.sv_type):
             return self.width.computed_width
         return self.sv_type.computed_width
-
-    def html_link_attribute(self, attr_name):
-        """Build HTML string to render for an attribute that can be linked (e.g. width)."""
-        attr = getattr(self, attr_name)
-        if not isinstance(attr, PkgItemBase):
-            if attr is None:
-                return ""
-            return attr
-
-        my_root = self.parent.parent # Assumption intf is two levels up
-        ref_root = attr.get_parent_pkg()
-        relpath = os.path.relpath(os.path.dirname(ref_root.source_file), os.path.dirname(my_root.source_file))
-
-        pkg_prefix = ""
-        if ref_root is not my_root:
-            pkg_prefix = f"{ref_root.name}_rypkg::"
-
-        href_target = os.path.join(relpath, f"{ref_root.name}_rypkg.html#{attr.html_anchor()}")
-        return f'<a href="{href_target}">{pkg_prefix}{attr.name}</a>'
 
 
 def main(options, log):
