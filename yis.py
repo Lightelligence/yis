@@ -182,7 +182,7 @@ class Equation(ast.NodeTransformer):
         if isinstance(node.value, ast.Name):
             # Local package
             symbol = node.value.id
-            pkg = self.yisnode.get_parent_pkg().name
+            pkg = self.yisnode.get_nonyis_root().name
         elif isinstance(node.value, ast.Attribute):
             symbol = node.value.attr
             pkg = node.value.value.id
@@ -980,8 +980,7 @@ class PkgEnumValue(PkgItemBase):
         """Render for html."""
         if self.sv_value is None:
             return ""
-        else:
-            return self.sv_value
+        return self.sv_value
 
 class PkgTypedef(PkgItemBase):
     """Definition for a typedef inside a pkg."""
