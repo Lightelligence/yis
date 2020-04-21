@@ -274,6 +274,16 @@ def parse_args(argv):
                         action='store_true',
                         help="Use the html generator for output.")
 
+    parser.add_argument('--gen-rtl',
+                        default=False,
+                        action='store_true',
+                        help="Use the rtl generator for output.")
+
+    parser.add_argument('--gen-dv',
+                        default=False,
+                        action='store_true',
+                        help="Use the dv generator for output.")
+
     parser.add_argument('--tool-debug',
                         default=False,
                         action='store_true',
@@ -391,9 +401,14 @@ class Yis:
             ))
         year = date.today().year
 
-        template_directory = "rtl"
-        if self.options.gen_html:
+        if self.options.gen_rtl:
+            template_directory = "rtl"
+        elif self.options.gen_html:
             template_directory = "html"
+        elif self.options.gen_dv:
+            template_directory = "dv"
+        else:
+            self.log.critical("No generator specified.")
 
         template_name = "pkg"
         if self._block_interface:
@@ -1000,7 +1015,7 @@ class PkgTypedef(PkgItemBase):
         if is_verilog_primitive(self.base_sv_type):
             render_type = self.base_sv_type
         elif self.get_parent_pkg() is not self.base_sv_type.get_parent_pkg():
-            render_type = F"{self.base_sv_type.parent.name}::{self.base_sv_type.name}"
+            render_type = F"{self.base_sv_type.parent.name}_rypkg::{self.base_sv_type.name}"
         else:
             render_type = self.base_sv_type.name
         return render_type
@@ -1377,6 +1392,21 @@ class Intf(YisNode):
         for row in kwargs.pop('components'):
             IntfComp(parent=self, log=self.log, **row)
 
+    def src_dst_extract(self, name):
+        """Extract the source and dst out of name."""
+        try:
+            return re.search(r"^([a-zA-Z0-9_]+)__([a-zA-Z0-9_]+)((__)|(\.yis))", name).group(1, 2)
+        except AttributeError:
+            self.log.critical("Failed to extract intf src/dst from %s in %s", name, self.name)
+
+    def src(self):
+        """Return the src block for this interface"""
+        return self.src_dst_extract(os.path.basename(self.source_file))[0]
+
+    def dst(self):
+        """Return the dst block for this interface"""
+        return self.src_dst_extract(os.path.basename(self.source_file))[1]
+
     def __repr__(self):
         return (F"Intf name: {self.name}\n"
                 "Components:\n  -{components}\n"
@@ -1463,8 +1493,7 @@ class IntfCompConn(IntfItemBase):
         # If the sv_type is not a logic or wire, try to resolve the sv_type link
         if not is_verilog_primitive(self.sv_type):
             self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
-        # If sv_type is a logic or wire but width isn't an int, try to resolve the width link
-        elif not isinstance(self.width, int):
+        if self.width:
             self.width = Equation(self, self.width)
         # Else sv_type is a logic and it has an int width, so leave it alone
         super().resolve_links()
@@ -1484,6 +1513,33 @@ class IntfCompConn(IntfItemBase):
         if is_verilog_primitive(self.sv_type):
             return self.width.computed_width
         return self.sv_type.computed_width
+
+    def _get_render_type(self):
+        return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
+
+    @property
+    def short_name(self):
+        """Return a short version of this this name where the common intf portion is stripped out.
+        This is nicer for DV where pkg scoping can become very long.
+        """
+        return re.search("^.*?__.*?__(.*)", self.name).group(1)
+
+    def render_rtl_sv_pkg(self, use_short_name=False):
+        """Render RTL in a SV pkg for this struct field."""
+        if is_verilog_primitive(self.sv_type):
+            render_type = self._render_formatted_width(self.sv_type)
+        else:
+            render_type = self._get_render_type()
+
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+        name = self.short_name if use_short_name else self.name
+        ret_arr.append(F"{render_type} {name}; // {self.doc_summary}")
+
+        return ret_arr
 
 
 def main(options, log):

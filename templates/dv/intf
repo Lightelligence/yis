@@ -1,0 +1,42 @@
+// Copyright (c) {{ year }} Lightelligence
+// Description: DV Interface generated from {{ interface.name }}.yis by YIS
+
+`ifndef __{{ interface.name | upper }}_INTF_SVH__
+  `define __{{ interface.name | upper }}_INTF_SVH__
+
+`ifdef TBV
+{% for component in interface.children.values() %}
+// {{ component.doc_summary }}
+{%-  if component.doc_verbose %}/*{{ component.doc_verbose }}*/{% endif %}
+interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst);
+{% for connection in component.children.values() %}
+  {{ "\n".join(connection.render_rtl_sv_pkg(use_short_name=True)) }}
+{%- endfor %}
+
+  clocking mon_cb @(posedge clk);
+{%- for connection in component.children.values() %}
+     input {{ connection.short_name }};
+{%- endfor %}
+  endclocking
+
+  clocking {{ interface.src() }}__{{ interface.dst() }}_drv_cb @(posedge clk);
+{%- for connection in component.children.values() %}
+   {%- if interface.src() == interface.src_dst_extract(connection.name)[0] %}
+     output {{ connection.short_name }};
+   {%- endif %}
+{%- endfor %}
+  endclocking
+
+  clocking {{ interface.dst() }}__{{ interface.src() }}_drv_cb @(posedge clk);
+{%- for connection in component.children.values() %}
+  {%- if interface.dst() == interface.src_dst_extract(connection.name)[0] %}
+    output {{ connection.short_name }};
+  {%- endif %}
+{%- endfor %}
+  endclocking
+
+endinterface : {{ interface.name }}__{{ component.name }}_intf
+
+{% endfor -%}
+`endif // TBV
+`endif // guard

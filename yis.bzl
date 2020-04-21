@@ -1,11 +1,12 @@
 load("@verilog_tools//:rtl.bzl", "rtl_pkg")
+load("@verilog_tools//:dv.bzl", "dv_lib")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RTL pkg."""
     native.genrule(name = "{}_rypkg_svh".format(name),
                    srcs = pkg_deps + [pkg],
                    outs = ["{}_rypkg.svh".format(name)],
-                   cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@",
+                   cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-rtl",
                    output_to_bindir = True,
                    tools = ["//digital/rtl/scripts/yis:yis"],
                )
@@ -14,6 +15,23 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         direct = [":{}_rypkg_svh".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
     )
+
+def yis_dv_intf(name, pkg_deps, pkg):
+    """Create a single yis-generate DV interface pkg."""
+    native.genrule(name = "{}_dv_intf_svh".format(name),
+                   srcs = pkg_deps + [pkg],
+                   outs = ["{}_intf.svh".format(name)],
+                   cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-dv",
+                   output_to_bindir = True,
+                   tools = ["//digital/rtl/scripts/yis:yis"],
+               )
+    dv_lib(
+        name = "{}_dv_intf".format(name),
+        srcs = [":{}_dv_intf_svh".format(name)],
+        in_flist = [":{}_dv_intf_svh".format(name)],
+        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
+    )
+
 
 def yis_html_pkg(name, pkg_deps, pkg):
     expected_name = pkg.rsplit(":")[1][:-4]
@@ -51,3 +69,4 @@ def yis_pkg(name, pkg_deps, pkg):
 
 def yis_intf(name, pkg_deps, intf):
     yis_html_intf(name, pkg_deps, intf)
+    yis_dv_intf(name, pkg_deps, intf)
