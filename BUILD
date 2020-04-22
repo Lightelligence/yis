@@ -17,6 +17,7 @@ py_binary(
 markdown_to_html(
     name = "yis_html",
     srcs = ["README.md"],
+    imgs = [],
 )
 
 lt_py_pylint(
