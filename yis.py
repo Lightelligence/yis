@@ -1002,7 +1002,7 @@ class PkgEnumValue(PkgItemBase):
             ret_arr.append(doc_verbose)
 
         # Strip _E from the rendered RTL name
-        parent_base_name = self.parent.name[:-len(self.parent.TYPE_NAME_SUFFIX)-1]
+        parent_base_name = self.parent.name[:-len(self.parent.TYPE_NAME_SUFFIX)]
         exp_sv_value = ""
         if self.sv_value is not None:
             exp_sv_value = F" = {self.sv_value}"
