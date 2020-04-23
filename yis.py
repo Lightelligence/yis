@@ -472,10 +472,10 @@ class YisNode: # pylint: disable=too-few-public-methods
         attr = getattr(self, attr_name)
         if not is_verilog_primitive(attr):
             if not self.name.endswith(attr.INSTANCE_NAME_SUFFIX):
-                self.log.error("%s.%s has type %s, but doesn't match required instance naming suffix of %s",
+                self.log.error("%s field '%s' is typed as %s, but doesn't match required instance naming suffix of %s",
+                               self.parent.name,
                                self.name,
-                               attr_name,
-                               attr.name,
+                               attr.__class__.__name__,
                                attr.INSTANCE_NAME_SUFFIX)
 
     def _check_reserved_word_name(self):
