@@ -435,6 +435,10 @@ class Yis:
 
 class YisNode: # pylint: disable=too-few-public-methods
     """Base class for any type of specification."""
+
+    TYPE_NAME_SUFFIX = ""
+    INSTANCE_NAME_SUFFIX = ""
+
     def __init__(self, **kwargs):
         self.log = kwargs.pop('log')
         self.name = kwargs.pop('name')
@@ -457,27 +461,34 @@ class YisNode: # pylint: disable=too-few-public-methods
 
     def _check_naming_conventions(self):
         self._check_reserved_word_name()
+        if not self.name.endswith(self.TYPE_NAME_SUFFIX):
+            self.log.error("%s is type %s; therefore it must end with '%s' according to naming conventions.",
+                           self.name,
+                           self.__class__.__name__,
+                           self.TYPE_NAME_SUFFIX)
         self._naming_convention_callback()
+
+    def _check_link_instance_naming(self, attr_name):
+        attr = getattr(self, attr_name)
+        if not is_verilog_primitive(attr):
+            if not self.name.endswith(attr.INSTANCE_NAME_SUFFIX):
+                self.log.error("%s.%s has type %s, but doesn't match required instance naming suffix of %s",
+                               self.name,
+                               attr_name,
+                               attr.name,
+                               attr.INSTANCE_NAME_SUFFIX)
 
     def _check_reserved_word_name(self):
         if RESERVED_WORDS_REGEXP.search(self.name):
             self.log.error(F"{self.name} is not a valid name - Can't contain any reserved words:\n"
                            F"{LIST_OF_RESERVED_WORDS}")
 
-    def _check_caps_name_ending(self):
-        if self.name[-2:] in ["_E", "_T"]:
-            self.log.error(F"{self.name} is an invalid name, it must not end with _E or _T")
-
-    def _check_lower_name_ending(self):
-        if self.name[-2:] in ["_e", "_t"]:
-            self.log.error(F"{self.name} is an invalid name, it must not end with _e or _t")
-
     def _naming_convention_callback(self):
         """Hook to allow subclasses to run additional naming convention checks."""
         pass # pylint: disable=unnecessary-pass
 
     def _check_dunder_name(self):
-        if "__" in self.name:
+        if "__" in self.name[:-len(self.TYPE_NAME_SUFFIX)]:
             self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
                            "names in this context.")
 
@@ -818,6 +829,9 @@ class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
     allowed_symbols_for_linking = [Pkg.LOCALPARAMS]
 
+    TYPE_NAME_SUFFIX = ""
+    INSTANCE_NAME_SUFFIX = ""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
@@ -825,9 +839,6 @@ class PkgLocalparam(PkgItemBase):
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
-
-    def _naming_convention_callback(self):
-        self._check_caps_name_ending()
 
     @only_run_once
     def resolve_links(self):
@@ -884,6 +895,10 @@ class PkgLocalparam(PkgItemBase):
 
 class PkgEnum(PkgItemBase):
     """Definition for an enum inside a pkg."""
+
+    TYPE_NAME_SUFFIX = "__ET"
+    INSTANCE_NAME_SUFFIX = "__e"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
@@ -964,13 +979,16 @@ class PkgEnum(PkgItemBase):
 
 class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
+
+    TYPE_NAME_SUFFIX = ""
+    INSTANCE_NAME_SUFFIX = ""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_value = kwargs.pop('value', None)
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
-        self._check_caps_name_ending()
 
     def __repr__(self):
         return F"{id(self)} {self.name} {self.sv_value}"
@@ -999,6 +1017,10 @@ class PkgEnumValue(PkgItemBase):
 
 class PkgTypedef(PkgItemBase):
     """Definition for a typedef inside a pkg."""
+
+    TYPE_NAME_SUFFIX = "__t"
+    INSTANCE_NAME_SUFFIX = ""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.base_sv_type = kwargs.pop('base_type')
@@ -1006,10 +1028,6 @@ class PkgTypedef(PkgItemBase):
 
     def __repr__(self):
         return F"typedef {id(self)} {self.name}"
-
-    def _naming_convention_callback(self):
-        if self.name[-2:] == "_e":
-            self.log.error(F"{self.name} is an invalid name, typedef names can't end in _e")
 
     def _get_render_base_sv_type(self):
         if is_verilog_primitive(self.base_sv_type):
@@ -1069,10 +1087,17 @@ class PkgTypedef(PkgItemBase):
 
 class PkgStruct(PkgItemBase):
     """Definition for a struct inside a pkg."""
+
+    TYPE_NAME_SUFFIX = "__st"
+    INSTANCE_NAME_SUFFIX = "__s"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
+
+    def _naming_convention_callback(self):
+        self._check_dunder_name()
 
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
@@ -1130,6 +1155,9 @@ class PkgStruct(PkgItemBase):
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
+    TYPE_NAME_SUFFIX = ""
+    INSTANCE_NAME_SUFFIX = ""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
@@ -1137,7 +1165,6 @@ class PkgStructField(PkgItemBase):
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
-        self._check_lower_name_ending()
 
     def __repr__(self):
         return F"{id(self)} type {self.sv_type} width {self.width}"
@@ -1153,6 +1180,7 @@ class PkgStructField(PkgItemBase):
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
+            self._check_link_instance_naming("sv_type")
         super().resolve_links()
         self.check_type_width_conflicts()
 
@@ -1244,10 +1272,17 @@ class PkgXaction(PkgStruct):
 
 class PkgUnion(PkgItemBase):
     """Definition for a union inside a pkg."""
+
+    INSTANCE_NAME_SUFFIX = "__u"
+    TYPE_NAME_SUFFIX = "__ut"
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for row in kwargs.pop('fields'):
             PkgUnionField(parent=self, log=self.log, **row)
+
+    def _naming_convention_callback(self):
+        self._check_dunder_name()
 
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
@@ -1331,7 +1366,6 @@ class PkgUnionField(PkgItemBase):
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
-        self._check_lower_name_ending()
 
     def __repr__(self):
         return F"{id(self)} type {self.sv_type} width {self.width}"
@@ -1347,9 +1381,9 @@ class PkgUnionField(PkgItemBase):
             self.width = Equation(self, self.width)
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
+            self._check_link_instance_naming("sv_type")
         super().resolve_links()
         self.check_type_width_conflicts()
-
 
     def check_type_width_conflicts(self):
         """Check to see if this union field defines both a width and a non-logic/wire type."""
@@ -1420,10 +1454,6 @@ class Intf(YisNode):
 
 class IntfItemBase(YisNode):
     """Base class for anything contained in an Intf."""
-    def _naming_convention_callback(self):
-        """All IntfItems shouldn't end with _e or _t."""
-        self._check_lower_name_ending()
-
     def _extract_link_pieces(self, link_name):
         match = PKG_SCOPE_REGEXP.match(link_name)
         if not match:
@@ -1472,7 +1502,6 @@ class IntfCompConn(IntfItemBase):
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
-        self._check_lower_name_ending()
 
     def _check_extra_dunder_name(self):
         if self.name.count("__") > 2:
