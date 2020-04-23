@@ -48,11 +48,11 @@ package test_pkg_b; // Example of what a dependent package looks like
     logic [/* NEW_PARAM.value */ 3 - 1:0] fieldd; // This summary is different than its base definition
   } several_things_t; // Testing inter-package dependencies within struct fields.
   
-  typedef test_pkg_a::CYCLE_TYPE_E [/* NEW_PARAM.value */ 3 - 1:0] first_defined_type_t; // Use another package's enum as the type and a local localparam as width
+  typedef test_pkg_a_rypkg::CYCLE_TYPE_E [/* NEW_PARAM.value */ 3 - 1:0] first_defined_type_t; // Use another package's enum as the type and a local localparam as width
   
   // This verbose doc is several lines in order to demonstrate  that we
   // can have a multi-line verbose doc that can be linked through
-  typedef test_pkg_a::hero_write_t [/* test_pkg_a::DOUBLE_LINK_PARAM.value */ 2 - 1:0] second_defined_type_t; // Use another package's struct as the type and another packages's localparam as width
+  typedef test_pkg_a_rypkg::hero_write_t [/* test_pkg_a::DOUBLE_LINK_PARAM.value */ 2 - 1:0] second_defined_type_t; // Use another package's struct as the type and another packages's localparam as width
   
   typedef struct packed {
     first_defined_type_t first_field; // Use another package's enum as the type and a local localparam as width
