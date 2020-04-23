@@ -30,7 +30,7 @@ localparams:
       documentation.
 
 enums:
-  - name: CYCLE_TYPE_E
+  - name: CYCLE_TYPE__ET
     width: TRIPLE_NESTED_PARAM.value
     values:
       - name: IDLE
@@ -47,7 +47,7 @@ enums:
     doc_verbose: |
       I'm writing this verbose documentation so that we have something to attempt to link in
       for cycle_type.
-  - name: BOOL_E
+  - name: BOOL__ET
     width: 1
     values:
       - name: "TRUE"
@@ -58,39 +58,39 @@ enums:
         value: 0
     doc_summary: Test for an enum that is width 1
 typedefs:
-  - name: vanilla_type_t
+  - name: vanilla_type__t
     doc_summary: This is a basic logic type and width
     doc_verbose: And it has a doc_verbose for good measure
     base_type: "logic"
     width: 6
-  - name: nested_type_t
+  - name: nested_type__t
     doc_summary: Use another typedef as the base type, a localparam as the width
-    base_type: vanilla_type_t
+    base_type: vanilla_type__t
     width: ANOTHER_PARAM.value
 structs:
-  - name: hero_write_t
+  - name: hero_write__st
     doc_summary: "A struct that wraps all fields needed for a single hero write."
     doc_verbose: |
       This is a verbose doc. I'm writing it to provide that my verbose
       doc links are working correctly.
     fields:
-      - name: cycle_type
-        type: CYCLE_TYPE_E
+      - name: cycle_type__e
+        type: CYCLE_TYPE__ET
         doc_summary: type.doc_summary
         doc_verbose: type.doc_verbose
       - name: wdat
         type: logic
         width: HERO_WIDTH.value
         doc_summary: width.doc_summary
-      - name: another_type_reference
-        type: sub_def_t
+      - name: another_type_reference__s
+        type: sub_def__st
         doc_summary: Test a struct of a struct
       - name: clk_en
         type: logic
         width: 1
         doc_summary: Clock enable for the bus
 
-  - name: sub_def_t
+  - name: sub_def__st
     doc_summary: "A sub-struct of hero_write_t that is declared afterwards."
     fields:
       - name: subfield_a

@@ -15,7 +15,7 @@ localparams:
     value: 8
     doc_summary: Width of a single write cycle
 enums:
-  - name: WRITE_TYPE_E
+  - name: WRITE_TYPE__ET
     doc_summary: Specifies how the write should be handled
     width: 3
     values:
@@ -26,61 +26,61 @@ enums:
       - name: SINGLE_WDONE
         doc_summary: Send a wdone only for the entire write xaction
 typedefs:
-  - name: first_defined_type_t
+  - name: first_defined_type__t
     doc_summary: Use another package's enum as the type and a local localparam as width
-    base_type: test_pkg_a::CYCLE_TYPE_E
+    base_type: test_pkg_a::CYCLE_TYPE__ET
     width: NEW_PARAM.value
-  - name: second_defined_type_t
+  - name: second_defined_type__t
     doc_summary: Use another package's struct as the type and another packages's localparam as width
     doc_verbose: |
       This verbose doc is several lines in order to demonstrate 
       that we can have a multi-line verbose doc that can be linked through
-    base_type: test_pkg_a::hero_write_t
+    base_type: test_pkg_a::hero_write__st
     width: test_pkg_a::DOUBLE_LINK_PARAM.value
-  - name: local_item_type_t
+  - name: local_item_type__t
     doc_summary: Use this package's struct as the type and an int for a width
-    base_type: several_things_t
+    base_type: several_things__st
     width: 2
 structs:
-  - name: several_things_t
+  - name: several_things__st
     doc_summary: Testing inter-package dependencies within struct fields.
     fields:
       - name: fielda
         doc_summary: width.doc_summary
         type: logic
         width: test_pkg_a::HERO_WIDTH.value
-      - name: fieldb
+      - name: fieldb__s
         doc_summary: type.doc_summary
-        type: test_pkg_a::hero_write_t
-      - name: fieldc
+        type: test_pkg_a::hero_write__st
+      - name: fieldc__e
         doc_summary: type.doc_summary
-        type: test_pkg_a::CYCLE_TYPE_E
+        type: test_pkg_a::CYCLE_TYPE__ET
       - name: fieldd
         doc_summary: This summary is different than its base definition
         type: logic
         width: NEW_PARAM.value
 
-  - name: type_links_t
+  - name: type_links__st
     doc_summary: Link in a local typedef, a scoped typdef, and a scoped enum
     fields:
       - name: first_field
-        type: first_defined_type_t
+        type: first_defined_type__t
         doc_summary: type.doc_summary
       - name: second_field
-        type: second_defined_type_t
+        type: second_defined_type__t
         doc_summary: type.doc_summary
         doc_verbose: type.doc_verbose
-      - name: third_field
-        type: test_pkg_a::CYCLE_TYPE_E
+      - name: third_field__e
+        type: test_pkg_a::CYCLE_TYPE__ET
         doc_summary: This is a custom doc summary, not inherited from the type
         doc_verbose: This also a custom verbose doc
 
-  - name: write_cmd_t
+  - name: write_cmd__st
     doc_summary: The command cycle of a pipelined write
     fields:
       - name: rsvd
         type: logic
-        width: test_pkg_a::CYCLE_TYPE_E.width + 2
+        width: test_pkg_a::CYCLE_TYPE__ET.width + 2
         doc_summary: Reserved
       - name: val
         type: logic
@@ -90,15 +90,15 @@ structs:
         type: logic
         width: bits(MAX_WR_CYCLES.value - 1)
         doc_summary: Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
-      - name: write_type
-        type: WRITE_TYPE_E
+      - name: write_type__e
+        type: WRITE_TYPE__ET
         doc_summary: type.doc_summary
 
-  - name: write_dat_t
+  - name: write_dat__st
     doc_summary: Data cycle of a pipelined write
     fields:
-      - name: cycle_type
-        type: test_pkg_a::CYCLE_TYPE_E
+      - name: cycle_type__e
+        type: test_pkg_a::CYCLE_TYPE__ET
         doc_summary: type.doc_summary
       - name: dat
         type: logic
@@ -108,21 +108,21 @@ structs:
 unions:
       
 xactions:
-  - name: pipelined_write_t
+  - name: pipelined_write__st
     doc_summary: Defines a pipelined write transaction
     cycles:
-      - name: cmd_cycle
-        type: write_cmd_t
+      - name: cmd_cycle__s
+        type: write_cmd__st
         doc_summary: type.doc_summary
-      - name: dat0
-        type: write_dat_t
+      - name: dat0__s
+        type: write_dat__st
         doc_summary: type.doc_summary
-      - name: dat1
-        type: write_dat_t
+      - name: dat1__s
+        type: write_dat__st
         doc_summary: type.doc_summary
-      - name: dat2
-        type: write_dat_t
+      - name: dat2__s
+        type: write_dat__st
         doc_summary: type.doc_summary
-      - name: dat3
-        type: write_dat_t
+      - name: dat3__s
+        type: write_dat__st
         doc_summary: type.doc_summary

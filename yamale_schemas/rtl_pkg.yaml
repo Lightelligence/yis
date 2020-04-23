@@ -49,7 +49,7 @@ typedef:
   width: include('equation')
 ---
 struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]__st$', name="valid struct name. structs must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with __st.")
-pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]__t$', name="valid package scoped struct name. structs must be at least 3 characters all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
+pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]__st$', name="valid package scoped struct name. structs must be at least 3 characters all lowercase, start with a letter, only contain letters, numbers, and _, and must end with __st. The package must be all lowercase and start with a letter.")
 any_struct_name: any(include('struct_name'), include('pkg_scoped_struct_name'))
 struct_field_name: regex('^[a-z][a-z0-9_]*[a-z0-9]$', name="valid struct field name. struct field names must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _")
 struct:
