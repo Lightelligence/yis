@@ -195,7 +195,10 @@ class Equation(ast.NodeTransformer):
         attribute = node.attr
 
         link_name = f"{pkg}::{symbol}"
-        link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS])
+        link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS,
+                                                                              Pkg.ENUMS,
+                                                                              Pkg.TYPEDEFS,
+                                                                              Pkg.STRUCTS])
 
         if not hasattr(link, f"computed_{attribute}"):
             raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")

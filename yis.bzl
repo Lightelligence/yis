@@ -68,5 +68,17 @@ def yis_pkg(name, pkg_deps, pkg):
     yis_html_pkg(name, pkg_deps, pkg)
 
 def yis_intf(name, pkg_deps, intf):
+    src_block, dst_block = intf.strip(":").split("__")
+    dst_block = dst_block.split(".")[0]
+    current_block = native.package_name().rsplit("/")[-1]
+    print(src_block)
+    print(dst_block)
+    print(current_block)
+    if src_block != current_block:
+        fail("yis_intf files must be named <src>__<dst>.intf.\n" + 
+             "The file should live in the rtl/<src> directory.\n" +
+             "The rtl/<dst> may create a symlink back to rtl/<src>/<src>__<dst>.yis for convenience.\n" +
+             "However to prevent bazel from double building, only the rtl/<src>/BUILD may declare the yis_intf rule\n" +
+             "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, src_block))
     yis_html_intf(name, pkg_deps, intf)
     yis_dv_intf(name, pkg_deps, intf)
