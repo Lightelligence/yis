@@ -71,9 +71,9 @@ def yis_intf(name, pkg_deps, intf):
     src_block, dst_block = intf.strip(":").split("__")
     dst_block = dst_block.split(".")[0]
     current_block = native.package_name().rsplit("/")[-1]
-    print(src_block)
-    print(dst_block)
-    print(current_block)
+    # print(src_block)
+    # print(dst_block)
+    # print(current_block)
     if src_block != current_block:
         fail("yis_intf files must be named <src>__<dst>.intf.\n" + 
              "The file should live in the rtl/<src> directory.\n" +
