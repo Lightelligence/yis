@@ -49,7 +49,7 @@ RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WOR
 # Helpers
 def is_verilog_primitive(value):
     """Encapsulate frequent check for primitive types."""
-    return value in ["logic", "wire"]
+    return value in ["logic", "wire", "logic signed", "wire signed"]
 
 def bits(value):
     """Equivalent to $bits system call in Verilog.

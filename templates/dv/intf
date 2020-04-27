@@ -8,7 +8,7 @@
 {% for component in interface.children.values() %}
 // {{ component.doc_summary }}
 {%-  if component.doc_verbose %}/*{{ component.doc_verbose }}*/{% endif %}
-interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst);
+interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst_n);
 {% for connection in component.children.values() %}
   {{ "\n".join(connection.render_rtl_sv_pkg(use_short_name=True)) }}
 {%- endfor %}

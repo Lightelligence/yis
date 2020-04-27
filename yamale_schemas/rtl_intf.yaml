@@ -13,8 +13,8 @@ pkg_enum: regex('^[a-z][a-z0-9_]{2,}::[A-Z][A-Z0-9_]{2,}__ET$', name="valid pack
 pkg_typedef: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}__t$', name="valid package scoped typedef name. typdefs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with __t. The package must be all lowercase and start with a letter.")
 pkg_union: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}__ut$', name="valid package scoped union name. typdefs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with __ut. The package must be all lowercase and start with a letter.")
 pkg_struct: regex('^[a-z][a-z0-9_]{2,}::[a-z][a-z0-9_]{2,}__st$', name="valid package scoped struct name. typdefs must be all lowercase, start with a letter, only contain letters, numbers, and _, and must end with __st. The package must be all lowercase and start with a letter.")
-wire_or_logic: enum('logic', 'wire')
-sv_type: any(include('wire_or_logic'), include('pkg_enum'), include('pkg_typedef'), include("pkg_union"), include("pkg_struct"))
+verilog_primitive: enum('wire', 'logic', 'wire signed', 'logic signed')
+sv_type: any(include('verilog_primitive'), include('pkg_enum'), include('pkg_typedef'), include("pkg_union"), include("pkg_struct"))
 component:
   name: include('sv_name')
   doc_summary: include('doc_summary')
