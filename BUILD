@@ -21,7 +21,7 @@ markdown_to_html(
 )
 
 lt_py_pylint(
-    name = "yis",
+    name = "yis_pylint",
     files = [
         "yis.py",
     ],
