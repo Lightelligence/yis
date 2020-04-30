@@ -69,13 +69,13 @@ def yis_html_intf(name, pkg_deps, intf):
 
 def yis_pkg(name, pkg_deps, pkg):
     if not name.endswith("_yis"):
-        fail("yis_pkg rule names must end with '_yis'")
-    yis_rtl_pkg(name[:-3], pkg_deps, pkg)
-    yis_html_pkg(name[:-3], pkg_deps, pkg)
+        fail("yis_pkg rule names must end with '_yis': {}".format(name))
+    yis_rtl_pkg(name[:-4], pkg_deps, pkg)
+    yis_html_pkg(name[:-4], pkg_deps, pkg)
 
 def yis_intf(name, pkg_deps, intf):
     if not name.endswith("_yis"):
-        fail("yis_intf rule names must end with '_yis'")
+        fail("yis_intf rule names must end with '_yis': {}".format(name))
 
     src_block, dst_block = intf.strip(":").split("__")
     dst_block = dst_block.split(".")[0]
@@ -90,5 +90,5 @@ def yis_intf(name, pkg_deps, intf):
              "The rtl/<dst> may create a symlink back to rtl/<src>/<src>__<dst>.yis for convenience.\n" +
              "However to prevent bazel from double building, only the rtl/<src>/BUILD may declare the yis_intf rule\n" +
              "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, src_block))
-    yis_html_intf(name[:-3], pkg_deps, intf)
-    yis_dv_intf(name[:-3], pkg_deps, intf)
+    yis_html_intf(name[:-4], pkg_deps, intf)
+    yis_dv_intf(name[:-4], pkg_deps, intf)
