@@ -1,3 +1,5 @@
+"""Rules (well macros) for building yis files."""
+
 load("@verilog_tools//:rtl.bzl", "rtl_pkg")
 load("@verilog_tools//:dv.bzl", "dv_lib")
 

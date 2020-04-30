@@ -2,7 +2,6 @@ package(default_visibility = ["//visibility:public"])
 
 load("//env:lt_py.bzl", "lt_py_pylint")
 load("//env:doc.bzl", "markdown_to_html")
-load(":yis.bzl", "yis_rtl_pkg")
 
 all_jinja_templates = glob(["templates/**"])
 

@@ -1,3 +1,5 @@
+"""Test helpers for yis."""
+
 load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_pkg")
 
 golden_out_location = "//digital/rtl/scripts/yis/test/golden_outputs:"
