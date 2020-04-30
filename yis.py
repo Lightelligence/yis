@@ -30,20 +30,12 @@ from scripts import cmn_logging
 ################################################################################
 # Constants
 PKG_SCOPE_REGEXP = re.compile("(.*)::(.*)")
-LIST_OF_RESERVED_WORDS = ["logic",
-                          "wire",
-                          "enum",
-                          "struct",
-                          "bit",
-                          "real",
-                          "input",
-                          "output",
-                          "interface",
-                          "typedef",
-                          "union",
-                          "type",
-                          "class"]
+LIST_OF_RESERVED_WORDS = [
+    "logic", "wire", "enum", "struct", "bit", "real", "input", "output", "interface", "typedef", "union", "type",
+    "class"
+]
 RESERVED_WORDS_REGEXP = re.compile("^({})$".format("|".join(LIST_OF_RESERVED_WORDS)))
+
 
 ################################################################################
 # Helpers
@@ -51,11 +43,13 @@ def is_verilog_primitive(value):
     """Encapsulate frequent check for primitive types."""
     return value in ["logic", "wire", "logic signed", "wire signed"]
 
+
 def bits(value):
     """Equivalent to $bits system call in Verilog.
     Requires a lot of typing in python.
     """
     return int(math.ceil(math.log2(value)))
+
 
 def only_run_once(function):
     """A cheap decorator to only allow a method to be invoked once.
@@ -65,6 +59,7 @@ def only_run_once(function):
     once.
 
     """
+
     def wrapper(self):
         run_once_dict = getattr(self, "_only_run_once", {})
         if function not in run_once_dict:
@@ -72,7 +67,9 @@ def only_run_once(function):
             setattr(self, "_only_run_once", run_once_dict)
             return function(self)
         return None
+
     return wrapper
+
 
 def memoize_property(function):
     """Memoize a class method. Intentionally only works on functions without args for now.
@@ -81,6 +78,7 @@ def memoize_property(function):
     just using function name.
 
     """
+
     @property
     def wrapper(self):
         memoize_properties = getattr(self, "_memoize_properties", {})
@@ -91,6 +89,7 @@ def memoize_property(function):
             memoize_properties[function] = result
             setattr(self, "_memoize_properties", memoize_properties)
             return result
+
     return wrapper
 
 
@@ -104,6 +103,7 @@ class Equation(ast.NodeTransformer):
 
     class LinkNode(ast.Num): # pylint: disable=too-few-public-methods
         """Custom node to store information to another YisNode"""
+
         def __init__(self, value, link, attribute):
             self.link = link
             self.attribute = attribute
@@ -114,6 +114,7 @@ class Equation(ast.NodeTransformer):
 
     class TextSourceGenerator(astor.SourceGenerator): # pylint: disable=too-few-public-methods
         """Support of LinkNode rendering"""
+
         def visit_LinkNode(self, node):
             """For text generation, just give the computed numerical value."""
             self.visit_Num(node)
@@ -121,6 +122,7 @@ class Equation(ast.NodeTransformer):
     class HtmlSourceGenerator(astor.SourceGenerator): # pylint: disable=too-few-public-methods
         """Rerender the equation, but replace node references with html links to the objects."""
         link_map = {}
+
         def visit_LinkNode(self, node):
             """Return the precalculated link."""
             html_link = self.link_map[node]
@@ -154,12 +156,10 @@ class Equation(ast.NodeTransformer):
             raise EquationError(f"Did you forget to add '.width' or '.value' on the end of '{name}'")
 
         if self._result < 0:
-            self.yisnode.log.error("Equation for %s evaluated to a negative number (%s).\n"
-                                   "Only non-negative evaluations allowed.\n"
-                                   "Original equation: '%s'",
-                                   yisnode.name,
-                                   self._result,
-                                   equation)
+            self.yisnode.log.error(
+                "Equation for %s evaluated to a negative number (%s).\n"
+                "Only non-negative evaluations allowed.\n"
+                "Original equation: '%s'", yisnode.name, self._result, equation)
 
     @property
     def computed_value(self):
@@ -195,10 +195,8 @@ class Equation(ast.NodeTransformer):
         attribute = node.attr
 
         link_name = f"{pkg}::{symbol}"
-        link = self.yisnode.resolve_link_from_str(link_name, allowed_symbols=[Pkg.LOCALPARAMS,
-                                                                              Pkg.ENUMS,
-                                                                              Pkg.TYPEDEFS,
-                                                                              Pkg.STRUCTS])
+        link = self.yisnode.resolve_link_from_str(
+            link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS, Pkg.STRUCTS])
 
         if not hasattr(link, f"computed_{attribute}"):
             raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")
@@ -222,11 +220,13 @@ class Equation(ast.NodeTransformer):
         html_map = {}
         for node in self.linked_nodes:
             html_map[node] = reference_yisnode.html_link_attribute_from_link(node.link, extra_text=f".{node.attribute}")
+
         class LocalHtmlSourceGenerator(self.HtmlSourceGenerator): # pylint: disable=too-few-public-methods
             """A derived class to have access to set link_map.
             Would prefer to pass this in, but not easy due to astor invoking by class, not instance.
             """
             link_map = html_map
+
         return astor.to_source(self.tree_root, source_generator_class=LocalHtmlSourceGenerator)
 
     def render_rtl(self):
@@ -246,6 +246,7 @@ class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-met
     It's easier (and hackier) to solve this by just adding these deps to the genrule srcs,
     but we want to ignore those files because they aren't really consumed here.
     """
+
     def __call__(self, parser, namespace, values, option_string=None):
         setattr(namespace, self.dest, [])
         for value in values:
@@ -272,20 +273,11 @@ def parse_args(argv):
                         required=True,
                         help="Path to the output file, which might either be a package or a block interface.")
 
-    parser.add_argument('--gen-html',
-                        default=False,
-                        action='store_true',
-                        help="Use the html generator for output.")
+    parser.add_argument('--gen-html', default=False, action='store_true', help="Use the html generator for output.")
 
-    parser.add_argument('--gen-rtl',
-                        default=False,
-                        action='store_true',
-                        help="Use the rtl generator for output.")
+    parser.add_argument('--gen-rtl', default=False, action='store_true', help="Use the rtl generator for output.")
 
-    parser.add_argument('--gen-dv',
-                        default=False,
-                        action='store_true',
-                        help="Use the dv generator for output.")
+    parser.add_argument('--gen-dv', default=False, action='store_true', help="Use the dv generator for output.")
 
     parser.add_argument('--tool-debug',
                         default=False,
@@ -295,15 +287,19 @@ def parse_args(argv):
     options = parser.parse_args(argv)
     return options
 
+
 ################################################################################
 # Classes
+
 
 class LinkError(Exception):
     """Error raised when a link or a cross-link can't resolve."""
     pass # pylint: disable=unnecessary-pass
 
+
 class Yis:
     """Yaml Interface Spec parser and generator class."""
+
     def __init__(self, block_interface, pkgs, log, options):
         self.log = log
         self.options = options
@@ -312,7 +308,6 @@ class Yis:
         self._block_interface = None
         self._parse_files(block_interface, pkgs)
         self._link_symbols()
-
 
     def _parse_files(self, block_interface, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
@@ -348,11 +343,7 @@ class Yis:
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
                 pkg_name = os.path.splitext(os.path.basename(fname))[0]
-                new_pkg = Pkg(log=self.log,
-                              name=pkg_name,
-                              parent=self,
-                              source_file=fname,
-                              **data)
+                new_pkg = Pkg(log=self.log, name=pkg_name, parent=self, source_file=fname, **data)
                 self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
@@ -396,12 +387,11 @@ class Yis:
 
     def render_output(self, output_file):
         """Render the appropriate output file, either a pkg or an intf."""
-        env = Environment(
-            loader=FileSystemLoader('digital/rtl/scripts/yis/templates'),
-            autoescape=select_autoescape(
-                enabled_extensions=('html'),
-                default_for_string=True,
-            ))
+        env = Environment(loader=FileSystemLoader('digital/rtl/scripts/yis/templates'),
+                          autoescape=select_autoescape(
+                              enabled_extensions=('html'),
+                              default_for_string=True,
+                          ))
         year = date.today().year
 
         if self.options.gen_rtl:
@@ -452,8 +442,8 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.children = OrderedDict()
         self._check_naming_conventions()
         self.local_links = [] # Simplifies post-order-traversal algorithm
-                              # (basically just moving some smarts to
-                              # constructors)
+        # (basically just moving some smarts to
+        # constructors)
 
     def __getattribute__(self, attr):
         """Override the default behaviour to make sure links are resolved before
@@ -465,10 +455,8 @@ class YisNode: # pylint: disable=too-few-public-methods
     def _check_naming_conventions(self):
         self._check_reserved_word_name()
         if not self.name.endswith(self.TYPE_NAME_SUFFIX):
-            self.log.error("%s is type %s; therefore it must end with '%s' according to naming conventions.",
-                           self.name,
-                           self.__class__.__name__,
-                           self.TYPE_NAME_SUFFIX)
+            self.log.error("%s is type %s; therefore it must end with '%s' according to naming conventions.", self.name,
+                           self.__class__.__name__, self.TYPE_NAME_SUFFIX)
         self._naming_convention_callback()
 
     def _check_link_instance_naming(self, attr_name):
@@ -476,10 +464,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         if not is_verilog_primitive(attr):
             if not self.name.endswith(attr.INSTANCE_NAME_SUFFIX):
                 self.log.error("%s field '%s' is typed as %s, but doesn't match required instance naming suffix of %s",
-                               self.parent.name,
-                               self.name,
-                               attr.__class__.__name__,
-                               attr.INSTANCE_NAME_SUFFIX)
+                               self.parent.name, self.name, attr.__class__.__name__, attr.INSTANCE_NAME_SUFFIX)
 
     def _check_reserved_word_name(self):
         if RESERVED_WORDS_REGEXP.search(self.name):
@@ -521,8 +506,8 @@ class YisNode: # pylint: disable=too-few-public-methods
     def resolve_link_from_str(self, link_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
         """Given a string, attempt to likn to a matching YisNode."""
         if not isinstance(link_name, str):
-            self.log.error("Attempting to resolve link from %s. Expected str, but got %s %s",
-                           self.name, link_name, type(link_name))
+            self.log.error("Attempting to resolve link from %s. Expected str, but got %s %s", self.name, link_name,
+                           type(link_name))
 
         link_pkg, link_symbol = self._extract_link_pieces(link_name)
 
@@ -532,9 +517,7 @@ class YisNode: # pylint: disable=too-few-public-methods
 
         self.log.debug("Attempting to resolve link to %s::%s", link_pkg, link_symbol)
         try:
-            link = root.resolve_symbol(link_pkg,
-                                       link_symbol,
-                                       allowed_symbols)
+            link = root.resolve_symbol(link_pkg, link_symbol, allowed_symbols)
         except LinkError:
             self.log.error("Couldn't resolve a link from %s to %s", self.name, link_name)
             return None
@@ -562,16 +545,15 @@ class YisNode: # pylint: disable=too-few-public-methods
 
     def resolve_doc_links(self):
         """Resolve basic doc_* links from *.doc_* to the original definition."""
-        attr_name_map = {'width' : 'width',
-                         'type' : 'sv_type'}
+        attr_name_map = {'width': 'width', 'type': 'sv_type'}
         for doc_type in ['doc_summary', 'doc_verbose']:
             self.log.debug(F"Looking for {doc_type} on {self.name}")
             doc_attr = getattr(self, doc_type)
             for human_name, yis_internal_name in attr_name_map.items():
                 if doc_attr == F"{human_name}.{doc_type}":
                     if not hasattr(self, yis_internal_name):
-                        self.log.error("Attempting to use %s.%s, but %s doesn't have a %s member.",
-                                       human_name, doc_type, self.__class__)
+                        self.log.error("Attempting to use %s.%s, but %s doesn't have a %s member.", human_name,
+                                       doc_type, self.__class__)
                         continue
                 else:
                     continue
@@ -646,14 +628,11 @@ class YisNode: # pylint: disable=too-few-public-methods
         doc_link_re = re.compile(r"\[([a-zA-Z0-9_:]+)\]")
 
         attr = getattr(self, attr_name)
+
         def repl(match):
             name = match.group(1)
-            link = self.resolve_link_from_str(name,
-                                              allowed_symbols=[Pkg.LOCALPARAMS,
-                                                               Pkg.ENUMS,
-                                                               Pkg.TYPEDEFS,
-                                                               Pkg.STRUCTS,
-                                                               Pkg.UNIONS])
+            link = self.resolve_link_from_str(
+                name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS, Pkg.STRUCTS, Pkg.UNIONS])
             return self.html_link_attribute_from_link(link)
 
         attr = doc_link_re.sub(repl, attr)
@@ -668,17 +647,20 @@ class Pkg(YisNode):
     STRUCTS = 'structs'
     TYPEDEFS = 'typedefs'
     UNIONS = 'unions'
-    offspring = OrderedDict([(LOCALPARAMS, 'PkgLocalparam'),
-                             (ENUMS, 'PkgEnum'),
-                             (XACTIONS, 'PkgXaction'), # This is cheating - we need this before structs otherwise we'll attempt to create PkgXactions as PkgStructs # pylint: disable=line-too-long
-                             (STRUCTS, 'PkgStruct'),
-                             (TYPEDEFS, 'PkgTypedef'),
-                             (UNIONS, 'PkgUnion'),])
+    offspring = OrderedDict([
+        (LOCALPARAMS, 'PkgLocalparam'),
+        (ENUMS, 'PkgEnum'),
+        (XACTIONS, 'PkgXaction'), # This is cheating - we need this before structs otherwise we'll attempt to create PkgXactions as PkgStructs # pylint: disable=line-too-long
+        (STRUCTS, 'PkgStruct'),
+        (TYPEDEFS, 'PkgTypedef'),
+        (UNIONS, 'PkgUnion'),
+    ])
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         self.finished_link = False
+
         def initialize(offspring):
             setattr(self, offspring, OrderedDict())
             cls = getattr(sys.modules[__name__], self.offspring[offspring])
@@ -724,20 +706,14 @@ class Pkg(YisNode):
 
     def resolve_inbound_symbol(self, link_symbol, symbol_types):
         """Resolve a link from another pkg attempting to reference a symbol in this pkg."""
-        self.log.debug("Attempting to resolve an inbound link %s::%s of types %s",
-                       self.name,
-                       link_symbol,
-                       symbol_types)
+        self.log.debug("Attempting to resolve an inbound link %s::%s of types %s", self.name, link_symbol, symbol_types)
         if not self.finished_link:
             self.log.error(F"Can't resolve {link_symbol} into {self.name}, it hasn't been compiled yet")
             raise LinkError
 
         for symbol_type in symbol_types:
             try:
-                self.log.debug("Looking for a(n) %s link to %s::%s",
-                               symbol_type,
-                               self.name,
-                               link_symbol)
+                self.log.debug("Looking for a(n) %s link to %s::%s", symbol_type, self.name, link_symbol)
                 return getattr(self, symbol_type)[link_symbol]
             except KeyError:
                 pass
@@ -755,12 +731,12 @@ class Pkg(YisNode):
                 "Enums:\n  -{enums}\n"
                 "Structs:\n  -{structs}\n"
                 "Typedefs:\n  -{typedefs}\n"
-                "Unions:\n  -{unions}\n"
-                .format(localparams="\n  -".join([str(param) for param in self.localparams.values()]),
-                        enums="\n  -".join([str(param) for param in self.enums.values()]),
-                        structs="\n  -".join([str(param) for param in self.structs.values()]),
-                        typedefs="\n  -".join([str(param) for param in self.typedefs.values()]),
-                        unions="\n  -".join([str(param) for param in self.unions.values()])))
+                "Unions:\n  -{unions}\n".format(localparams="\n  -".join(
+                    [str(param) for param in self.localparams.values()]),
+                                                enums="\n  -".join([str(param) for param in self.enums.values()]),
+                                                structs="\n  -".join([str(param) for param in self.structs.values()]),
+                                                typedefs="\n  -".join([str(param) for param in self.typedefs.values()]),
+                                                unions="\n  -".join([str(param) for param in self.unions.values()])))
 
     def post_order_traversal_for_rtl_render(self):
         """Walk all "top_level" children to find the dependency order.
@@ -867,11 +843,8 @@ class PkgLocalparam(PkgItemBase):
 
         max_value = (1 << self.width.computed_value) - 1
         if value > max_value:
-            self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)",
-                           self.name,
-                           value,
-                           max_value,
-                           self.width.computed_value)
+            self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)", self.name, value,
+                           max_value, self.width.computed_value)
         return value
 
     def render_rtl_sv_pkg(self):
@@ -1018,6 +991,7 @@ class PkgEnumValue(PkgItemBase):
             return ""
         return self.sv_value
 
+
 class PkgTypedef(PkgItemBase):
     """Definition for a typedef inside a pkg."""
 
@@ -1088,6 +1062,7 @@ class PkgTypedef(PkgItemBase):
         ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
+
 class PkgStruct(PkgItemBase):
     """Definition for a struct inside a pkg."""
 
@@ -1144,9 +1119,7 @@ class PkgStruct(PkgItemBase):
 
     def html_canvas_data(self, label=""):
         """Return a dictionary of data to render the struct-canvas in html."""
-        data = {"field_names" : [],
-                "msbs" : [],
-                "lsbs" : []}
+        data = {"field_names": [], "msbs": [], "lsbs": []}
         if label:
             data["label"] = label
         current_bit = 0
@@ -1157,6 +1130,7 @@ class PkgStruct(PkgItemBase):
             data["msbs"].insert(0, current_bit)
             current_bit += 1
         return data
+
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
@@ -1229,6 +1203,7 @@ class PkgXaction(PkgStruct):
     All cycles must be the same width (like a union), but the computed width is aggregate across all cycles.
     HTML rendering for an Xaction borrows the enum implementation where it renders at depth 1 instead of depth 0.
     """
+
     def __init__(self, **kwargs):
         kwargs['fields'] = kwargs.pop('cycles')
         super().__init__(**kwargs)
@@ -1245,12 +1220,8 @@ class PkgXaction(PkgStruct):
             else:
                 if child.computed_width != width:
                     self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
-                                    "Union fields must be padded to match widths exactly."),
-                                   self.name,
-                                   first.name,
-                                   child.name,
-                                   width,
-                                   child.computed_width)
+                                    "Union fields must be padded to match widths exactly."), self.name, first.name,
+                                   child.name, width, child.computed_width)
 
         return width * len(self.children)
 
@@ -1261,10 +1232,7 @@ class PkgXaction(PkgStruct):
             if isinstance(child.sv_type, PkgStruct):
                 all_data.append(child.sv_type.html_canvas_data(label=child.name))
                 continue
-            data = {"field_names" : [],
-                    "msbs" : [],
-                    "lsbs" : [],
-                    "label" : child.name}
+            data = {"field_names": [], "msbs": [], "lsbs": [], "label": child.name}
             current_bit = 0
             data["field_names"].insert(0, child.name)
             data["lsbs"].insert(0, current_bit)
@@ -1305,12 +1273,8 @@ class PkgUnion(PkgItemBase):
             else:
                 if child.computed_width != width:
                     self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
-                                    "Union fields must be padded to match widths exactly."),
-                                   self.name,
-                                   first.name,
-                                   child.name,
-                                   width,
-                                   child.computed_width)
+                                    "Union fields must be padded to match widths exactly."), self.name, first.name,
+                                   child.name, width, child.computed_width)
         return width
 
     def render_rtl_sv_pkg(self):
@@ -1349,10 +1313,7 @@ class PkgUnion(PkgItemBase):
             if isinstance(child.sv_type, PkgStruct):
                 all_data.append(child.sv_type.html_canvas_data(label=child.name))
                 continue
-            data = {"field_names" : [],
-                    "msbs" : [],
-                    "lsbs" : [],
-                    "label" : child.name}
+            data = {"field_names": [], "msbs": [], "lsbs": [], "label": child.name}
             current_bit = 0
             data["field_names"].insert(0, child.name)
             data["lsbs"].insert(0, current_bit)
@@ -1362,8 +1323,10 @@ class PkgUnion(PkgItemBase):
             all_data.append(data)
         return all_data
 
+
 class PkgUnionField(PkgItemBase):
     """Definition for a single field inside a union."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
@@ -1425,6 +1388,7 @@ class PkgUnionField(PkgItemBase):
 
 class Intf(YisNode):
     """Class to hold IntfItemBase objects, representing a whole intf."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source_file = kwargs['source_file']
@@ -1448,8 +1412,8 @@ class Intf(YisNode):
 
     def __repr__(self):
         return (F"Intf name: {self.name}\n"
-                "Components:\n  -{components}\n"
-                .format(components="\n  -".join([repr(component) for component in self.children.values()])))
+                "Components:\n  -{components}\n".format(
+                    components="\n  -".join([repr(component) for component in self.children.values()])))
 
     @memoize_property
     def computed_width(self):
@@ -1459,14 +1423,12 @@ class Intf(YisNode):
 
 class IntfItemBase(YisNode):
     """Base class for anything contained in an Intf."""
+
     def _extract_link_pieces(self, link_name):
         match = PKG_SCOPE_REGEXP.match(link_name)
         if not match:
             self.log.error(("%s has invalid %s"
-                            "%s references in RTL intf files must be package scoped"),
-                           self.name,
-                           link_name,
-                           link_name)
+                            "%s references in RTL intf files must be package scoped"), self.name, link_name, link_name)
 
         # If it looks like we're scoping out of pkg
         link_pkg = match.group(1)
@@ -1474,8 +1436,10 @@ class IntfItemBase(YisNode):
 
         return link_pkg, link_symbol
 
+
 class IntfComp(IntfItemBase):
     """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for connection in kwargs.pop('connections'):
@@ -1483,8 +1447,8 @@ class IntfComp(IntfItemBase):
 
     def __repr__(self):
         return (F"Component name: {self.name}\n"
-                "Connections:\n  -{connections}\n"
-                .format(connections="\n  -".join([repr(connection) for connection in self.children.values()])))
+                "Connections:\n  -{connections}\n".format(
+                    connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
     @memoize_property
     def computed_width(self):
@@ -1494,6 +1458,7 @@ class IntfComp(IntfItemBase):
 
 class IntfCompConn(IntfItemBase):
     """Definition for a Conn(onent) in a Comp(onent)."""
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
@@ -1584,12 +1549,14 @@ def main(options, log):
     yis = Yis(options.block_interface, options.pkgs, log, options=options)
     yis.render_output(options.output_file)
 
+
 def setup_context():
     """Set up options, log, and other context for main to run."""
     options = parse_args(sys.argv[1:])
     verbosity = cmn_logging.DEBUG if options.tool_debug else cmn_logging.INFO
     log = cmn_logging.build_logger("yis", level=verbosity)
     main(options, log)
+
 
 if __name__ == "__main__":
     setup_context()
