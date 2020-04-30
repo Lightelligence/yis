@@ -5,6 +5,7 @@ load("//env:doc.bzl", "markdown_to_html")
 load(":yis.bzl", "yis_rtl_pkg")
 
 all_jinja_templates = glob(["templates/**"])
+
 all_yamale_schemas = glob(["yamale_schemas/**"])
 
 py_binary(

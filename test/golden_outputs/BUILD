@@ -1,5 +1,8 @@
 package(default_visibility = ["//visibility:public"])
 
 exports_files(
-    glob(["*.svh", "*.html"]),
+    glob([
+        "*.svh",
+        "*.html",
+    ]),
 )

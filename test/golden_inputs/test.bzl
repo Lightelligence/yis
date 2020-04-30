@@ -1,4 +1,4 @@
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_pkg", "yis_html_pkg", "yis_html_intf")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_pkg")
 
 golden_out_location = "//digital/rtl/scripts/yis/test/golden_outputs:"
 
@@ -19,7 +19,7 @@ def golden_rtl_pkg_test(name, pkg_deps):
             ":{}_rypkg_svh".format(name),
             "{}{}_rypkg.svh".format(golden_out_location, name),
         ],
-        args = ["diff $(location :{name}_rypkg_svh) $(location {gout}{name}_rypkg.svh)".format(gout=golden_out_location, name=name)],
+        args = ["diff $(location :{name}_rypkg_svh) $(location {gout}{name}_rypkg.svh)".format(gout = golden_out_location, name = name)],
         tags = ["gold"],
     )
 
@@ -40,7 +40,7 @@ def golden_html_pkg_test(name, pkg_deps):
             ":{}_rypkg_html".format(name),
             ":{}_rypkg.html".format(name),
         ],
-        args = ["diff $(location :{name}_rypkg_html) $(location {name}_rypkg.html)".format(name=name)],
+        args = ["diff $(location :{name}_rypkg_html) $(location {name}_rypkg.html)".format(name = name)],
         tags = ["gold"],
     )
 
@@ -61,7 +61,7 @@ def golden_html_intf_test(name, pkg_deps):
             ":{}_rtl_intf_html".format(name),
             ":{}_rtl_intf.html".format(name),
         ],
-        args = ["diff $(location :{name}_rtl_intf_html) $(location {name}_rtl_intf.html)".format(name=name)],
+        args = ["diff $(location :{name}_rtl_intf_html) $(location {name}_rtl_intf.html)".format(name = name)],
         tags = ["gold"],
     )
 
