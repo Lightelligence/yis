@@ -269,6 +269,11 @@ def parse_args(argv):
                         action='store_true',
                         help="Indicates if the last .yis file passed in is an intf definition")
 
+    parser.add_argument('--block-memory',
+                        default=False,
+                        action='store_true',
+                        help="Indicates if the last .yis file passed in is a memory definition")
+
     parser.add_argument('--output-file',
                         required=True,
                         help="Path to the output file, which might either be a package or a block interface.")
@@ -302,26 +307,26 @@ class LinkError(Exception):
 class Yis:
     """Yaml Interface Spec parser and generator class."""
 
-    def __init__(self, block_interface, pkgs, log, options):
+    def __init__(self, pkgs, log, options):
         self.log = log
         self.options = options
         self.parent = None # Should never be set, but recursive walking easier
         self._pkgs = OrderedDict()
         self._block_interface = None
-        self._parse_files(block_interface, pkgs)
+        self._block_memory = None
+        self._parse_files(pkgs)
         self._link_symbols()
 
-    def _parse_files(self, block_interface, pkgs):
+    def _parse_files(self, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
-        intf_to_parse = None
         pkgs_to_parse = pkgs
-        if block_interface:
-            intf_to_parse = pkgs[-1]
-            if len(pkgs) > 1:
-                pkgs_to_parse = pkgs[:-1]
+        if self.options.block_interface or self.options.block_memory:
+            special_parse = pkgs_to_parse.pop()
         self._parse_pkgs(pkgs_to_parse)
-        if block_interface:
-            self._parse_block_interface(intf_to_parse)
+        if self.options.block_interface:
+            self._parse_block_interface(special_parse)
+        if self.options.block_memory:
+            self._parse_block_memory(special_parse)
         self.log.exit_if_warnings_or_errors("Found errors parsing input files")
 
     def _parse_pkgs(self, pkgs_to_parse):
@@ -365,9 +370,29 @@ class Yis:
                                              parent=self,
                                              source_file=intf_to_parse,
                                              **data)
+                self._pkgs[interface_name] = self._block_interface
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {interface_name}")
         except IOError:
             self.log.critical("Couldn't open {}".format(intf_to_parse))
+
+    def _parse_block_memory(self, mem_to_parse):
+        """Parse a block memory file, deserialize into relevant objects."""
+        try:
+            self.log.info(F"Parsing mem {mem_to_parse}")
+            self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_mem.yaml', mem_to_parse)
+            self.log.exit_if_warnings_or_errors("Previous errors")
+            with open(mem_to_parse) as yfile:
+                data = yaml.load(yfile, Loader)
+                memory_name = os.path.splitext(os.path.basename(mem_to_parse))[0]
+                self._block_memory = Mem(log=self.log,
+                                             name=memory_name,
+                                             parent=self,
+                                             source_file=mem_to_parse,
+                                             **data)
+                self._pkgs[memory_name] = self._block_memory
+                self.log.exit_if_warnings_or_errors(F"Found errors parsing {memory_name}")
+        except IOError:
+            self.log.critical("Couldn't open {}".format(mem_to_parse))
 
     def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
@@ -376,6 +401,8 @@ class Yis:
             pkg.resolve_links()
         if self._block_interface:
             self._block_interface.resolve_links()
+        if self._block_memory:
+            self._block_memory.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
@@ -410,6 +437,8 @@ class Yis:
         template_name = "pkg"
         if self._block_interface:
             template_name = "intf"
+        if self._block_memory:
+            template_name = "mem"
 
         template_name = os.path.join(template_directory, template_name)
 
@@ -418,6 +447,7 @@ class Yis:
         target_pkg = next(reversed(self._pkgs.values()))
         output_content = template.render(year=year,
                                          interface=self._block_interface,
+                                         memory=self._block_memory,
                                          pkgs=self._pkgs,
                                          target_pkg=target_pkg)
 
@@ -1601,12 +1631,63 @@ class IntfCompConn(IntfItemBase):
         return ret_arr
 
 
+class Mem(YisNode):
+    """Class to hold MemItemBase objects, representing a whole mem."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.source_file = kwargs['source_file']
+        for row in kwargs.pop('memories'):
+            MemItem(parent=self, log=self.log, **row)
+
+    def __repr__(self):
+        return (F"Mem name: {self.name}\n"
+                "Components:\n  -{components}\n".format(
+                    components="\n  -".join([repr(component) for component in self.children.values()])))
+
+class MemItem(YisNode):
+    """Base class for anything contained in an Mem."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.width = kwargs.pop('width')
+        self.depth = kwargs.pop('depth')
+        self.ecc = kwargs.pop('ecc')
+        self.parity = kwargs.pop('parity')
+        self.read_ports = kwargs.pop('read_ports')
+        self.write_ports = kwargs.pop('write_ports')
+
+    def _extract_link_pieces(self, link_name):
+        match = PKG_SCOPE_REGEXP.match(link_name)
+        if not match:
+            self.log.error(("%s has invalid %s"
+                            "%s references in RTL mem files must be package scoped"), self.name, link_name, link_name)
+
+        # If it looks like we're scoping out of pkg
+        link_pkg = match.group(1)
+        link_symbol = match.group(2)
+
+        return link_pkg, link_symbol
+
+    @only_run_once
+    def resolve_links(self):
+        """Resolve links from a MemItem to a package. """
+        self.width = Equation(self, self.width)
+        self.depth = Equation(self, self.depth)
+        # Else sv_type is a logic and it has an int width, so leave it alone
+        super().resolve_links()
+
+    def __repr__(self):
+        return (F"Component name: {self.name}\n"
+                "Connections:\n  -{connections}\n".format(
+                    connections="\n  -".join([repr(connection) for connection in self.children.values()])))
+
+
 def main(options, log):
     """Main execution."""
     if not options.pkgs:
         log.critical("Didn't find anything to render via cmd line. Must specify at least .yis")
 
-    yis = Yis(options.block_interface, options.pkgs, log, options=options)
+    yis = Yis(options.pkgs, log, options=options)
     yis.render_output(options.output_file)
 
 

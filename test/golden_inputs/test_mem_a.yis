@@ -1,0 +1,25 @@
+# -*- yaml -*-
+---
+doc_summary: This is an example memory definition
+memories:
+  - name: rx_fifo
+    doc_summary: Receive FIFO Memory
+    doc_verbose: |
+      Boring info about memories. And now
+      I'm on a new line
+    width: test_pkg_a::TRIPLE_NESTED_PARAM.value
+    depth: 512
+    ecc: True
+    parity: False
+    read_ports: 1
+    write_ports: 1
+
+
+  - name: tx_fifo
+    doc_summary: Transimit FIFO Memory
+    width: test_pkg_a::hero_write__st.width
+    depth: 1024
+    ecc: True
+    parity: False
+    read_ports: 1
+    write_ports: 1

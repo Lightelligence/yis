@@ -1,6 +1,6 @@
 """Rules (well macros) for building yis files."""
 
-load("@verilog_tools//:rtl.bzl", "rtl_pkg")
+load("@verilog_tools//:rtl.bzl", "rtl_lib", "rtl_pkg")
 load("@verilog_tools//:dv.bzl", "dv_lib")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
@@ -16,6 +16,28 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
     rtl_pkg(
         name = "{}_rypkg".format(name),
         direct = [":{}_rypkg_svh".format(name)],
+        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
+    )
+
+def yis_rtl_mem(name, pkg_deps, mem):
+    expected_name = mem.rsplit(":")[1][:-4]
+    if name != expected_name:
+        fail("Expect yis target name to be: {}".format(expected_name))
+
+    native.genrule(
+        name = "{}_mem_gen".format(name),
+        srcs = pkg_deps + [mem],
+        # srcs = pkg_deps + [mem] + [pkg_dep[:-4] + "_rypkg_rtl" for pkg_dep in pkg_deps],
+        outs = ["{}_mem.svh".format(name)],
+        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
+        output_to_bindir = True,
+        tools = ["//digital/rtl/scripts/yis:yis"],
+        visibility = ["//visibility:public"],
+        tags = ["doc_export"],
+    )
+    rtl_lib(
+        name = "{}_mem".format(name),
+        lib_files = [":{}_mem_gen".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
     )
 
@@ -39,6 +61,7 @@ def yis_dv_intf(name, pkg_deps, pkg):
         outs = ["{}_intf.svh".format(name)],
         cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-dv",
         output_to_bindir = True,
+        visibility = ["//visibility:public"],
         tools = ["//digital/rtl/scripts/yis:yis"],
     )
     dv_lib(
@@ -46,6 +69,7 @@ def yis_dv_intf(name, pkg_deps, pkg):
         srcs = [":{}_dv_intf_svh".format(name)],
         in_flist = [":{}_dv_intf_svh".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
+        visibility = ["//visibility:public"],
     )
 
 def yis_html_pkg(name, pkg_deps, pkg):

@@ -1,0 +1,27 @@
+// Copyright (c) {{ year }} Lightelligence
+// Description: Memory Wrappers Interface generated from {{ memory.name }}.yis by YIS
+
+{% for mem in memory.children.values() %}
+///////////////////////////////////////////////////////////////////////////////
+// name: {{ mem.name }}
+// doc_summary: {{ mem.doc_summary }}
+{% if mem.doc_verbose -%}
+/* doc_verbose: {{ mem.doc_verbose }} */
+{%- endif %}
+// width: {{ mem.width.equation }}  ==>  {{ mem.width.computed_value }}
+// depth: {{ mem.depth.equation }}  ==>  {{ mem.depth.computed_value }}   
+// ecc: {{ mem.ecc }}
+// parity: {{ mem.parity }}
+// read_ports: {{ mem.read_ports }}
+// write_ports: {{ mem.write_ports }}
+
+module {{ mem.name }}_mem_wrapper
+(
+// FIXME ports
+);
+
+// FIXME module body
+
+endmodule : {{ mem.name }}_mem_wrapper
+
+{% endfor %}

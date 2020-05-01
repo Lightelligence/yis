@@ -1,0 +1,19 @@
+doc_summary: include('doc_summary')
+doc_verbose: include('doc_verbose', required=False)
+memories: list(include('memory'))
+---
+equation: any(str(min=1), int(min=0))
+---
+mem_name: str(min=3, exclude='=+!@#$%^&*()-|\/?.,[{]}\`~:;')
+doc_verbose: str(min=3)
+doc_summary: str(min=3)
+memory:
+  name: include('mem_name')
+  doc_summary: include('doc_summary')
+  doc_verbose: include('doc_verbose', required=False)
+  width: include('equation')
+  depth: include('equation')
+  ecc: bool()
+  parity: bool()
+  read_ports: int(min=1)
+  write_ports: int(min=1)
