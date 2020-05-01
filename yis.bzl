@@ -19,6 +19,18 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
     )
 
+def yis_rdl_pkg(name, pkg_deps, pkg):
+    """Create a single yis-generate RDL pkg."""
+    native.genrule(
+        name = "{}_yis_rdl".format(name),
+        srcs = pkg_deps + [pkg],
+        outs = ["{}_yis.rdl".format(name)],
+        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-rdl",
+        output_to_bindir = True,
+        tools = ["//digital/rtl/scripts/yis:yis"],
+        visibility = ["//visibility:public"],
+    )
+
 def yis_dv_intf(name, pkg_deps, pkg):
     """Create a single yis-generate DV interface pkg."""
     native.genrule(
@@ -71,6 +83,7 @@ def yis_pkg(name, pkg_deps, pkg):
     if not name.endswith("_yis"):
         fail("yis_pkg rule names must end with '_yis': {}".format(name))
     yis_rtl_pkg(name[:-4], pkg_deps, pkg)
+    yis_rdl_pkg(name[:-4], pkg_deps, pkg)
     yis_html_pkg(name[:-4], pkg_deps, pkg)
 
 def yis_intf(name, pkg_deps, intf):

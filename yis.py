@@ -277,6 +277,8 @@ def parse_args(argv):
 
     parser.add_argument('--gen-rtl', default=False, action='store_true', help="Use the rtl generator for output.")
 
+    parser.add_argument('--gen-rdl', default=False, action='store_true', help="Use the rdl generator for output.")
+
     parser.add_argument('--gen-dv', default=False, action='store_true', help="Use the dv generator for output.")
 
     parser.add_argument('--tool-debug',
@@ -396,6 +398,8 @@ class Yis:
 
         if self.options.gen_rtl:
             template_directory = "rtl"
+        elif self.options.gen_rdl:
+            template_directory = "rdl"
         elif self.options.gen_html:
             template_directory = "html"
         elif self.options.gen_dv:
@@ -803,6 +807,11 @@ class PkgItemBase(YisNode):
                 return parent
             parent = parent.parent
 
+    def render_rdl_pkg(self):
+        """Render for RDL generation.
+        Many types are not supported, so default of return empty string.
+        """
+        return ""
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -868,6 +877,16 @@ class PkgLocalparam(PkgItemBase):
         ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {render_value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
+    def render_rdl_pkg(self):
+        """Render for RDL generaion."""
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+        render_value = self.value.render_rtl()
+        ret_arr.append(f"`define {self.name} {render_value} // {self.doc_summary}")
+        return "\n  ".join(ret_arr)
 
 class PkgEnum(PkgItemBase):
     """Definition for an enum inside a pkg."""
@@ -952,6 +971,29 @@ class PkgEnum(PkgItemBase):
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
+    def render_rdl_pkg(self):
+        """Render the RDL for this enum.
+        """
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(2)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
+        ret_arr.append(F"enum {self.name} {{")
+
+        # Render each enum_value, note they are 2 indented farther
+        enum_value_arr = []
+        for row in self.children.values():
+            enum_value_arr.extend(row.render_rdl_pkg())
+
+        # Add leading spaces to make all children line up
+        enum_value_arr[0] = F"  {enum_value_arr[0]}"
+
+        ret_arr.append("\n    ".join(enum_value_arr))
+        ret_arr.append(f"}}; // {self.doc_summary}")
+        return "\n  ".join(ret_arr)
+
 
 class PkgEnumValue(PkgItemBase):
     """Definition for a single item value."""
@@ -983,6 +1025,22 @@ class PkgEnumValue(PkgItemBase):
         if self.sv_value is not None:
             exp_sv_value = F" = {self.sv_value}"
         ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}, // {self.doc_summary}")
+        return ret_arr
+
+    def render_rdl_pkg(self):
+        """Render for RDL Pkg."""
+        ret_arr = []
+        # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
+        doc_verbose = self.render_doc_verbose(4)
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
+
+        # Strip _E from the rendered RTL name
+        parent_base_name = self.parent.name[:-len(self.parent.TYPE_NAME_SUFFIX)]
+        exp_sv_value = ""
+        if self.sv_value is not None:
+            exp_sv_value = F" = {self.sv_value}"
+        ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}; // {self.doc_summary}")
         return ret_arr
 
     def render_html_value(self):
