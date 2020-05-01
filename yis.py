@@ -813,6 +813,7 @@ class PkgItemBase(YisNode):
         """
         return ""
 
+
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
     allowed_symbols_for_linking = [Pkg.LOCALPARAMS]
@@ -887,6 +888,7 @@ class PkgLocalparam(PkgItemBase):
         render_value = self.value.render_rtl()
         ret_arr.append(f"`define {self.name} {render_value} // {self.doc_summary}")
         return "\n  ".join(ret_arr)
+
 
 class PkgEnum(PkgItemBase):
     """Definition for an enum inside a pkg."""
