@@ -807,7 +807,7 @@ class PkgItemBase(YisNode):
                 return parent
             parent = parent.parent
 
-    def render_rdl_pkg(self):
+    def render_rdl_pkg(self): # pylint: disable=no-self-use
         """Render for RDL generation.
         Many types are not supported, so default of return empty string.
         """
