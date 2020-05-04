@@ -385,10 +385,10 @@ class Yis:
                 data = yaml.load(yfile, Loader)
                 memory_name = os.path.splitext(os.path.basename(mem_to_parse))[0]
                 self._block_memory = Mem(log=self.log,
-                                             name=memory_name,
-                                             parent=self,
-                                             source_file=mem_to_parse,
-                                             **data)
+                                         name=memory_name,
+                                         parent=self,
+                                         source_file=mem_to_parse,
+                                         **data)
                 self._pkgs[memory_name] = self._block_memory
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {memory_name}")
         except IOError:
