@@ -1,6 +1,6 @@
 """Rules (well macros) for building yis files."""
 
-load("@verilog_tools//:rtl.bzl", "rtl_lib", "rtl_pkg")
+load("@verilog_tools//:rtl.bzl", "rtl_lib", "rtl_pkg", "rtl_unit_test")
 load("@verilog_tools//:dv.bzl", "dv_lib")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
@@ -30,15 +30,52 @@ def yis_rtl_mem(name, pkg_deps, mem):
         # srcs = pkg_deps + [mem] + [pkg_dep[:-4] + "_rypkg_rtl" for pkg_dep in pkg_deps],
         outs = ["{}_mem.svh".format(name)],
         cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
-        output_to_bindir = True,
         tools = ["//digital/rtl/scripts/yis:yis"],
+        output_to_bindir = True,
+        visibility = ["//visibility:public"],
+        tags = ["doc_export"],
+    )
+    native.genrule(
+        name = "{}_prot_gen".format(name),
+        srcs = pkg_deps + [mem],
+        outs = ["{}_prot.svh".format(name)],
+        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl --gen-deps",
+        tools = ["//digital/rtl/scripts/yis:yis"],
+        output_to_bindir = True,
+        visibility = ["//visibility:public"],
+        tags = ["doc_export"],
+    )
+    native.genrule(
+        name = "{}_pipe_gen".format(name),
+        outs = ["{name}_pipe.svh".format(name = name)],
+        cmd = "$(location //digital/rtl/scripts:gen_pipeline) --universal --name {} -out-file $@".format(name),
+        tools = ["//digital/rtl/scripts:gen_pipeline"],
+        output_to_bindir = True,
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
     rtl_lib(
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
-        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
+        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps]
+             + ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"],
+    )
+    rtl_lib(
+        name = "{}_prot".format(name),
+        lib_files = [":{}_prot_gen".format(name)],
+    )
+    rtl_lib(
+        name = "{}_pipe".format(name),
+        lib_files = [":{}_pipe_gen".format(name)],
+    )
+    rtl_unit_test(
+        name = "{}_mem_test".format(name),
+        tags = [
+            "lic_xcelium",
+            "no_ci_gate",
+            "requires_license",
+        ],
+        deps = ["{}_mem".format(name)],
     )
 
 def yis_rdl_pkg(name, pkg_deps, pkg):

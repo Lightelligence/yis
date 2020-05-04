@@ -15,5 +15,6 @@ memory:
   depth: include('equation')
   ecc: bool()
   parity: bool()
-  read_ports: int(min=1)
-  write_ports: int(min=1)
+  ports: enum('1p', '2p')
+  pipe0: int(min=0, required=False) #pipe stages before prot
+  pipe1: int(min=0, required=False) #pipe stages after prot

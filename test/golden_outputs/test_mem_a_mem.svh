@@ -9,11 +9,10 @@
 I'm on a new line
  */
 // width: test_pkg_a::TRIPLE_NESTED_PARAM.value  ==>  2
-// depth: 512  ==>  512   
+// depth: 512  ==>  512
 // ecc: True
 // parity: False
-// read_ports: 1
-// write_ports: 1
+// sram_type: 2p
 
 module rx_fifo_mem_wrapper
 (
@@ -24,17 +23,15 @@ module rx_fifo_mem_wrapper
 
 endmodule : rx_fifo_mem_wrapper
 
-
 ///////////////////////////////////////////////////////////////////////////////
 // name: tx_fifo
 // doc_summary: Transimit FIFO Memory
 
 // width: test_pkg_a::hero_write__st.width  ==>  46
-// depth: 1024  ==>  1024   
-// ecc: True
-// parity: False
-// read_ports: 1
-// write_ports: 1
+// depth: 1024  ==>  1024
+// ecc: False
+// parity: True
+// sram_type: 1p
 
 module tx_fifo_mem_wrapper
 (
@@ -44,4 +41,3 @@ module tx_fifo_mem_wrapper
 // FIXME module body
 
 endmodule : tx_fifo_mem_wrapper
-

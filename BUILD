@@ -11,7 +11,7 @@ py_binary(
     name = "yis",
     srcs = ["yis.py"],
     data = all_jinja_templates + all_yamale_schemas,
-    deps = ["//scripts:cmn_logging"],
+    deps = ["//scripts:cmn_logging", "//digital/rtl/scripts:gen_prot"],
 )
 
 markdown_to_html(

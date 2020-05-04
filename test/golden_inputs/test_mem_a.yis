@@ -7,12 +7,11 @@ memories:
     doc_verbose: |
       Boring info about memories. And now
       I'm on a new line
-    width: test_pkg_a::TRIPLE_NESTED_PARAM.value
+    width: test_pkg_a::TRIPLE_NESTED_PARAM.width+4
     depth: 512
     ecc: True
     parity: False
-    read_ports: 1
-    write_ports: 1
+    ports: 2p
 
 
   - name: tx_fifo
@@ -21,5 +20,28 @@ memories:
     depth: 1024
     ecc: True
     parity: False
-    read_ports: 1
-    write_ports: 1
+    ports: 1p
+
+  - name: wt_fifo
+    doc_summary: Weight FIFO Memory
+    width: 6
+    depth: test_pkg_a::hero_write__st.width
+    ecc: True
+    parity: False
+    ports: 2p
+
+  - name: adc_fifo
+    doc_summary: adc FIFO Memory
+    width: 11
+    depth: test_pkg_a::hero_write__st.width
+    ecc: False
+    parity: True
+    ports: 1p
+
+  - name: hero_fifo
+    doc_summary: hero FIFO Memory
+    width: 2
+    depth: test_pkg_a::hero_write__st.width
+    ecc: False
+    parity: False
+    ports: 1p

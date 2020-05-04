@@ -1,4 +1,4 @@
-load(":test.bzl", "golden_intf_tests", "golden_pkg_tests", "golden_mem_tests")
+load(":test.bzl", "golden_intf_tests", "golden_mem_tests", "golden_pkg_tests")
 
 golden_pkg_tests(
     deps = {
@@ -15,7 +15,6 @@ golden_intf_tests(
         ],
     },
 )
-
 
 golden_mem_tests(
     deps = {

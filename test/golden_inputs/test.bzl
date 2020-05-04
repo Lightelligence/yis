@@ -1,6 +1,6 @@
 """Test helpers for yis."""
 
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_pkg", "yis_rtl_mem")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_mem", "yis_rtl_pkg")
 
 golden_out_location = "//digital/rtl/scripts/yis/test/golden_outputs:"
 
@@ -66,7 +66,6 @@ def golden_html_intf_test(name, pkg_deps):
         args = ["diff $(location :{name}_rtl_intf_html) $(location {name}_rtl_intf.html)".format(name = name)],
         tags = ["gold"],
     )
-
 
 def golden_rtl_mem_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""

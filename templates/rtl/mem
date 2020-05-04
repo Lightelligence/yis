@@ -2,6 +2,7 @@
 // Description: Memory Wrappers Interface generated from {{ memory.name }}.yis by YIS
 
 {% for mem in memory.children.values() %}
+{% if not mem.gen_deps -%}
 ///////////////////////////////////////////////////////////////////////////////
 // name: {{ mem.name }}
 // doc_summary: {{ mem.doc_summary }}
@@ -9,19 +10,101 @@
 /* doc_verbose: {{ mem.doc_verbose }} */
 {%- endif %}
 // width: {{ mem.width.equation }}  ==>  {{ mem.width.computed_value }}
-// depth: {{ mem.depth.equation }}  ==>  {{ mem.depth.computed_value }}   
+// depth: {{ mem.depth.equation }}  ==>  {{ mem.depth.computed_value }}
 // ecc: {{ mem.ecc }}
 // parity: {{ mem.parity }}
-// read_ports: {{ mem.read_ports }}
-// write_ports: {{ mem.write_ports }}
+// ports: {{ mem.ports }}
 
-module {{ mem.name }}_mem_wrapper
-(
-// FIXME ports
+module {{ mem.module }}(
+    // Output Ports
+    output [{{mem.dwidth-1}}:0] rdata,
+    // Input Ports
+    {% if mem.ports == '1p' -%}
+    input [{{mem.awidth-1}}:0] addr,
+    {% elif mem.ports == '2p' -%}
+    input [{{mem.awidth-1}}:0] raddr,
+    input [{{mem.awidth-1}}:0] waddr,
+    {% endif -%}
+    input [{{mem.dwidth-1}}:0] wdata,
+    input wr,
+    input rd,
+    // DFT
+    //
+    input clk
 );
 
-// FIXME module body
+    //==========================================================================
+    //  SRAM instance
+    //--------------------------------------------------------------------------
+    // behavior mem model for now
+    wire [{{mem.m+mem.r-1}}:0] data_to_sram, data_from_sram;
+    flop_array_2p #(.ADDR_WIDTH({{mem.awidth}}), .DATA_WIDTH({{mem.m+mem.r}}), .DEPTH({{mem.depth.computed_value}}) ) u_mem (
+        .we(wr),
+        .re(rd),
+        {% if mem.ports == '1p' -%}
+        .waddr(addr),
+        .raddr(addr),
+        {% elif mem.ports == '2p' -%}
+        .waddr(waddr),
+        .raddr(raddr),
+        {% endif -%}
+        .wdata(data_to_sram),
+        .rdata(data_from_sram),
+        .clk(clk)
+    );
 
-endmodule : {{ mem.name }}_mem_wrapper
+    //==========================================================================
+    // Read pipeline
+    //--------------------------------------------------------------------------
+    // in pipe FIXME
 
+    // out pipe
+    wire [{{mem.m-1}}:0] data_from_oup0;
+    {{mem.pipe_module}} #(.WIDTH({{mem.m+mem.r}}), .PIPE_STAGES({{mem.pipe0}})) out_pipe0 (
+        .d(data_from_sram),
+        .q(data_from_oup0),
+        .clk(clk)
+    );
+    wire [{{mem.m-1}}:0] data_to_oup1;
+    {{mem.pipe_module}} #(.WIDTH({{mem.m}}), .PIPE_STAGES({{mem.pipe1}})) out_pipe1 (
+        .d(data_to_oup1),
+        .q(rdata),
+        .clk(clk)
+    );
+
+    {% if mem.ecc or mem.parity -%}
+    {%- set prot = 'ecc' if mem.ecc else 'parity' -%}
+    {%- set Prot = 'ECC' if mem.ecc else 'Parity' -%}
+    //==========================================================================
+    //  Protection
+    //--------------------------------------------------------------------------
+    //  {{Prot}}
+    //  - gen -
+    wire [{{mem.r-1}}:0] checksum;
+    assign data_to_sram = {checksum, wdata};
+    {{mem.prot_gen_module}} u_gen (
+        .{{prot}}(checksum),
+        .data(wdata)
+    );
+    //  - chk -
+    {{mem.prot_chk_module}} u_chk (
+        .data(data_to_oup1),
+    {%- if mem.ecc %}
+        .single_bit_err(),
+        .double_bit_err(),
+    {%- endif %}
+    {%- if mem.parity %}
+        .err(),
+    {%- endif %}
+        .codeword(data_from_oup0)
+    );
+    //  - hero -
+
+    {%- else -%}
+    assign data_to_sram = wdata;
+    assign data_to_oup1 = data_from_oup0;
+    {%- endif %}
+
+endmodule : {{ mem.module }}
+{% endif -%}
 {% endfor %}
