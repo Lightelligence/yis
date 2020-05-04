@@ -85,7 +85,7 @@ def golden_rtl_mem_test(name, pkg_deps):
             ":{}_mem_gen".format(name),
             "{}{}_mem.svh".format(golden_out_location, name),
         ],
-        args = ["diff $(location :{name}_mem_gen) $(location {gout}{name}_rypkg.svh)".format(gout = golden_out_location, name = name)],
+        args = ["diff $(location :{name}_mem_gen) $(location {gout}{name}_mem.svh)".format(gout = golden_out_location, name = name)],
         tags = ["gold"],
     )
 
