@@ -196,7 +196,7 @@ class Equation(ast.NodeTransformer):
             symbol = node.value.attr
             pkg = node.value.value.id
         else:
-            raise EquationError(f"Couldn't parse symbol in equation:", astor.to_source(node))
+            raise EquationError(f"Couldn't parse symbol in equation: {astor.to_source(node)}")
 
         if "math" in [symbol, pkg]:
             return super().generic_visit(node)
@@ -1202,7 +1202,7 @@ class PkgStruct(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
 
-        ret_arr.append(F"typedef struct packed {{")
+        ret_arr.append("typedef struct packed {")
 
         # Render each field, note they are 2 indented farther
         field_arr = []
@@ -1271,7 +1271,7 @@ class PkgStructField(PkgItemBase):
     @memoize_property
     def computed_width(self):
         """Compute width by looking at width and type."""
-        self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
+        self.log.debug("Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
         if is_verilog_primitive(self.sv_type):
@@ -1391,7 +1391,7 @@ class PkgUnion(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
 
-        ret_arr.append(F"typedef union packed {{")
+        ret_arr.append("typedef union packed {")
 
         # Render each field, note they are 2 indented farther
         field_arr = []
@@ -1461,7 +1461,7 @@ class PkgUnionField(PkgItemBase):
     @memoize_property
     def computed_width(self):
         """Compute width by looking at width and type."""
-        self.log.debug(F"Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
+        self.log.debug("Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
         if is_verilog_primitive(self.sv_type):
