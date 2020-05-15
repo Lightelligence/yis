@@ -13,7 +13,6 @@ localparams:
     doc_summary: This paramter has a paramterized width and a parameterized type.
 
   - name: HERO_WIDTH
-    width: 32
     value: 36
     doc_summary: Width of hero bus around the bag.
 

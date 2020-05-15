@@ -583,7 +583,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         """Resolve links in all children."""
         for child in self.children.values():
             child.resolve_links()
-            self.log.exit_if_warnings_or_errors("Errors linking %s", child)
+            self.log.exit_if_warnings_or_errors("Errors linking %s", child.name)
         self.resolve_doc_links()
 
     def resolve_doc_links(self):
@@ -862,7 +862,7 @@ class PkgLocalparam(PkgItemBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.width = kwargs.pop('width')
+        self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
 
     def __repr__(self):
@@ -956,16 +956,29 @@ class PkgEnum(PkgItemBase):
         # I had a list comprehension that was way cooler, but it was hard to read
         explicit_values = []
         implicit_values = []
+        reverse_value_lookups = {}
 
         for child in self.children.values():
             value_attr = getattr(child, 'sv_value', None)
             if value_attr is None:
-                implicit_values.append(child)
+                implicit_values.append(child.name)
             else:
-                explicit_values.append(child)
+                if child.sv_value in reverse_value_lookups:
+                    self.log.error(F"Enum {self.name} {child.name} has the same defined value as "
+                                   F"{reverse_value_lookups[child.sv_value]}")
+                else:
+                    reverse_value_lookups[child.sv_value] = child.name
+
+                max_value = (1 << self.computed_width) - 1
+                if child.sv_value > max_value:
+                    self.log.error(F"{child.name} value of {child.sv_value} exceeds maximum value {max_value} "
+                                   F"allowed by width {self.computed_width}")
+                explicit_values.append(child.name)
 
         if explicit_values and implicit_values:
-            self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values")
+            self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values\n"
+                           F"Implicit values: {implicit_values}\n"
+                           F"Explicit values: {sorted(explicit_values.keys())}")
 
     @memoize_property
     def computed_width(self):

@@ -18,7 +18,7 @@ verilog_primitive: enum('wire', 'logic', 'wire signed', 'logic signed')
 ---
 localparam:
   name: include('localparam_name')
-  width: include('equation')
+  width: include('equation', required=False)
   value: include('equation')
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)

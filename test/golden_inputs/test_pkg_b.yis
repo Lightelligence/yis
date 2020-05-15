@@ -7,11 +7,9 @@ localparams:
     value: 3
     doc_summary: This should link up to [test_pkg_a::ANOTHER_PARAM]
   - name: MAX_WR_CYCLES
-    width: 32
     value: 4
     doc_summary: Maximum number of write cycles allowed for the pipelined write
   - name: WR_WIDTH
-    width: 32
     value: 8
     doc_summary: Width of a single write cycle
 enums:
