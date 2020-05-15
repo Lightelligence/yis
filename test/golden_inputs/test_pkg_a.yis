@@ -5,12 +5,12 @@ localparams:
   - name: TRIPLE_NESTED_PARAM
     width: DOUBLE_LINK_PARAM.value
     value: ANOTHER_PARAM.value
-    doc_summary: This paramter has a paramterized width and a parameterized type.
+    doc_summary: This parameter has a paramterized width and a parameterized type.
 
   - name: DOUBLE_LINK_PARAM
     width: HERO_WIDTH.width
     value: ANOTHER_PARAM.value
-    doc_summary: This paramter has a paramterized width and a parameterized type.
+    doc_summary: This parameter has a paramterized width and a parameterized type.
 
   - name: HERO_WIDTH
     value: 36
@@ -56,6 +56,7 @@ enums:
         doc_summary: This is false
         value: 0
     doc_summary: Test for an enum that is width 1
+
 typedefs:
   - name: vanilla_type__t
     doc_summary: This is a basic logic type and width

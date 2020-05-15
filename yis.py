@@ -207,6 +207,9 @@ class Equation(ast.NodeTransformer):
         link = self.yisnode.resolve_link_from_str(
             link_name, allowed_symbols=[Pkg.LOCALPARAMS, Pkg.ENUMS, Pkg.TYPEDEFS, Pkg.STRUCTS])
 
+        if link is None:
+            raise EquationError
+
         if not hasattr(link, f"computed_{attribute}"):
             raise EquationError(f"Succesful link to {link.name}, but no attribute {attribute}")
 
@@ -325,8 +328,8 @@ class Yis:
         self._suppress_output = False
         self._pkgs = OrderedDict()
         self._block_interface = None
-        self._block_memory = None
-        self._parse_files(pkgs)
+        self._parse_files(block_interface, pkgs)
+        self.log.debug("Finished parsing all files")
         self._link_symbols()
 
     def _parse_files(self, pkgs):
@@ -367,6 +370,7 @@ class Yis:
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
             self.log.critical("Couldn't open {}".format(fname))
+        self.log.debug(F"Finished parsing {fname}")
 
     def _parse_block_interface(self, intf_to_parse):
         """Parse a block interface file, deserialize into relevant objects."""
@@ -406,6 +410,7 @@ class Yis:
         """Walk all children, link the appropriate types, fields, etc."""
         # Only do a link first. Skip computing widths until after link is finished
         for pkg in self._pkgs.values():
+            self.log.debug(F"Resolving links in {pkg.name}")
             pkg.resolve_links()
         if self._block_interface:
             self._block_interface.resolve_links()
@@ -452,7 +457,7 @@ class Yis:
 
         template_name = os.path.join(template_directory, template_name)
 
-        self.log.debug("Rendering %s with %s", self, template_name)
+        self.log.debug("Rendering from template %s", template_name)
         template = env.get_template(template_name)
         target_pkg = next(reversed(self._pkgs.values()))
         output_content = template.render(year=year,
@@ -872,8 +877,11 @@ class PkgLocalparam(PkgItemBase):
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
-        self.width = Equation(self, self.width)
-        self.value = Equation(self, self.value)
+        try:
+            self.width = Equation(self, self.width)
+            self.value = Equation(self, self.value)
+        except EquationError:
+            self.log.critical("Previous errors")
 
     @memoize_property
     def computed_width(self):
@@ -940,13 +948,18 @@ class PkgEnum(PkgItemBase):
         self.width = kwargs.pop('width')
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
-        self._check_enum_value_consistency()
 
     @only_run_once
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
         super().resolve_links()
-        self.width = Equation(self, self.width)
+        try:
+            self.width = Equation(self, self.width)
+        except EquationError:
+            self.log.critical("Previous errors")
+
+        # Need to wait to do this here because self.width might be linked
+        self._check_enum_value_consistency()
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
@@ -978,7 +991,7 @@ class PkgEnum(PkgItemBase):
         if explicit_values and implicit_values:
             self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values\n"
                            F"Implicit values: {implicit_values}\n"
-                           F"Explicit values: {sorted(explicit_values.keys())}")
+                           F"Explicit values: {explicit_values}")
 
     @memoize_property
     def computed_width(self):
@@ -1131,7 +1144,11 @@ class PkgTypedef(PkgItemBase):
     def resolve_links(self):
         if not is_verilog_primitive(self.base_sv_type):
             self._resolve_link("base_sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
-        self.width = Equation(self, self.width)
+        try:
+            self.width = Equation(self, self.width)
+        except EquationError:
+            self.log.critical("Previous errors")
+
         super().resolve_links()
 
     @memoize_property
@@ -1291,7 +1308,11 @@ class PkgStructField(PkgItemBase):
     @only_run_once
     def resolve_links(self):
         if is_verilog_primitive(self.sv_type):
-            self.width = Equation(self, self.width)
+            try:
+                self.width = Equation(self, self.width)
+            except EquationError:
+                self.log.critical("Previous errors")
+
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
             self._check_link_instance_naming("sv_type")
@@ -1481,7 +1502,10 @@ class PkgUnionField(PkgItemBase):
     @only_run_once
     def resolve_links(self):
         if is_verilog_primitive(self.sv_type):
-            self.width = Equation(self, self.width)
+            try:
+                self.width = Equation(self, self.width)
+            except EquationError:
+                self.log.critical("Previous errors")
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
             self._check_link_instance_naming("sv_type")
@@ -1628,7 +1652,11 @@ class IntfCompConn(IntfItemBase):
         if not is_verilog_primitive(self.sv_type):
             self._resolve_link("sv_type", allowed_symbols=[Pkg.ENUMS, Pkg.STRUCTS, Pkg.TYPEDEFS, Pkg.UNIONS])
         if self.width:
-            self.width = Equation(self, self.width)
+            try:
+                self.width = Equation(self, self.width)
+            except EquationError:
+                self.log.critical("Previous errors")
+
         # Else sv_type is a logic and it has an int width, so leave it alone
         super().resolve_links()
         self.check_type_width_conflicts()

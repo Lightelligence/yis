@@ -19,9 +19,9 @@ package test_pkg_a; // This is an example of what a package file could look like
   // definition for the whole long-form documentation.
   localparam [6 - 1:0] ANOTHER_PARAM = 2; // This is a different parameter than the first.
   
-  localparam [/* HERO_WIDTH.width */ 32 - 1:0] DOUBLE_LINK_PARAM = /* ANOTHER_PARAM.value */ 2; // This paramter has a paramterized width and a parameterized type.
+  localparam [/* HERO_WIDTH.width */ 32 - 1:0] DOUBLE_LINK_PARAM = /* ANOTHER_PARAM.value */ 2; // This parameter has a paramterized width and a parameterized type.
   
-  localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This paramter has a paramterized width and a parameterized type.
+  localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This parameter has a paramterized width and a parameterized type.
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
