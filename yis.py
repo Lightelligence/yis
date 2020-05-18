@@ -162,7 +162,7 @@ class Equation(ast.NodeTransformer):
             self._result = eval(new_eq) # pylint: disable=eval-used
         except NameError as exc:
             name = re.search("name '(.*)' is not defined", exc.args[0]).group(1)
-            raise EquationError(f"Did you forget to add '.width' or '.value' on the end of '{name}'")
+            raise EquationError(f"Can't find '.width' or '.value' on the end of '{name}' referenced symbols")
 
         if self._result < 0:
             self.yisnode.log.error(
@@ -361,7 +361,7 @@ class Yis:
         try:
             self.log.info(F"Parsing pkg {fname}")
             self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_pkg.yaml', fname)
-            self.log.exit_if_warnings_or_errors("Previous errors")
+            self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
                 pkg_name = os.path.splitext(os.path.basename(fname))[0]
@@ -377,7 +377,7 @@ class Yis:
         try:
             self.log.info(F"Parsing intf {intf_to_parse}")
             self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_intf.yaml', intf_to_parse)
-            self.log.exit_if_warnings_or_errors("Previous errors")
+            self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(intf_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
                 interface_name = os.path.splitext(os.path.basename(intf_to_parse))[0]
@@ -880,8 +880,11 @@ class PkgLocalparam(PkgItemBase):
         try:
             self.width = Equation(self, self.width)
             self.value = Equation(self, self.value)
-        except EquationError:
-            self.log.critical("Previous errors")
+        except EquationError as exc:
+            self.log.error(str(exc))
+            self.log.critical(F"Previous errors parsing {self.name}")
+
+        self._width_check()
 
     @memoize_property
     def computed_width(self):
@@ -898,11 +901,15 @@ class PkgLocalparam(PkgItemBase):
         else:
             value = self.value.computed_value
 
+        return value
+
+    def _width_check(self):
         max_value = (1 << self.width.computed_value) - 1
+        value = self.computed_value
+        self.log.info(F"{self.name} max_value is {max_value} value is {value}")
         if value > max_value:
             self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)", self.name, value,
-                           max_value, self.width.computed_value)
-        return value
+                           max_value, self.width.computed_value)        
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
@@ -955,8 +962,9 @@ class PkgEnum(PkgItemBase):
         super().resolve_links()
         try:
             self.width = Equation(self, self.width)
-        except EquationError:
-            self.log.critical("Previous errors")
+        except EquationError as exc:
+            self.log.error(str(exc))
+            self.log.critical(F"Previous errors parsing {self.name}")
 
         # Need to wait to do this here because self.width might be linked
         self._check_enum_value_consistency()
@@ -1146,8 +1154,9 @@ class PkgTypedef(PkgItemBase):
             self._resolve_link("base_sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
         try:
             self.width = Equation(self, self.width)
-        except EquationError:
-            self.log.critical("Previous errors")
+        except EquationError as exc:
+            self.log.error(str(exc))
+            self.log.critical(F"Previous errors parsing {self.name}")
 
         super().resolve_links()
 
@@ -1310,8 +1319,9 @@ class PkgStructField(PkgItemBase):
         if is_verilog_primitive(self.sv_type):
             try:
                 self.width = Equation(self, self.width)
-            except EquationError:
-                self.log.critical("Previous errors")
+            except EquationError as exc:
+                self.log.error(str(exc))
+                self.log.critical(F"Previous error parsing width field for {self.name}")
 
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
@@ -1504,8 +1514,10 @@ class PkgUnionField(PkgItemBase):
         if is_verilog_primitive(self.sv_type):
             try:
                 self.width = Equation(self, self.width)
-            except EquationError:
-                self.log.critical("Previous errors")
+            except EquationError as exc:
+                self.log.error(str(exc))
+                self.log.critical(F"Previous errors parsing {self.name}")
+
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
             self._check_link_instance_naming("sv_type")
@@ -1654,8 +1666,9 @@ class IntfCompConn(IntfItemBase):
         if self.width:
             try:
                 self.width = Equation(self, self.width)
-            except EquationError:
-                self.log.critical("Previous errors")
+            except EquationError as exc:
+                self.log.error(str(exc))
+                self.log.critical(F"Previous errors parsing {self.name}")
 
         # Else sv_type is a logic and it has an int width, so leave it alone
         super().resolve_links()
