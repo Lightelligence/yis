@@ -906,7 +906,7 @@ class PkgLocalparam(PkgItemBase):
     def _width_check(self):
         max_value = (1 << self.width.computed_value) - 1
         value = self.computed_value
-        if value > max_value:
+        if value > max_value: # pylint: disable=comparison-with-callable
             self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)", self.name, value,
                            max_value, self.width.computed_value)
 
