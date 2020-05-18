@@ -31,14 +31,14 @@ package test_pkg_b; // Example of what a dependent package looks like
   typedef struct packed {
     test_pkg_a_rypkg::CYCLE_TYPE__ET cycle_type__e; // Indicates a command type of IDLE, VALID, or DONE.
     logic [/* WR_WIDTH.value */ 8 - 1:0] dat; // One data cycle
-  } write_dat__st; // Data cycle of a pipelined write
+  } write_data__st; // Data cycle of a pipelined write
   
   typedef struct packed {
     write_cmd__st cmd_cycle__s; // The command cycle of a pipelined write
-    write_dat__st dat0__s; // Data cycle of a pipelined write
-    write_dat__st dat1__s; // Data cycle of a pipelined write
-    write_dat__st dat2__s; // Data cycle of a pipelined write
-    write_dat__st dat3__s; // Data cycle of a pipelined write
+    write_data__st dat0__s; // Data cycle of a pipelined write
+    write_data__st dat1__s; // Data cycle of a pipelined write
+    write_data__st dat2__s; // Data cycle of a pipelined write
+    write_data__st dat3__s; // Data cycle of a pipelined write
   } pipelined_write__st; // Defines a pipelined write transaction
   
   typedef struct packed {
@@ -66,5 +66,5 @@ package test_pkg_b; // Example of what a dependent package looks like
   typedef several_things__st [2 - 1:0] local_item_type__t; // Use this package's struct as the type and an int for a width
   
 
-endpackage : test_pkg_b
+endpackage : test_pkg_b_rypkg
 `endif // guard

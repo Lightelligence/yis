@@ -1230,6 +1230,29 @@ class PkgStruct(PkgItemBase):
             current_bit += 1
         return data
 
+    def render_rdl_pkg(self):
+        """Render for RDL generation.
+        Only works for structs whose width is 16 or less, otherwise the struct won't fit into a single register.
+        """
+        if self.computed_width > 16: # pylint: disable=comparison-with-callable
+            return ""
+
+        ret_arr = []
+        ret_arr.append(F"reg {self.name} {{")
+        ret_arr.append(F"  desc = \"{self.doc_summary}\";")
+        ret_arr.append("  default reset = 0;")
+
+        start_idx = self.computed_width - 1
+        end_idx = self.computed_width - 1
+        for child in self.children.values():
+            start_idx -= child.computed_width - 1
+            ret_arr.append(F"  field {{desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
+            end_idx -= child.computed_width
+            start_idx = end_idx
+
+        ret_arr.append("};")
+        return "\n".join(ret_arr)
+
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""

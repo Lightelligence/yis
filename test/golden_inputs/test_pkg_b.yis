@@ -94,7 +94,7 @@ structs:
         type: WRITE_TYPE__ET
         doc_summary: type.doc_summary
 
-  - name: write_dat__st
+  - name: write_data__st
     doc_summary: Data cycle of a pipelined write
     fields:
       - name: cycle_type__e
@@ -115,14 +115,14 @@ xactions:
         type: write_cmd__st
         doc_summary: type.doc_summary
       - name: dat0__s
-        type: write_dat__st
+        type: write_data__st
         doc_summary: type.doc_summary
       - name: dat1__s
-        type: write_dat__st
+        type: write_data__st
         doc_summary: type.doc_summary
       - name: dat2__s
-        type: write_dat__st
+        type: write_data__st
         doc_summary: type.doc_summary
       - name: dat3__s
-        type: write_dat__st
+        type: write_data__st
         doc_summary: type.doc_summary
