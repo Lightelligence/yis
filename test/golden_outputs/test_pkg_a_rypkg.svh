@@ -39,10 +39,10 @@ package test_pkg_a; // This is an example of what a package file could look like
   } BOOL__ET; // Test for an enum that is width 1
   
   typedef struct packed {
-    wire [1 - 1:0] subfield_a; // Test that a width-1 wire field generates correctly
-    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_b; // This is a different parameter than the first.
-    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_c; // This is a different parameter than the first.
-    wire [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_d; // This is a different parameter than the first.
+    logic [1 - 1:0] subfield_a; // Test that a width-1 logic field generates correctly
+    logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_b; // This is a different parameter than the first.
+    logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_c; // This is a different parameter than the first.
+    logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_d; // This is a different parameter than the first.
   } sub_def__st; // A sub-struct of hero_write_t that is declared afterwards.
   
   // This is a verbose doc. I'm writing it to provide that my verbose
