@@ -908,7 +908,7 @@ class PkgLocalparam(PkgItemBase):
         value = self.computed_value
         if value > max_value:
             self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)", self.name, value,
-                           max_value, self.width.computed_value)        
+                           max_value, self.width.computed_value)
 
     def render_rtl_sv_pkg(self):
         """Render the SV for this localparam.
@@ -1002,7 +1002,8 @@ class PkgEnum(PkgItemBase):
 
     def _width_check(self):
         if len(self.children) > (1 << self.computed_width):
-            self.log.error(F"Enum {self.name} has more defined values than fit in its width ({self.width.computed_value})")
+            self.log.error(F"Enum {self.name} has more defined values than fit in its width "
+                           "({self.width.computed_value})")
 
         max_value = (1 << self.computed_width) - 1
         if self._explicit_values:
