@@ -12,6 +12,7 @@ localparams:
   - name: WR_WIDTH
     value: 8
     doc_summary: Width of a single write cycle
+
 enums:
   - name: WRITE_TYPE__ET
     doc_summary: Specifies how the write should be handled
@@ -23,6 +24,7 @@ enums:
         doc_summary: Send a wdone for each individual cycle completing
       - name: SINGLE_WDONE
         doc_summary: Send a wdone only for the entire write xaction
+
 typedefs:
   - name: first_defined_type__t
     doc_summary: Use another package's enum as the type and a local localparam as width
@@ -39,6 +41,7 @@ typedefs:
     doc_summary: Use this package's struct as the type and an int for a width
     base_type: several_things__st
     width: 2
+
 structs:
   - name: several_things__st
     doc_summary: Testing inter-package dependencies within struct fields.

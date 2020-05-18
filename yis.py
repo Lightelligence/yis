@@ -906,7 +906,6 @@ class PkgLocalparam(PkgItemBase):
     def _width_check(self):
         max_value = (1 << self.width.computed_value) - 1
         value = self.computed_value
-        self.log.info(F"{self.name} max_value is {max_value} value is {value}")
         if value > max_value:
             self.log.error("%s computed value of %s exceeds maximum value (%s) allowed by width (%s)", self.name, value,
                            max_value, self.width.computed_value)        
@@ -956,6 +955,8 @@ class PkgEnum(PkgItemBase):
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
 
+        self._explicit_values = False
+
     @only_run_once
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
@@ -968,6 +969,7 @@ class PkgEnum(PkgItemBase):
 
         # Need to wait to do this here because self.width might be linked
         self._check_enum_value_consistency()
+        self._width_check()
 
     def __repr__(self):
         values = "\n    -".join([str(child) for child in self.children.values()])
@@ -984,22 +986,30 @@ class PkgEnum(PkgItemBase):
             if value_attr is None:
                 implicit_values.append(child.name)
             else:
+                self._explicit_values = True
                 if child.sv_value in reverse_value_lookups:
                     self.log.error(F"Enum {self.name} {child.name} has the same defined value as "
                                    F"{reverse_value_lookups[child.sv_value]}")
                 else:
                     reverse_value_lookups[child.sv_value] = child.name
 
-                max_value = (1 << self.computed_width) - 1
-                if child.sv_value > max_value:
-                    self.log.error(F"{child.name} value of {child.sv_value} exceeds maximum value {max_value} "
-                                   F"allowed by width {self.computed_width}")
                 explicit_values.append(child.name)
 
         if explicit_values and implicit_values:
             self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values\n"
                            F"Implicit values: {implicit_values}\n"
                            F"Explicit values: {explicit_values}")
+
+    def _width_check(self):
+        if len(self.children) > (1 << self.computed_width):
+            self.log.error(F"Enum {self.name} has more defined values than fit in its width ({self.width.computed_value})")
+
+        max_value = (1 << self.computed_width) - 1
+        if self._explicit_values:
+            for child in self.children.values():
+                if child.sv_value > max_value:
+                    self.log.error(F"{child.name} value of {child.sv_value} exceeds maximum value {max_value} "
+                                   F"allowed by width {self.computed_width}")
 
     @memoize_property
     def computed_width(self):
@@ -1079,6 +1089,9 @@ class PkgEnumValue(PkgItemBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_value = kwargs.pop('value', None)
+        if not (isinstance(self.sv_value, int) or self.sv_value is None):
+            self.log.error(F"Error parsing {self.name}. Enum values can only be raw ints. "
+                           "Equations and linked types are not allowed")
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
