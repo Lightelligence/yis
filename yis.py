@@ -1813,8 +1813,8 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         '''derive params used by Jinja template'''
         self.dwidth = self.width.computed_value
         self.awidth = math.ceil(math.log(self.depth.computed_value, 2))
-        self.m = self.width.computed_value  # pylint: disable=invalid-name
-        self.r = 0  # pylint: disable=invalid-name
+        self.m = self.width.computed_value # pylint: disable=invalid-name
+        self.r = 0 # pylint: disable=invalid-name
         self.prot = 'none'
         if self.parity:
             self.prot = 'parity'
