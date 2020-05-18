@@ -94,19 +94,19 @@ structs:
     doc_summary: "A sub-struct of hero_write_t that is declared afterwards."
     fields:
       - name: subfield_a
-        type: logic
+        type: wire
         width: 1
-        doc_summary: Test that a width-1 logic field generates correctly
+        doc_summary: Test that a width-1 wire field generates correctly
       - name: subfield_b
-        type: logic
+        type: wire
         width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
       - name: subfield_c
-        type: logic
+        type: wire
         width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
       - name: subfield_d
-        type: logic
+        type: wire
         width: ANOTHER_PARAM.value
         doc_summary: width.doc_summary
 
