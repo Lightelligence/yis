@@ -1760,13 +1760,16 @@ class Mem(YisNode):
                     components="\n  -".join([repr(component) for component in self.children.values()])))
 
     def register_module(self, module):
+        '''when instantiate sub-modules, make sure to create sub-module rtl file if it is first use.
+        keep a list of modules that are defined
+        '''
         if module not in self.modules:
             self.modules.append(module)
             return True
         return False
 
 
-class MemItem(YisNode):
+class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
     """Base class for anything contained in an Mem."""
 
     def __init__(self, parent, log, **kwargs):
@@ -1776,12 +1779,13 @@ class MemItem(YisNode):
             kwargs['pipe0'] = 1
         if 'pipe1' not in kwargs:
             kwargs['pipe1'] = 1
-        for k, w in kwargs.items():
+        for k, w in kwargs.items(): # pylint: disable=invalid-name
             setattr(self, k, w)
 
     def sanity(self, kwargs):
+        '''sanity check to make sure ecc and parity not both enabled'''
         if kwargs['ecc'] and kwargs['parity']:
-            self.log.err(F"can not set both ecc and parity to True. as most one shall be enabled for memory protection")
+            self.log.err("can not set both ecc and parity to True. as most one shall be enabled for memory protection")
         self.log.exit_if_warnings_or_errors("Invalid memory settings")
 
     def _extract_link_pieces(self, link_name):
@@ -1806,10 +1810,11 @@ class MemItem(YisNode):
         self._derive_params()
 
     def _derive_params(self):
+        '''derive params used by Jinja template'''
         self.dwidth = self.width.computed_value
         self.awidth = math.ceil(math.log(self.depth.computed_value, 2))
-        self.m = self.width.computed_value
-        self.r = 0
+        self.m = self.width.computed_value  # pylint: disable=invalid-name
+        self.r = 0  # pylint: disable=invalid-name
         self.prot = 'none'
         if self.parity:
             self.prot = 'parity'
@@ -1828,7 +1833,7 @@ class MemItem(YisNode):
                 self._gen_prot_module(self.prot_gen_module, self.m, self.r, self.prot, 'gen')
                 self._gen_prot_module(self.prot_chk_module, self.m, self.r, self.prot, 'chk')
 
-    def _gen_prot_module(self, module, m, r, prot, comp):
+    def _gen_prot_module(self, module, m, r, prot, comp): # pylint: disable=too-many-arguments, invalid-name
         if self.parent.register_module(module):
             if comp == 'gen':
                 getattr(gen_prot, F"{prot}_test")(m)
