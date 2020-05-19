@@ -67,12 +67,13 @@ def golden_html_intf_test(name, pkg_deps):
         tags = ["gold"],
     )
 
-def golden_rtl_mem_test(name, pkg_deps):
+def golden_rtl_mem_test(name, pkg_deps, sram_deps):
     """Compares a generated file to a statically checked in file."""
 
     yis_rtl_mem(
         name = "{}".format(name),
         pkg_deps = pkg_deps,
+        sram_deps = sram_deps,
         mem = ":{}.yis".format(name),
     )
 
@@ -102,4 +103,13 @@ def golden_intf_tests(deps):
 def golden_mem_tests(deps):
     """Run all golden mem tests, allow pkg dependencies."""
     for key, row in deps.items():
-        golden_rtl_mem_test(key, row)
+        pkg_deps = []
+        sram_deps = []
+        for item in row:
+            if item.endswith(".yis"):
+                pkg_deps.append(item)
+            elif item.startswith("//digital/rtl/common:"):
+                sram_deps.append(item)
+            else:
+                fail("Unrecoginized item in deps: {}".format(item))
+        golden_rtl_mem_test(key, pkg_deps, sram_deps)

@@ -1749,7 +1749,7 @@ class Mem(YisNode):
                     wfh.write(FILE_HEADER_TEMPLATE.render(script_name=os.path.basename(__file__)))
             self.parent._suppress_output = True
         for row in kwargs.pop('memories'):
-            module = row['name'] + '_mem_wrapper'
+            module = '_'.join([self.name, row['name'], 'mem'])
             row['module'] = module
             if self.register_module(module):
                 MemItem(parent=self, log=self.log, **row)
@@ -1768,25 +1768,39 @@ class Mem(YisNode):
             return True
         return False
 
+    @only_run_once
+    def resolve_links(self):
+        """Resolve links in all children."""
+        super().resolve_links()
+        for child in self.children.values():
+            child.derive_params()
+        self.log.exit_if_warnings_or_errors("Invalid memory settings")
+
 
 class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
     """Base class for anything contained in an Mem."""
 
     def __init__(self, parent, log, **kwargs):
         super().__init__(parent=parent, log=log, **kwargs)
-        self.sanity(kwargs)
+        # setting default param values
         if 'pipe0' not in kwargs:
-            kwargs['pipe0'] = 1
+            kwargs['pipe0'] = 2
         if 'pipe1' not in kwargs:
             kwargs['pipe1'] = 1
+        if 'sram_cfg' not in kwargs:
+            kwargs['sram_cfg'] = 'flop_array_2p'
+        if 'row' not in kwargs:
+            kwargs['row'] = 1
+        if 'col' not in kwargs:
+            kwargs['col'] = 1
+        if 'read_ports' not in kwargs:
+            kwargs['read_ports'] = 1
+        if 'write_ports' not in kwargs:
+            kwargs['write_ports'] = 1
+        if 'stage0' not in kwargs:
+            kwargs['stage0'] = 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
             setattr(self, k, w)
-
-    def sanity(self, kwargs):
-        '''sanity check to make sure ecc and parity not both enabled'''
-        if kwargs['ecc'] and kwargs['parity']:
-            self.log.err("can not set both ecc and parity to True. as most one shall be enabled for memory protection")
-        self.log.exit_if_warnings_or_errors("Invalid memory settings")
 
     def _extract_link_pieces(self, link_name):
         match = PKG_SCOPE_REGEXP.match(link_name)
@@ -1807,23 +1821,29 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         self.depth = Equation(self, self.depth)
         # Else sv_type is a logic and it has an int width, so leave it alone
         super().resolve_links()
-        self._derive_params()
 
-    def _derive_params(self):
+    def derive_params(self):
         '''derive params used by Jinja template'''
-        self.dwidth = self.width.computed_value
-        self.awidth = math.ceil(math.log(self.depth.computed_value, 2))
         self.m = self.width.computed_value # pylint: disable=invalid-name
         self.r = 0 # pylint: disable=invalid-name
-        self.prot = 'none'
+        self.sram = SramItem(self.sram_cfg)
+        self.ecc = self.prot == 'ecc'
+        self.parity = self.prot == 'parity'
         if self.parity:
-            self.prot = 'parity'
             self.r = 1
             module = F'{self.parent.name}_m{self.m}_parity'
         if self.ecc:
-            self.prot = 'ecc'
             self.r = gen_prot.calc_r(self.m) + 1
             module = F'{self.parent.name}_m{self.m}_ecc'
+        self.awidth = math.ceil(math.log(self.depth.computed_value, 2))
+        self.bwidth = math.ceil((self.m+self.r)/self.col)
+        self.dwidth = self.width.computed_value
+        self.bdepth = math.ceil(self.depth.computed_value/self.row)
+        self.bawidth = math.ceil(math.log(self.bdepth, 2))
+        self.decoder_awidth = math.ceil(math.log(self.row, 2))
+        self.decoder_rotator = math.log(self.bdepth, 2) == self.bawidth
+        self.num_ports = max(self.read_ports, self.write_ports)
+        self.stage0 = 1 if self.num_ports > 1 else self.stage0
         self.pipe_module = F'{self.parent.name}_pipe'
         if (self.ecc or self.parity):
             self.prot_gen_module = F"{module}_gen"
@@ -1832,6 +1852,23 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
             if self.parent.gen_deps:
                 self._gen_prot_module(self.prot_gen_module, self.m, self.r, self.prot, 'gen')
                 self._gen_prot_module(self.prot_chk_module, self.m, self.r, self.prot, 'chk')
+        self.sanity()
+
+    def sanity(self):
+        '''sanity check to make sure ecc and parity not both enabled'''
+        if self.row < max(self.read_ports, self.write_ports):
+            self.log.error(F"[{self.name}] row count({self.row}) < max(read_ports({self.read_ports}), write_ports({self.write_ports}))")
+        if self.decoder_awidth:
+            if self.decoder_rotator:
+                if self.decoder_awidth + self.bawidth != self.awidth:
+                    self.log.error(F"[{self.name}] decoder addr width({self.decoder_awidth}) + bank addr width({self.bawidth}) not matching total addr width({self.awidth}).")
+            else:
+                self.log.error(F"[{self.name}] bank depth({self.bdepth}) not power of 2 -- non-2**k bdepth will be comming soon..")
+        if not self.sram.behav:
+            if self.sram.awidth < self.awidth:
+                self.log.error(F"[{self.name}] sram addr width({self.sram.awidth}) < mem awidth({self.awidth})")
+            if self.sram.bits < (self.m+self.r)/self.col:
+                self.log.error(F"[{self.name}] sram bank width({self.sram.bits}) < mem bwidth(ceil(({self.m}+{self.r})/{self.col})={self.bwidth})")
 
     def _gen_prot_module(self, module, m, r, prot, comp): # pylint: disable=too-many-arguments, invalid-name
         if self.parent.register_module(module):
@@ -1847,6 +1884,18 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
                 "Connections:\n  -{connections}\n".format(
                     connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
+class SramItem:
+    """docstring for SramItem"""
+    def __init__(self, sram_cfg):
+        super(SramItem, self).__init__()
+        self.behav = sram_cfg == 'flop_array_2p'
+        if not self.behav:
+            self.sub_family = sram_cfg[2:5]
+            self.ports = sram_cfg[10:12]
+            self.words, self.bits = sram_cfg[12:].split('m')[0].split('x')
+            self.words = int(self.words)
+            self.bits  = int(self.bits)
+            self.awidth = math.ceil(math.log(self.words, 2))
 
 def main(options, log):
     """Main execution."""

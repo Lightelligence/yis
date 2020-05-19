@@ -19,7 +19,7 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
     )
 
-def yis_rtl_mem(name, pkg_deps, mem):
+def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     expected_name = mem.rsplit(":")[1][:-4]
     if name != expected_name:
         fail("Expect yis target name to be: {}".format(expected_name))
@@ -58,7 +58,9 @@ def yis_rtl_mem(name, pkg_deps, mem):
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps]
-             + ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"],
+             + ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"]
+             + sram_deps,
+        visibility = ["//visibility:public"],
     )
     rtl_lib(
         name = "{}_prot".format(name),

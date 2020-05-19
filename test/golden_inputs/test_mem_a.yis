@@ -2,46 +2,52 @@
 ---
 doc_summary: This is an example memory definition
 memories:
-  - name: rx_fifo
-    doc_summary: Receive FIFO Memory
+  - name: behav_2p
+    doc_summary: behav_2p
     doc_verbose: |
       Boring info about memories. And now
       I'm on a new line
     width: test_pkg_a::TRIPLE_NESTED_PARAM.width+4
-    depth: 512
-    ecc: True
-    parity: False
+    depth: test_pkg_a::hero_write__st.width+18
+    prot: none
     ports: 2p
 
-
-  - name: tx_fifo
-    doc_summary: Transimit FIFO Memory
-    width: test_pkg_a::hero_write__st.width
-    depth: 1024
-    ecc: True
-    parity: False
-    ports: 1p
-
-  - name: wt_fifo
-    doc_summary: Weight FIFO Memory
-    width: 6
-    depth: test_pkg_a::hero_write__st.width
-    ecc: True
-    parity: False
-    ports: 2p
-
-  - name: adc_fifo
-    doc_summary: adc FIFO Memory
+  - name: sram_1p_ecc
+    doc_summary: sram with ecc
     width: 11
-    depth: test_pkg_a::hero_write__st.width
-    ecc: False
-    parity: True
+    depth: 512
+    prot: ecc
     ports: 1p
+    sram_cfg: sad2lsph4s1p784x16m4b1w0c1p0d0r3s10   # also update BUILD to include this item
 
-  - name: hero_fifo
-    doc_summary: hero FIFO Memory
-    width: 2
-    depth: test_pkg_a::hero_write__st.width
-    ecc: False
-    parity: False
+  - name: sub_banking
+    doc_summary: enable sub banking
+    width: test_pkg_a::hero_write__st.width - 20
+    depth: 1024
+    prot: ecc
+    ports: 2p
+    row:  2
+    col:  2
+    sram_cfg: sadglsph4s2p768x16m4b8w0c1p0d0r1s10    # also update BUILD to include this item
+
+  - name: multiple_port_2p
+    doc_summary: enable multi ports
+    width: 8
+    depth: test_pkg_a::hero_write__st.width+18
+    prot: parity
+    ports: 2p
+    row:  8
+    read_ports: 6
+    write_ports: 4
+    sram_cfg: sadglsph4s2p768x16m4b8w0c1p0d0r1s10   # also update BUILD to include this item
+
+  - name: multiple_port_1p
+    doc_summary: enable multi ports
+    width: 11
+    depth: test_pkg_a::hero_write__st.width+18
+    prot: ecc
     ports: 1p
+    row:  8
+    read_ports: 6
+    write_ports: 4
+    sram_cfg: sad2lsph4s1p784x16m4b1w0c1p0d0r3s10   # also update BUILD to include this item

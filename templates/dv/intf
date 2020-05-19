@@ -14,6 +14,7 @@ interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst_
 {%- endfor %}
 
   clocking mon_cb @(posedge clk);
+     input rst_n;
 {%- for connection in component.children.values() %}
      input {{ connection.short_name }};
 {%- endfor %}
@@ -34,6 +35,14 @@ interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst_
   {%- endif %}
 {%- endfor %}
   endclocking
+
+  task reset(bit _val=0);
+{%- for connection in component.children.values() %}
+   {%- if interface.src() == interface.src_dst_extract(connection.name)[0] %}
+    {{ connection.short_name }}.vld = _val;
+   {%- endif %}
+{%- endfor %}
+  endtask : reset
 
 endinterface : {{ interface.name }}__{{ component.name }}_intf
 
