@@ -1798,7 +1798,7 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         if 'write_ports' not in kwargs:
             kwargs['write_ports'] = 1
         if 'stage0' not in kwargs:
-            kwargs['stage0'] = 0
+            kwargs['stage0'] = 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
             setattr(self, k, w)
 
@@ -1843,7 +1843,6 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         self.decoder_awidth = math.ceil(math.log(self.row, 2))
         self.decoder_rotator = math.log(self.bdepth, 2) == self.bawidth
         self.num_ports = max(self.read_ports, self.write_ports)
-        self.stage0 = 1 if self.num_ports > 1 else self.stage0
         self.pipe_module = F'{self.parent.name}_pipe'
         if (self.ecc or self.parity):
             self.prot_gen_module = F"{module}_gen"

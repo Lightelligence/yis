@@ -17,6 +17,16 @@ golden_intf_tests(
     },
 )
 
+# yis_rtl_mem(
+#     name = "test_mem_a",
+#     mem = ":test_mem_a.yis",
+#     pkg_deps = [":test_pkg_a.yis",],
+#     sram_deps = [
+#         "//digital/rtl/common:sadglsph4s2p768x16m4b8w0c1p0d0r1s10",
+#         "//digital/rtl/common:sad2lsph4s1p784x16m4b1w0c1p0d0r3s10",
+#         ],
+# )
+
 golden_mem_tests(
     deps = {
         "test_mem_a": [
