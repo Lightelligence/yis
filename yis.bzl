@@ -57,10 +57,8 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     rtl_lib(
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
-        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps]
-             + ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"]
-             + sram_deps,
-        visibility = ["//visibility:public"],
+        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps] +
+               ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"],
     )
     rtl_lib(
         name = "{}_prot".format(name),
