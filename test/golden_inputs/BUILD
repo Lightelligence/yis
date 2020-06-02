@@ -1,5 +1,5 @@
 load(":test.bzl", "golden_intf_tests", "golden_mem_tests", "golden_pkg_tests")
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_mem")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_rtl_mem")  # @unused
 
 golden_pkg_tests(
     deps = {
