@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+message Field {
+  required string name = 1;
+  required int32 width = 2;
+}
+
+message InstructionFormat {
+  required string name = 1;
+  repeated Field fields = 2;
+}
+
+// Create a structure to make serialization easier
+message AllInstructionFormat {
+  repeated InstructionFormat instruction_formats = 1;
+}

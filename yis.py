@@ -27,6 +27,7 @@ import yamale
 ################################################################################
 from scripts import cmn_logging
 from digital.rtl.scripts import gen_prot
+from digital.rtl.scripts.yis import instruction
 
 ################################################################################
 # Constants
@@ -298,6 +299,8 @@ def parse_args(argv):
 
     parser.add_argument('--gen-dv', default=False, action='store_true', help="Use the dv generator for output.")
 
+    parser.add_argument('--gen-instructions', default=False, action='store_true', help="Use instruction proto generator for output.")
+
     parser.add_argument('--gen-deps', default=False, action='store_true', help="generate dependencies")
 
     parser.add_argument('--tool-debug',
@@ -438,6 +441,8 @@ class Yis:
                           ))
         year = date.today().year
 
+        target_pkg = next(reversed(self._pkgs.values()))
+
         if self.options.gen_rtl:
             template_directory = "rtl"
         elif self.options.gen_rdl:
@@ -446,6 +451,10 @@ class Yis:
             template_directory = "html"
         elif self.options.gen_dv:
             template_directory = "dv"
+        elif self.options.gen_instructions:
+            with open(output_file, 'wb') as fileh:
+                fileh.write(instruction.render(target_pkg))
+            return
         else:
             self.log.critical("No generator specified.")
 
@@ -459,7 +468,6 @@ class Yis:
 
         self.log.debug("Rendering from template %s", template_name)
         template = env.get_template(template_name)
-        target_pkg = next(reversed(self._pkgs.values()))
         output_content = template.render(year=year,
                                          interface=self._block_interface,
                                          memory=self._block_memory,
@@ -1799,6 +1807,8 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
             kwargs['write_ports'] = 1
         if 'stage0' not in kwargs:
             kwargs['stage0'] = 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0
+        if 'stage1' not in kwargs:
+            kwargs['stage1'] = 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
             setattr(self, k, w)
 
@@ -1890,7 +1900,7 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
                 "Connections:\n  -{connections}\n".format(
                     connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
-class SramItem:  # pylint: disable=too-few-public-methods
+class SramItem: # pylint: disable=too-few-public-methods
     """docstring for SramItem"""
     def __init__(self, sram_cfg):
         super(SramItem, self).__init__()

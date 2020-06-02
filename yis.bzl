@@ -80,6 +80,19 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         deps = ["{}_mem".format(name)],
     )
 
+
+def yis_instruction(name, pkg_deps, pkg):
+    """Create a single yis-generate instruction proto."""
+    native.genrule(
+        name = "{}_instruction_pb".format(name),
+        srcs = pkg_deps + [pkg],
+        outs = ["{}_instruction.pb2".format(name)],
+        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-instruction",
+        output_to_bindir = True,
+        tools = ["//digital/rtl/scripts/yis:yis"],
+        visibility = ["//visibility:public"],
+    )
+
 def yis_rdl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RDL pkg."""
     native.genrule(

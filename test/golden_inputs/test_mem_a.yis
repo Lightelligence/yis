@@ -48,6 +48,6 @@ memories:
     prot: ecc
     ports: 1p
     row:  8
-    read_ports: 6
-    write_ports: 4
+    read_ports: 4
+    write_ports: 6
     sram_cfg: sad2lsph4s1p784x16m4b1w0c1p0d0r3s10   # also update BUILD to include this item

@@ -17,14 +17,16 @@ memory:
   prot: enum('ecc', 'parity', 'none')
   sram_cfg: str(min=35, required=False) # omit this will instantiate a behav model using flop_array_2p
   # -----
-  pipe0: int(min=1, max=2, required=False) # add flop stages between sram and protection logic: (default 2)
-    # 1 - add flop stage at sram output( or use QP instead Q port if sram supports);
-    # 2 - add flop stage after rdata muxing - (default)
-  pipe1: int(min=0, required=False) # add flop stages between protection logic and io boundary. (default is 1)
-  # -----
   row:  int(min=1, required=False)
   col:  int(min=1, required=False)
   # -----
   read_ports: int(min=1, required=False)
   write_ports: int(min=1, required=False)
+  # -----
+  # ----- setting pipelines
+  pipe0: int(min=1, max=2, required=False) # add flop stages between sram and protection logic: (default 2)
+    # 1 - add flop stage at sram output( or use QP instead Q port if sram supports);
+    # 2 - add flop stage after rdata muxing - (default)
+  pipe1: int(min=0, required=False) # add flop stages between protection logic and io boundary. (default is 1)
   stage0: int(max=1, required=False) # add flop stages between protection logic and sram: (default 0, unless read/write_port > 0)
+  stage1: int(min=0, required=False) # add flop stages at sram io boundary: (default 0)
