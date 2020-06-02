@@ -1856,18 +1856,25 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
     def sanity(self):
         '''sanity check to make sure ecc and parity not both enabled'''
         if self.row < max(self.read_ports, self.write_ports):
-            self.log.error(F"[{self.name}] row count({self.row}) < max(read_ports({self.read_ports}), write_ports({self.write_ports}))")
+            self.log.error(
+                F"[{self.name}] row count({self.row}) < max(read_ports({self.read_ports}), write_ports({self.write_ports}))" # pylint: disable=line-too-long
+            )
         if self.decoder_awidth:
             if self.decoder_rotator:
                 if self.decoder_awidth + self.bawidth != self.awidth:
-                    self.log.error(F"[{self.name}] decoder addr width({self.decoder_awidth}) + bank addr width({self.bawidth}) not matching total addr width({self.awidth}).")
+                    self.log.error(
+                        F"[{self.name}] decoder addr width({self.decoder_awidth}) + bank addr width({self.bawidth}) not matching total addr width({self.awidth})." # pylint: disable=line-too-long
+                    )
             else:
-                self.log.error(F"[{self.name}] bank depth({self.bdepth}) not power of 2 -- non-2**k bdepth will be comming soon..")
+                self.log.error(
+                    F"[{self.name}] bank depth({self.bdepth}) not power of 2 -- non-2**k bdepth will be comming soon..") # pylint: disable=line-too-long
         if not self.sram.behav:
             if self.sram.awidth < self.awidth:
                 self.log.error(F"[{self.name}] sram addr width({self.sram.awidth}) < mem awidth({self.awidth})")
-            if self.sram.bits < (self.m+self.r)/self.col:
-                self.log.error(F"[{self.name}] sram bank width({self.sram.bits}) < mem bwidth(ceil(({self.m}+{self.r})/{self.col})={self.bwidth})")
+            if self.sram.bits < (self.m + self.r) / self.col:
+                self.log.error(
+                    F"[{self.name}] sram bank width({self.sram.bits}) < mem bwidth(ceil(({self.m}+{self.r})/{self.col})={self.bwidth})" # pylint: disable=line-too-long
+                )
 
     def _gen_prot_module(self, module, m, r, prot, comp): # pylint: disable=too-many-arguments, invalid-name
         if self.parent.register_module(module):
@@ -1883,7 +1890,7 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
                 "Connections:\n  -{connections}\n".format(
                     connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
-class SramItem:
+class SramItem:  # pylint: disable=too-few-public-methods
     """docstring for SramItem"""
     def __init__(self, sram_cfg):
         super(SramItem, self).__init__()
