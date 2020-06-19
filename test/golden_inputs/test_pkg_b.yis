@@ -89,7 +89,7 @@ structs:
         doc_summary: This cmd is valid, this is the start of a new pipelined write
       - name: num_cycles
         type: logic
-        width: bits(MAX_WR_CYCLES.value - 1)
+        width: clog2(MAX_WR_CYCLES.value - 1)
         doc_summary: Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
       - name: write_type__e
         type: WRITE_TYPE__ET

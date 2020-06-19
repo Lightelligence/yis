@@ -54,8 +54,8 @@ def is_verilog_primitive(value):
     return value in ["logic", "wire", "logic signed", "wire signed"]
 
 
-def bits(value):
-    """Equivalent to $bits system call in Verilog.
+def clog2(value):
+    """Equivalent to $clog2 system call in Verilog.
     Requires a lot of typing in python.
     """
     return int(math.ceil(math.log2(value)))
