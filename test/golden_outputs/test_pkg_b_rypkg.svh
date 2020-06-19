@@ -24,7 +24,7 @@ package test_pkg_b; // Example of what a dependent package looks like
   typedef struct packed {
     logic [/* test_pkg_a::CYCLE_TYPE__ET.width + 2 */ 4 - 1:0] rsvd; // Reserved
     logic [1 - 1:0] val; // This cmd is valid, this is the start of a new pipelined write
-    logic [/* bits(MAX_WR_CYCLES.value - 1) */ 2 - 1:0] num_cycles; // Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
+    logic [/* clog2(MAX_WR_CYCLES.value - 1) */ 2 - 1:0] num_cycles; // Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
     WRITE_TYPE__ET write_type__e; // Specifies how the write should be handled
   } write_cmd__st; // The command cycle of a pipelined write
   

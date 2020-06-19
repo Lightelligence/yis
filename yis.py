@@ -302,7 +302,10 @@ def parse_args(argv):
 
     parser.add_argument('--gen-dv', default=False, action='store_true', help="Use the dv generator for output.")
 
-    parser.add_argument('--gen-instructions', default=False, action='store_true', help="Use instruction proto generator for output.")
+    parser.add_argument('--gen-instructions',
+                        default=False,
+                        action='store_true',
+                        help="Use instruction proto generator for output.")
 
     parser.add_argument('--gen-deps', default=False, action='store_true', help="generate dependencies")
 
@@ -707,6 +710,7 @@ class YisNode: # pylint: disable=too-few-public-methods
                 break
             parent = self.parent
         return ".".join(names)
+
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
