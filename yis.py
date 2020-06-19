@@ -152,7 +152,10 @@ class Equation(ast.NodeTransformer):
         self.linked_nodes = []
 
         # Change package refereces to . scoping to make python compiler happy
-        equation = equation.replace("::", ".")
+        try:
+            equation = equation.replace("::", ".")
+        except AttributeError as exc:
+            self.yisnode.log.critical("%s %s", self.yisnode.get_full_name(), exc)
         self.tree_root = ast.parse(equation)
         # Transform the equation
         self.visit(self.tree_root)
@@ -694,6 +697,16 @@ class YisNode: # pylint: disable=too-few-public-methods
         attr = doc_link_re.sub(repl, attr)
         return attr
 
+    def get_full_name(self):
+        """Return a hierarchal name for this node. Intended use is for debug only, not for code generation."""
+        names = []
+        parent = self
+        while parent:
+            names.insert(0, parent.name)
+            if parent == self.parent:
+                break
+            parent = self.parent
+        return ".".join(names)
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
@@ -1324,6 +1337,8 @@ class PkgStructField(PkgItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
+        if is_verilog_primitive(self.sv_type) and self.width is None:
+            self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
