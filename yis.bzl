@@ -80,7 +80,6 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         deps = ["{}_mem".format(name)],
     )
 
-
 def yis_instruction(name, pkg_deps, pkg):
     """Create a single yis-generate instruction proto."""
     native.genrule(

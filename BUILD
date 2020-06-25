@@ -1,7 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
 load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
-
 load("//env:lt_py.bzl", "lt_py_pylint")
 load("//env:doc.bzl", "markdown_to_html")
 
@@ -25,8 +24,8 @@ py_binary(
     srcs = ["yis.py"],
     data = all_jinja_templates + all_yamale_schemas,
     deps = [
-        "//digital/rtl/scripts:gen_prot",
         ":instruction",
+        "//digital/rtl/scripts:gen_prot",
         "//scripts:cmn_logging",
     ],
 )
