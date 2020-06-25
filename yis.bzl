@@ -27,8 +27,7 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     native.genrule(
         name = "{}_mem_gen".format(name),
         srcs = pkg_deps + [mem],
-        # srcs = pkg_deps + [mem] + [pkg_dep[:-4] + "_rypkg_rtl" for pkg_dep in pkg_deps],
-        outs = ["{}_mem.svh".format(name)],
+        outs = ["{}_mem.sv".format(name)],
         cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
         tools = ["//digital/rtl/scripts/yis:yis"],
         output_to_bindir = True,
@@ -38,7 +37,7 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     native.genrule(
         name = "{}_prot_gen".format(name),
         srcs = pkg_deps + [mem],
-        outs = ["{}_prot.svh".format(name)],
+        outs = ["{}_prot.sv".format(name)],
         cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl --gen-deps",
         tools = ["//digital/rtl/scripts/yis:yis"],
         output_to_bindir = True,
@@ -47,13 +46,14 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     )
     native.genrule(
         name = "{}_pipe_gen".format(name),
-        outs = ["{name}_pipe.svh".format(name = name)],
+        outs = ["{name}_pipe.sv".format(name = name)],
         cmd = "$(location //digital/rtl/scripts:gen_pipeline) --universal --name {} -out-file $@".format(name),
         tools = ["//digital/rtl/scripts:gen_pipeline"],
         output_to_bindir = True,
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
+
     rtl_lib(
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
@@ -72,6 +72,41 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
     )
     rtl_unit_test(
         name = "{}_mem_test".format(name),
+        tags = [
+            "lic_xcelium",
+            "no_ci_gate",
+            "requires_license",
+        ],
+        deps = ["{}_mem".format(name)],
+    )
+
+def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
+    expected_name = yis.rsplit(":")[1][:-4]
+    if name != expected_name:
+        fail("Expect yis target name to be: {}".format(expected_name))
+
+    yis_rtl_mem(name, pkg_deps, sram_deps, yis)
+
+    native.genrule(
+        name = "{}_fifo_gen".format(name),
+        srcs = pkg_deps + [yis],
+        outs = ["{}_fifo.sv".format(name)],
+        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-generic fifo --gen-rtl",
+        tools = ["//digital/rtl/scripts/yis:yis"],
+        output_to_bindir = True,
+        visibility = ["//visibility:public"],
+        tags = ["doc_export"],
+    )
+
+    rtl_lib(
+        name = "{}_fifo".format(name),
+        lib_files = [":{}_fifo_gen".format(name)],
+        deps = ["{}_mem".format(name), "//digital/rtl/common:bagware"],
+        visibility = ["//visibility:public"],
+    )
+
+    rtl_unit_test(
+        name = "{}_fifo_test".format(name),
         tags = [
             "lic_xcelium",
             "no_ci_gate",

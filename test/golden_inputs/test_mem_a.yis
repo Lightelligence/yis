@@ -51,3 +51,5 @@ memories:
     read_ports: 4
     write_ports: 6
     sram_cfg: sad2lsph4s1p784x16m4b1w0c1p0d0r3s10   # also update BUILD to include this item
+    stage0: 0
+    stage1: 1

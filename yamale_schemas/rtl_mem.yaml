@@ -29,4 +29,4 @@ memory:
     # 2 - add flop stage after rdata muxing - (default)
   pipe1: int(min=0, required=False) # add flop stages between protection logic and io boundary. (default is 1)
   stage0: int(max=1, required=False) # add flop stages between protection logic and sram: (default 0, unless read/write_port > 0)
-  stage1: int(min=0, required=False) # add flop stages at sram io boundary: (default 0)
+  sync_fifo: bool(required=False)

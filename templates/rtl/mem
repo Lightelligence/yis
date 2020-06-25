@@ -22,6 +22,7 @@
 // read_ports: {{mem.read_ports}}
 // write_ports: {{mem.write_ports}}
 // stage0: {{mem.stage0}}
+// stage1: {{mem.stage1}}
 
 {% if mem.ports == "1p" -%}
     {%- set ports = {'':' wr|rd'} -%}
@@ -169,12 +170,13 @@ module {{ mem.module }}(
                     wr{{stage0_suffix}}{{suffix(0)}};
                 {%- endif %}
         // ctrl/addr/data mux
-            sram_io__st     sram_io [{{mem.row-1}}:0];
+            {%- set stage1_suffix = "_to_inp1" if mem.stage1 else "" %}
+            sram_io__st     sram_io{{stage1_suffix}} [{{mem.row-1}}:0];
             {%- for row in range(mem.row) %}
-            assign sram_io[{{row}}].rd = rd_ctrl[{{row}}];
-            assign sram_io[{{row}}].wr = wr_ctrl[{{row}}];
+            assign sram_io{{stage1_suffix}}[{{row}}].rd = rd_ctrl[{{row}}];
+            assign sram_io{{stage1_suffix}}[{{row}}].wr = wr_ctrl[{{row}}];
                 {%- if mem.ports == "1p" %}
-            assign sram_io[{{row}}].addr =
+            assign sram_io{{stage1_suffix}}[{{row}}].addr =
                     {%- if mem.num_ports > 1 -%}
                         {%- for nport in nports %}
                 addr_decoder[{{nport}}][{{row}}] ? addr{{stage0_suffix}}{{suffix(nport)}}[{{mem.bawidth-1}}:0] :
@@ -184,7 +186,7 @@ module {{ mem.module }}(
                 addr{{stage0_suffix}}{{suffix(0)}}[{{mem.bawidth-1}}:0]
                     {%- endif -%};
                 {%- elif mem.ports == "2p" %}
-            assign sram_io[{{row}}].raddr =
+            assign sram_io{{stage1_suffix}}[{{row}}].raddr =
                     {%- if mem.read_ports > 1 -%}
                         {%- for rport in rports %}
                 raddr_decoder[{{rport}}][{{row}}] ? raddr{{stage0_suffix}}{{suffix(rport)}}[{{mem.bawidth-1}}:0] :
@@ -193,7 +195,7 @@ module {{ mem.module }}(
                     {%- else -%}
                 raddr{{stage0_suffix}}{{suffix(0)}}[{{mem.bawidth-1}}:0]
                     {%- endif -%};
-            assign sram_io[{{row}}].waddr =
+            assign sram_io{{stage1_suffix}}[{{row}}].waddr =
                     {%- if mem.write_ports > 1 -%}
                         {%- for wport in wports %}
                 waddr_decoder[{{wport}}][{{row}}] ? waddr{{stage0_suffix}}{{suffix(wport)}}[{{mem.bawidth-1}}:0] :
@@ -203,7 +205,7 @@ module {{ mem.module }}(
                 waddr{{stage0_suffix}}{{suffix(0)}}[{{mem.bawidth-1}}:0]
                     {%- endif -%};
                 {%- endif %}
-            assign sram_io[{{row}}].wdata =
+            assign sram_io{{stage1_suffix}}[{{row}}].wdata =
                 {%- if mem.write_ports > 1 -%}
                     {%- for wport in wports %}
                 {{waddr}}_decoder[{{wport}}][{{row}}] ? data{{data_i_suffix}}{{stage0_suffix}}{{suffix(wport)}} :
@@ -213,6 +215,16 @@ module {{ mem.module }}(
                 data{{data_i_suffix}}{{stage0_suffix}}{{suffix(wport)}}
                 {%- endif -%};
             {%- endfor %}
+        {% if mem.stage1 > 0 -%}// in stage1
+            sram_io__st     sram_io [{{mem.row-1}}:0];
+            {%- for row in range(mem.row) -%} {{set("width", 0)}} {%- for signal, swidth in sramio.items() -%} {{set("width", global_vars["width"]+swidth)}} {%- endfor %}
+            {{mem.pipe_module}} #(.WIDTH({{get("width")}}), .PIPE_STAGES({{mem.stage1}})) in_stage1{{suffix(row)}} (
+                .d(sram_io{{stage1_suffix}}[{{row}}][{{get("width")}}-1:{{sramio["rdata"]}}]),
+                .q(sram_io[{{row}}][{{get("width")}}-1:{{sramio["rdata"]}}]),
+                .clk(clk)
+            );
+            {%- endfor %}
+        {%- endif %}
 
     //==========================================================================
     //  SRAM instance
@@ -282,7 +294,7 @@ module {{ mem.module }}(
         // rd_sel_pipe
             {%- for rport in rports %}
             wire [{{mem.awidth-mem.bawidth-1}}:0]   rd_sel{{suffix(rport)}};
-            {{mem.pipe_module}} #(.WIDTH({{mem.awidth-mem.bawidth}}), .PIPE_STAGES(1+{{use_qp}})) rd_sel_pipe{{suffix(rport)}} (
+            {{mem.pipe_module}} #(.WIDTH({{mem.awidth-mem.bawidth}}), .PIPE_STAGES(1+{{use_qp}}+{{mem.stage1}})) rd_sel_pipe{{suffix(rport)}} (
                 .d({{raddr}}{{stage0_suffix}}{{suffix(rport)}}[{{mem.awidth-1}}:{{mem.bawidth}}]),
                 .q(rd_sel{{suffix(rport)}}),
                 .clk(clk)
@@ -348,5 +360,6 @@ module {{ mem.module }}(
     {%- endif %}
 
 endmodule : {{ mem.module }}
+
 {% endif -%}
 {% endfor %}

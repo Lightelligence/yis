@@ -290,6 +290,10 @@ def parse_args(argv):
                         action='store_true',
                         help="Indicates if the last .yis file passed in is a memory definition")
 
+    parser.add_argument('--block-generic',
+                        default=None,
+                        help="generic way of parsing .yis definition - user specify template file name")
+
     parser.add_argument('--output-file',
                         required=True,
                         help="Path to the output file, which might either be a package or a block interface.")
@@ -337,20 +341,24 @@ class Yis:
         self._suppress_output = False
         self._pkgs = OrderedDict()
         self._block_interface = None
-        self._parse_files(block_interface, pkgs)
+        self._block_memory = None
+        self._block_generic = None
+        self._parse_files(pkgs)
         self.log.debug("Finished parsing all files")
         self._link_symbols()
 
     def _parse_files(self, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
         pkgs_to_parse = pkgs
-        if self.options.block_interface or self.options.block_memory:
+        if self.options.block_interface or self.options.block_memory or self.options.block_generic:
             special_parse = pkgs_to_parse.pop()
         self._parse_pkgs(pkgs_to_parse)
         if self.options.block_interface:
             self._parse_block_interface(special_parse)
         if self.options.block_memory:
             self._parse_block_memory(special_parse)
+        if self.options.block_generic:
+            self._parse_block_generic(special_parse, self.options.block_generic)
         self.log.exit_if_warnings_or_errors("Found errors parsing input files")
 
     def _parse_pkgs(self, pkgs_to_parse):
@@ -415,6 +423,22 @@ class Yis:
         except IOError:
             self.log.critical("Couldn't open {}".format(mem_to_parse))
 
+    def _parse_block_generic(self, yaml_to_parse, blk):
+        """Parse a block memory file, deserialize into relevant objects."""
+        try:
+            self.log.info(F"Parsing blk {yaml_to_parse}")
+            self._yamale_validate(F'digital/rtl/scripts/yis/yamale_schemas/rtl_mem.yaml', yaml_to_parse)
+            self.log.exit_if_warnings_or_errors("Previous errors")
+            with open(yaml_to_parse) as yfile:
+                data = yaml.load(yfile, Loader)
+                blk_name = os.path.splitext(os.path.basename(yaml_to_parse))[0]
+                cls = getattr(sys.modules[__name__], blk.capitalize())
+                self._block_generic = cls(log=self.log, name=blk_name, parent=self, source_file=yaml_to_parse, **data)
+                self._pkgs[blk_name] = self._block_generic
+                self.log.exit_if_warnings_or_errors(F"Found errors parsing {blk_name}")
+        except IOError:
+            self.log.critical("Couldn't open {}".format(yaml_to_parse))
+
     def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
         # Only do a link first. Skip computing widths until after link is finished
@@ -425,6 +449,8 @@ class Yis:
             self._block_interface.resolve_links()
         if self._block_memory:
             self._block_memory.resolve_links()
+        if self._block_generic:
+            self._block_generic.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
@@ -469,6 +495,8 @@ class Yis:
             template_name = "intf"
         if self._block_memory:
             template_name = "mem"
+        if self._block_generic:
+            template_name = self._block_generic.__class__.__name__.lower()
 
         template_name = os.path.join(template_directory, template_name)
 
@@ -477,6 +505,7 @@ class Yis:
         output_content = template.render(year=year,
                                          interface=self._block_interface,
                                          memory=self._block_memory,
+                                         blk=self._block_generic,
                                          pkgs=self._pkgs,
                                          target_pkg=target_pkg)
         with open(output_file, 'w') as fileh:
@@ -1810,10 +1839,12 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
     def __init__(self, parent, log, **kwargs):
         super().__init__(parent=parent, log=log, **kwargs)
         # setting default param values
+        if 'retiming' not in kwargs:
+            kwargs['retiming'] = False
         if 'pipe0' not in kwargs:
-            kwargs['pipe0'] = 2
+            kwargs['pipe0'] = 1 if kwargs['retiming'] else 2
         if 'pipe1' not in kwargs:
-            kwargs['pipe1'] = 1
+            kwargs['pipe1'] = 2 if kwargs['retiming'] else 1
         if 'sram_cfg' not in kwargs:
             kwargs['sram_cfg'] = 'flop_array_2p'
         if 'row' not in kwargs:
@@ -1824,10 +1855,12 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
             kwargs['read_ports'] = 1
         if 'write_ports' not in kwargs:
             kwargs['write_ports'] = 1
+        if 'sync_fifo' not in kwargs:
+            kwargs['sync_fifo'] = False
         if 'stage0' not in kwargs:
-            kwargs['stage0'] = 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0
+            kwargs['stage0'] = 0 if kwargs['retiming'] else 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0
         if 'stage1' not in kwargs:
-            kwargs['stage1'] = 0
+            kwargs['stage1'] = 1 if kwargs['retiming'] else 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
             setattr(self, k, w)
 
@@ -1888,6 +1921,9 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
             self.log.error(
                 F"[{self.name}] row count({self.row}) < max(read_ports({self.read_ports}), write_ports({self.write_ports}))" # pylint: disable=line-too-long
             )
+        if self.sync_fifo is True and (self.read_ports > 1 or self.write_ports > 1):
+            self.log.error(F"[{self.name}] FIFO with read_ports or write_ports > 1" # pylint: disable=line-too-long
+                           )
         if self.decoder_awidth:
             if self.decoder_rotator:
                 if self.decoder_awidth + self.bawidth != self.awidth:
@@ -1898,8 +1934,8 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
                 self.log.error(
                     F"[{self.name}] bank depth({self.bdepth}) not power of 2 -- non-2**k bdepth will be comming soon..") # pylint: disable=line-too-long
         if not self.sram.behav:
-            if self.sram.awidth < self.awidth:
-                self.log.error(F"[{self.name}] sram addr width({self.sram.awidth}) < mem awidth({self.awidth})")
+            if self.sram.awidth < self.bawidth:
+                self.log.error(F"[{self.name}] sram addr width({self.sram.awidth}) < bank awidth({self.bawidth})")
             if self.sram.bits < (self.m + self.r) / self.col:
                 self.log.error(
                     F"[{self.name}] sram bank width({self.sram.bits}) < mem bwidth(ceil(({self.m}+{self.r})/{self.col})={self.bwidth})" # pylint: disable=line-too-long
@@ -1932,6 +1968,22 @@ class SramItem: # pylint: disable=too-few-public-methods
             self.bits  = int(self.bits)
             self.awidth = math.ceil(math.log(self.words, 2))
 
+<<<<<<< HEAD
+=======
+
+class Fifo(Mem):
+    """Class to hold MemItemBase objects, representing a whole mem."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return (F"FIFO name: {self.name}\n"
+                "Components:\n  -{components}\n".format(
+                    components="\n  -".join([repr(component) for component in self.children.values()])))
+
+
+>>>>>>> a2885e8... isolate fifo template from mem
 def main(options, log):
     """Main execution."""
     if not options.pkgs:
