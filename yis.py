@@ -331,7 +331,7 @@ class LinkError(Exception):
     pass # pylint: disable=unnecessary-pass
 
 
-class Yis:
+class Yis: # pylint: disable=too-many-instance-attributes
     """Yaml Interface Spec parser and generator class."""
 
     def __init__(self, pkgs, log, options):
@@ -427,7 +427,7 @@ class Yis:
         """Parse a block memory file, deserialize into relevant objects."""
         try:
             self.log.info(F"Parsing blk {yaml_to_parse}")
-            self._yamale_validate(F'digital/rtl/scripts/yis/yamale_schemas/rtl_mem.yaml', yaml_to_parse)
+            self._yamale_validate(F'digital/rtl/scripts/yis/yamale_schemas/rtl_{blk}.yaml', yaml_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors")
             with open(yaml_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
@@ -1858,8 +1858,7 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         if 'sync_fifo' not in kwargs:
             kwargs['sync_fifo'] = False
         if 'stage0' not in kwargs:
-            kwargs['stage0'] = 0 if kwargs['retiming'] else 1 if (kwargs["read_ports"] > 1) or (
-                kwargs['write_ports'] > 1) else 0
+            kwargs['stage0'] = 0 if kwargs['retiming'] else 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0 # pylint: disable=line-too-long
         if 'stage1' not in kwargs:
             kwargs['stage1'] = 1 if kwargs['retiming'] else 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
@@ -1974,9 +1973,6 @@ class SramItem: # pylint: disable=too-few-public-methods
 
 class Fifo(Mem):
     """Class to hold MemItemBase objects, representing a whole mem."""
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __repr__(self):
         return (F"FIFO name: {self.name}\n"
