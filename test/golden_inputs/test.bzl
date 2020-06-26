@@ -1,6 +1,6 @@
 """Test helpers for yis."""
 
-load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_mem", "yis_rtl_fifo", "yis_rtl_pkg")
+load("//digital/rtl/scripts/yis:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_fifo", "yis_rtl_mem", "yis_rtl_pkg")
 
 golden_out_location = "//digital/rtl/scripts/yis/test/golden_outputs:"
 
@@ -110,7 +110,6 @@ def golden_rtl_fifo_test(name, pkg_deps, sram_deps):
         args = ["diff $(location :{name}_fifo_gen) $(location {gout}{name}_fifo.sv)".format(gout = golden_out_location, name = name)],
         tags = ["gold"],
     )
-
 
 def golden_pkg_tests(deps):
     """Run all golden pkg tests, allow pkg dependencies."""

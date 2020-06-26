@@ -1858,7 +1858,8 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
         if 'sync_fifo' not in kwargs:
             kwargs['sync_fifo'] = False
         if 'stage0' not in kwargs:
-            kwargs['stage0'] = 0 if kwargs['retiming'] else 1 if (kwargs["read_ports"] > 1) or (kwargs['write_ports'] > 1) else 0
+            kwargs['stage0'] = 0 if kwargs['retiming'] else 1 if (kwargs["read_ports"] > 1) or (
+                kwargs['write_ports'] > 1) else 0
         if 'stage1' not in kwargs:
             kwargs['stage1'] = 1 if kwargs['retiming'] else 0
         for k, w in kwargs.items(): # pylint: disable=invalid-name
