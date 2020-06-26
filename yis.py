@@ -1971,8 +1971,9 @@ class SramItem: # pylint: disable=too-few-public-methods
 <<<<<<< HEAD
 =======
 
-class Fifo(YisNode):
+class Fifo(Mem):
     """Class to hold MemItemBase objects, representing a whole mem."""
+
     # def __init__(self, **kwargs):
     #     super().__init__(**kwargs)
 

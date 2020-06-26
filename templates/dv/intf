@@ -9,6 +9,10 @@
 // {{ component.doc_summary }}
 {%-  if component.doc_verbose %}/*{{ component.doc_verbose }}*/{% endif %}
 interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst_n);
+
+  // Use this bit as an indicator to force the interface if necessary
+  logic drive_intf = 1'bx;
+
 {% for connection in component.children.values() %}
   {{ "\n".join(connection.render_rtl_sv_pkg(use_short_name=True)) }}
 {%- endfor %}
