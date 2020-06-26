@@ -13,4 +13,5 @@ message InstructionFormat {
 // Create a structure to make serialization easier
 message AllInstructionFormat {
   repeated InstructionFormat instruction_formats = 1;
+  map<string, int32> op_code_map = 2;
 }

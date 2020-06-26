@@ -8,15 +8,18 @@ all_jinja_templates = glob(["templates/**"])
 
 all_yamale_schemas = glob(["yamale_schemas/**"])
 
-py_proto_library(
+load("@Platform//sdk2:sdk2.bzl", "lt_proto_library")
+
+lt_proto_library(
     name = "instruction_proto",
     srcs = ["instruction.proto"],
+    visibility = ["//visibility:public"],
 )
 
 py_library(
     name = "instruction",
     srcs = ["instruction.py"],
-    deps = [":instruction_proto"],
+    deps = [":instruction_proto_py"],
 )
 
 py_binary(
@@ -42,3 +45,4 @@ lt_py_pylint(
         "yis.py",
     ],
 )
+

@@ -378,6 +378,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         try:
             self.log.info(F"Parsing pkg {fname}")
             self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_pkg.yaml', fname)
+            self.log.info("Part 2")
             self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
@@ -386,6 +387,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
                 self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
+            self.log.info("cwd: {}".format(os.getcwd()))
             self.log.critical("Couldn't open {}".format(fname))
         self.log.debug(F"Finished parsing {fname}")
 
