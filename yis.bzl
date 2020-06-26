@@ -112,7 +112,7 @@ def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
             "no_ci_gate",
             "requires_license",
         ],
-        deps = ["{}_mem".format(name)],
+        deps = ["{}_fifo".format(name)],
     )
 
 def yis_instruction(name, pkg_deps, pkg):

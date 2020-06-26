@@ -24,7 +24,7 @@ I'm on a new line
 // stage0: 0
 // stage1: 0
 
-module test_mem_a_behav_2p_mem(
+module behav_2p_mem(
     input  rd,
     input [5:0] raddr,
     output [5:0] rdata,
@@ -112,7 +112,7 @@ module test_mem_a_behav_2p_mem(
 
     
 
-endmodule : rx_fifo_mem_wrapper
+endmodule : behav_2p_mem
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ endmodule : rx_fifo_mem_wrapper
 // stage0: 0
 // stage1: 0
 
-module test_mem_a_sram_1p_ecc_mem(
+module sram_1p_ecc_mem(
     input rd,
     input [8:0] addr,
     output [10:0] rdata,
@@ -237,7 +237,7 @@ module test_mem_a_sram_1p_ecc_mem(
     );
     //  - hero -
 
-endmodule : test_mem_a_sram_1p_ecc_mem
+endmodule : sram_1p_ecc_mem
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -260,7 +260,7 @@ endmodule : test_mem_a_sram_1p_ecc_mem
 // stage0: 0
 // stage1: 0
 
-module test_mem_a_sub_banking_mem(
+module sub_banking_mem(
     input rd,
     input [9:0] raddr,
     output [25:0] rdata,
@@ -458,7 +458,7 @@ module test_mem_a_sub_banking_mem(
     );
     //  - hero -
 
-endmodule : test_mem_a_sub_banking_mem
+endmodule : sub_banking_mem
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -479,7 +479,7 @@ endmodule : test_mem_a_sub_banking_mem
 // stage0: 1
 // stage1: 0
 
-module test_mem_a_multiple_port_2p_mem(
+module multiple_port_2p_mem(
     input  rd_0,
     input [5:0] raddr_0,
     output [7:0] rdata_0,
@@ -1168,7 +1168,7 @@ module test_mem_a_multiple_port_2p_mem(
     );
     //  - hero -
 
-endmodule : test_mem_a_multiple_port_2p_mem
+endmodule : multiple_port_2p_mem
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1191,7 +1191,7 @@ endmodule : test_mem_a_multiple_port_2p_mem
 // stage0: 0
 // stage1: 1
 
-module test_mem_a_multiple_port_1p_mem(
+module multiple_port_1p_mem(
     input  rd_0,
     input [5:0] addr_0,
     output [10:0] rdata_0,
@@ -1741,5 +1741,5 @@ module test_mem_a_multiple_port_1p_mem(
             );
         //  - hero -
 
-endmodule : test_mem_a_multiple_port_1p_mem
+endmodule : multiple_port_1p_mem
 

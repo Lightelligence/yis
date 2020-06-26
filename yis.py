@@ -1805,7 +1805,7 @@ class Mem(YisNode):
                     wfh.write(FILE_HEADER_TEMPLATE.render(script_name=os.path.basename(__file__)))
             self.parent._suppress_output = True
         for row in kwargs.pop('memories'):
-            module = '_'.join([self.name, row['name'], 'mem'])
+            module = '_'.join([row['name'], 'mem'])
             row['module'] = module
             if self.register_module(module):
                 MemItem(parent=self, log=self.log, **row)
@@ -1971,8 +1971,10 @@ class SramItem: # pylint: disable=too-few-public-methods
 <<<<<<< HEAD
 =======
 
-class Fifo(Mem):
+class Fifo(YisNode):
     """Class to hold MemItemBase objects, representing a whole mem."""
+    # def __init__(self, **kwargs):
+    #     super().__init__(**kwargs)
 
     def __repr__(self):
         return (F"FIFO name: {self.name}\n"

@@ -1,5 +1,5 @@
 // Copyright (c) {{ year }} Lightelligence
-// Description: Memory Wrappers Interface generated from {{ memory.name }}.yis by YIS
+// Description: FIFO Wrappers Interface generated from {{ blk.name }}.yis by YIS
 {% for mem in blk.children.values() %}
 {% set global_vars = {} -%}
 ///////////////////////////////////////////////////////////////////////////////
