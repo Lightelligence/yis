@@ -339,6 +339,15 @@ class Yis: # pylint: disable=too-many-instance-attributes
         self.options = options
         self.parent = None # Should never be set, but recursive walking easier
         self._suppress_output = False
+        
+        # This hackery is to deal with using this repo as a bazel external
+        # It was also required to set the following build strategy in the Platform repo's .bazelrc
+        # build --strategy_regexp=@mosaic.*=local
+
+        self._yamale_schemas_dir = "digital/rtl/scripts/yis/yamale_schemas"
+        if not os.path.exists(self._yamale_schemas_dir):
+            self._yamale_schemas_dir = os.path.join("external/mosaic", self._yamale_schemas_dir)
+
         self._pkgs = OrderedDict()
         self._block_interface = None
         self._block_memory = None
@@ -377,8 +386,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
     def _parse_one_pkg(self, fname):
         try:
             self.log.info(F"Parsing pkg {fname}")
-            self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_pkg.yaml', fname)
-            self.log.info("Part 2")
+            self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_pkg.yaml'), fname)
             self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(fname) as yfile:
                 data = yaml.load(yfile, Loader)
@@ -387,7 +395,6 @@ class Yis: # pylint: disable=too-many-instance-attributes
                 self._pkgs[pkg_name] = new_pkg
                 self.log.exit_if_warnings_or_errors(F"Found errors parsing {pkg_name}")
         except IOError:
-            self.log.info("cwd: {}".format(os.getcwd()))
             self.log.critical("Couldn't open {}".format(fname))
         self.log.debug(F"Finished parsing {fname}")
 
@@ -395,7 +402,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Parse a block interface file, deserialize into relevant objects."""
         try:
             self.log.info(F"Parsing intf {intf_to_parse}")
-            self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_intf.yaml', intf_to_parse)
+            self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_intf.yaml'), intf_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(intf_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
@@ -414,7 +421,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Parse a block memory file, deserialize into relevant objects."""
         try:
             self.log.info(F"Parsing mem {mem_to_parse}")
-            self._yamale_validate('digital/rtl/scripts/yis/yamale_schemas/rtl_mem.yaml', mem_to_parse)
+            self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_mem.yaml'), mem_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors")
             with open(mem_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
@@ -429,7 +436,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Parse a block memory file, deserialize into relevant objects."""
         try:
             self.log.info(F"Parsing blk {yaml_to_parse}")
-            self._yamale_validate(F'digital/rtl/scripts/yis/yamale_schemas/rtl_{blk}.yaml', yaml_to_parse)
+            self._yamale_validate(os.path.join(self._yamale_schemas_dir, f'rtl_{blk}.yaml'), yaml_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors")
             with open(yaml_to_parse) as yfile:
                 data = yaml.load(yfile, Loader)
