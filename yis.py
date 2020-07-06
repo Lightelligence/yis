@@ -339,11 +339,10 @@ class Yis: # pylint: disable=too-many-instance-attributes
         self.options = options
         self.parent = None # Should never be set, but recursive walking easier
         self._suppress_output = False
-        
+
         # This hackery is to deal with using this repo as a bazel external
         # It was also required to set the following build strategy in the Platform repo's .bazelrc
         # build --strategy_regexp=@mosaic.*=local
-
         self._yamale_schemas_dir = "digital/rtl/scripts/yis/yamale_schemas"
         if not os.path.exists(self._yamale_schemas_dir):
             self._yamale_schemas_dir = os.path.join("external/mosaic", self._yamale_schemas_dir)
@@ -376,7 +375,10 @@ class Yis: # pylint: disable=too-many-instance-attributes
             self._parse_one_pkg(fname)
 
     def _yamale_validate(self, schema_file, data_file):
-        schema = yamale.make_schema(schema_file)
+        try:
+            schema = yamale.make_schema(schema_file)
+        except IOError:
+            self.log.critical("Couldn't open {}".format(schema_file))
         data = yamale.make_data(data_file)
         try:
             yamale.validate(schema, data, strict=True)

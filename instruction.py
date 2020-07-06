@@ -20,6 +20,7 @@ def store_op_codes(enums, op_code_map):
     for enum in enums.children.values():
         op_code_map[enum.name.upper()] = enum.sv_value
 
+
 def render(pkg):
     """Render the packages as a proto definition."""
 
