@@ -33,10 +33,10 @@ module test_sync_fifo
   logic we_n;
   logic pop_req_n;
   logic push_req_n;
-  logic [5:0] addr;
+  // logic [5:0] addr;
 
   // simple arb if this is a 1P mem. assertion to go along with it.
-  assign addr = fifo_wr ? waddr : raddr;
+  // assign addr = fifo_wr ? waddr : raddr;
   ERR_RW_CONFLICT_ON_SINGLE_PORT_MEM: assert property (@(posedge clk) !(fifo_wr && fifo_rd)) else $error("%t: %m: ERROR: Can't read and write single-port FIFO in the same cycle", $time);
 
   assign push_req_n = ~fifo_wr;
@@ -69,7 +69,8 @@ module test_sync_fifo
     .clk(clk),
     .rd(fifo_rd),
     .wr(fifo_wr),
-    .addr(addr),
+    .waddr(waddr),
+    .raddr(raddr),
     .rdata(fifo_dout),
     .wdata(fifo_din),
     .dft_i_xyz(), // FIXME

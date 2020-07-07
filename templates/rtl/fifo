@@ -59,10 +59,10 @@ module {{ mem.name }}_sync_fifo
   logic pop_req_n;
   logic push_req_n;
 {%- if mem.ports == "1p" %}
-  logic [{{ mem.awidth-1 }}:0] addr;
+  // logic [{{ mem.awidth-1 }}:0] addr;
 
   // simple arb if this is a 1P mem. assertion to go along with it.
-  assign addr = fifo_wr ? waddr : raddr;
+  // assign addr = fifo_wr ? waddr : raddr;
   ERR_RW_CONFLICT_ON_SINGLE_PORT_MEM: assert property (@(posedge clk) !(fifo_wr && fifo_rd)) else $error("%t: %m: ERROR: Can't read and write single-port FIFO in the same cycle", $time);
 
 {%- endif %}
@@ -97,12 +97,8 @@ module {{ mem.name }}_sync_fifo
     .clk(clk),
     .rd(fifo_rd),
     .wr(fifo_wr),
-{%- if mem.ports == "1p" %}
-    .addr(addr),
-{%- else %}
     .waddr(waddr),
     .raddr(raddr),
-{% endif %}
     .rdata(fifo_dout),
     .wdata(fifo_din),
     .dft_i_xyz(), // FIXME

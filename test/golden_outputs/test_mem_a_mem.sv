@@ -51,9 +51,11 @@ module behav_2p_mem(
     //==========================================================================
     // Write/Read in stages
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             wire [5:0] data_in;
             assign data_in[5:0] = wdata;
+            
         
         
         // ctrl bits
@@ -112,6 +114,19 @@ module behav_2p_mem(
 
     
 
+    `ifdef TBV
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(4)) rdata_vld (
+            .d(rd),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(4)) raddr_pipe (
+            .d(raddr),
+            .q(),
+            .clk(clk)
+        );
+    `endif  //  TBV
+
 endmodule : behav_2p_mem
 
 
@@ -137,9 +152,10 @@ endmodule : behav_2p_mem
 
 module sram_1p_ecc_mem(
     input rd,
-    input [8:0] addr,
+    input [8:0] raddr,
     output [10:0] rdata,
     input  wr,
+    input [8:0] waddr,
     input [10:0] wdata,
     // DFT
     //
@@ -158,9 +174,13 @@ module sram_1p_ecc_mem(
     //==========================================================================
     //  SRAM instance
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             wire [15:0] data_in;
             assign data_in[10:0] = wdata;
+            //  -   addr
+            wire [8:0]  addr;
+            assign addr =wr ? waddr : raddr;
         
         
         // ctrl bits
@@ -237,6 +257,19 @@ module sram_1p_ecc_mem(
     );
     //  - hero -
 
+    `ifdef TBV
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(4)) rdata_vld (
+            .d(rd),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(9), .PIPE_STAGES(4)) raddr_pipe (
+            .d(addr),
+            .q(),
+            .clk(clk)
+        );
+    `endif  //  TBV
+
 endmodule : sram_1p_ecc_mem
 
 
@@ -287,9 +320,11 @@ module sub_banking_mem(
     //==========================================================================
     //  SRAM instance
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             wire [31:0] data_in;
             assign data_in[25:0] = wdata;
+            
         
         // addr decoder
             wire [1:0]    raddr_decoder[0:0];
@@ -458,6 +493,19 @@ module sub_banking_mem(
     );
     //  - hero -
 
+    `ifdef TBV
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(4)) rdata_vld (
+            .d(rd),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(10), .PIPE_STAGES(4)) raddr_pipe (
+            .d(raddr),
+            .q(),
+            .clk(clk)
+        );
+    `endif  //  TBV
+
 endmodule : sub_banking_mem
 
 
@@ -530,7 +578,8 @@ module multiple_port_2p_mem(
     //==========================================================================
     //  SRAM instance
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             wire [8:0] data_in_0;
             assign data_in_0[7:0] = wdata_0;
             wire [8:0] data_in_1;
@@ -539,6 +588,7 @@ module multiple_port_2p_mem(
             assign data_in_2[7:0] = wdata_2;
             wire [8:0] data_in_3;
             assign data_in_3[7:0] = wdata_3;
+            
         // in stage0 
             wire  rd_from_inp0_0; 
             wire [5:0] raddr_from_inp0_0; 
@@ -1168,6 +1218,69 @@ module multiple_port_2p_mem(
     );
     //  - hero -
 
+    `ifdef TBV
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_0 (
+            .d(rd_0),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_0 (
+            .d(raddr_0),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_1 (
+            .d(rd_1),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_1 (
+            .d(raddr_1),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_2 (
+            .d(rd_2),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_2 (
+            .d(raddr_2),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_3 (
+            .d(rd_3),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_3 (
+            .d(raddr_3),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_4 (
+            .d(rd_4),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_4 (
+            .d(raddr_4),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_5 (
+            .d(rd_5),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_5 (
+            .d(raddr_5),
+            .q(),
+            .clk(clk)
+        );
+    `endif  //  TBV
+
 endmodule : multiple_port_2p_mem
 
 
@@ -1193,30 +1306,34 @@ endmodule : multiple_port_2p_mem
 
 module multiple_port_1p_mem(
     input  rd_0,
-    input [5:0] addr_0,
+    input [5:0] raddr_0,
     output [10:0] rdata_0,
     input  wr_0,
+    input [5:0] waddr_0,
     input [10:0] wdata_0,
     input  rd_1,
-    input [5:0] addr_1,
+    input [5:0] raddr_1,
     output [10:0] rdata_1,
     input  wr_1,
+    input [5:0] waddr_1,
     input [10:0] wdata_1,
     input  rd_2,
-    input [5:0] addr_2,
+    input [5:0] raddr_2,
     output [10:0] rdata_2,
     input  wr_2,
+    input [5:0] waddr_2,
     input [10:0] wdata_2,
     input  rd_3,
-    input [5:0] addr_3,
+    input [5:0] raddr_3,
     output [10:0] rdata_3,
     input  wr_3,
+    input [5:0] waddr_3,
     input [10:0] wdata_3,
     input  wr_4,
-    input [5:0] addr_4,
+    input [5:0] waddr_4,
     input [10:0] wdata_4,
     input  wr_5,
-    input [5:0] addr_5,
+    input [5:0] waddr_5,
     input [10:0] wdata_5,
     // DFT
     //
@@ -1237,7 +1354,8 @@ module multiple_port_1p_mem(
     //==========================================================================
     //  SRAM instance
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             wire [15:0] data_in_0;
             assign data_in_0[10:0] = wdata_0;
             wire [15:0] data_in_1;
@@ -1250,6 +1368,19 @@ module multiple_port_1p_mem(
             assign data_in_4[10:0] = wdata_4;
             wire [15:0] data_in_5;
             assign data_in_5[10:0] = wdata_5;
+            //  -   addr
+            wire [5:0]  addr_0;
+            assign addr_0 =wr_0 ? waddr_0 : raddr_0;
+            wire [5:0]  addr_1;
+            assign addr_1 =wr_1 ? waddr_1 : raddr_1;
+            wire [5:0]  addr_2;
+            assign addr_2 =wr_2 ? waddr_2 : raddr_2;
+            wire [5:0]  addr_3;
+            assign addr_3 =wr_3 ? waddr_3 : raddr_3;
+            wire [5:0]  addr_4;
+            assign addr_4 =waddr_4;
+            wire [5:0]  addr_5;
+            assign addr_5 =waddr_5;
         
         // addr decoder
             wire [7:0]    addr_decoder[5:0];
@@ -1412,42 +1543,42 @@ module multiple_port_1p_mem(
                 'x;
         // in stage1
             sram_io__st     sram_io [7:0];
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_0 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_0 (
                 .d(sram_io_to_inp1[0][37-1:16]),
                 .q(sram_io[0][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_1 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_1 (
                 .d(sram_io_to_inp1[1][37-1:16]),
                 .q(sram_io[1][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_2 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_2 (
                 .d(sram_io_to_inp1[2][37-1:16]),
                 .q(sram_io[2][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_3 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_3 (
                 .d(sram_io_to_inp1[3][37-1:16]),
                 .q(sram_io[3][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_4 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_4 (
                 .d(sram_io_to_inp1[4][37-1:16]),
                 .q(sram_io[4][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_5 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_5 (
                 .d(sram_io_to_inp1[5][37-1:16]),
                 .q(sram_io[5][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_6 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_6 (
                 .d(sram_io_to_inp1[6][37-1:16]),
                 .q(sram_io[6][37-1:16]),
                 .clk(clk)
             );
-            test_mem_a_pipe #(.WIDTH(37), .PIPE_STAGES(1)) in_stage1_7 (
+            test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_7 (
                 .d(sram_io_to_inp1[7][37-1:16]),
                 .q(sram_io[7][37-1:16]),
         .clk(clk)
@@ -1740,6 +1871,49 @@ module multiple_port_1p_mem(
                 .data_from_sram(data_out_3[10:0])
             );
         //  - hero -
+
+    `ifdef TBV
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_0 (
+            .d(rd_0),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_0 (
+            .d(addr_0),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_1 (
+            .d(rd_1),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_1 (
+            .d(addr_1),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_2 (
+            .d(rd_2),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_2 (
+            .d(addr_2),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(1), .PIPE_STAGES(5)) rdata_vld_3 (
+            .d(rd_3),
+            .q(),
+            .clk(clk)
+        );
+        test_mem_a_pipe #(.WIDTH(6), .PIPE_STAGES(5)) raddr_pipe_3 (
+            .d(addr_3),
+            .q(),
+            .clk(clk)
+        );
+    `endif  //  TBV
 
 endmodule : multiple_port_1p_mem
 

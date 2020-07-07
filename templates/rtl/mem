@@ -76,17 +76,17 @@ module {{ mem.module }}(
     {%- for nport in nports -%} {%- set signals = {} -%}
         {%- if nport < mem.read_ports -%}
             {%- set t= signals.update({"rd":1}) -%}
-            {%- set t= signals.update({ raddr:mem.awidth}) -%}
+            {%- set t= signals.update({"raddr":mem.awidth}) -%}
             {%- set t= signals.update({"rdata":mem.dwidth}) -%}
         {%- endif -%}
         {%- if nport < mem.write_ports -%}
             {%- set t= signals.update({"wr":1}) -%}
-            {%- set t= signals.update({ waddr:mem.awidth}) -%}
+            {%- set t= signals.update({"waddr":mem.awidth}) -%}
             {%- set t= signals.update({"wdata":mem.dwidth}) -%}
         {%- endif -%}
 
         {%- for signal, swidth in signals.items() %}
-    {{"out" if signal == "rdata" else "in"}}put {{array(swidth)}} {{signal}}{{suffix(nport)}},
+    {{"out" if signal in ["rdata","rdata_vld"] else "in"}}put {{array(swidth)}} {{signal}}{{suffix(nport)}},
         {%- endfor -%}
     {%- endfor %}
     // DFT
@@ -109,13 +109,27 @@ module {{ mem.module }}(
     //==========================================================================
     // Write/Read in stages
     //--------------------------------------------------------------------------
-        // data in rewiring
+        // in rewiring
+            //  -   data
             {%- set data_i_suffix = "_in" -%}
             {%- set data_o_suffix = "_out" -%}
             {%- for wport in wports %}
             wire [{{mem.m+mem.r-1}}:0] data{{data_i_suffix}}{{suffix(wport)}};
             assign data{{data_i_suffix}}{{suffix(wport)}}[{{mem.m-1}}:0] = wdata{{suffix(wport)}};
             {%- endfor %}
+            {% if mem.ports == "1p" -%}//  -   addr
+                {%- for nport in nports %}
+            wire [{{mem.awidth-1}}:0]  addr{{suffix(nport)}};
+            assign addr{{suffix(nport)}} =
+                    {%- if (nport < mem.write_ports) and (nport < mem.read_ports) -%}
+                wr{{suffix(nport)}} ? waddr{{suffix(nport)}} : raddr{{suffix(nport)}};
+                    {%- elif nport < mem.write_ports -%}
+                waddr{{suffix(nport)}};
+                    {%- elif nport < mem.read_ports -%}
+                raddr{{suffix(nport)}};
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endif %}
         {% if mem.stage0 > 0 -%}// in stage0
             {%- set stage0_suffix = "_from_inp0" -%}
             {%- for nport in nports %} {%- set signals = {} -%} {{set("width", 0)}}
@@ -218,7 +232,7 @@ module {{ mem.module }}(
         {% if mem.stage1 > 0 -%}// in stage1
             sram_io__st     sram_io [{{mem.row-1}}:0];
             {%- for row in range(mem.row) -%} {{set("width", 0)}} {%- for signal, swidth in sramio.items() -%} {{set("width", global_vars["width"]+swidth)}} {%- endfor %}
-            {{mem.pipe_module}} #(.WIDTH({{get("width")}}), .PIPE_STAGES({{mem.stage1}})) in_stage1{{suffix(row)}} (
+            {{mem.pipe_module}} #(.WIDTH({{get("width")}}-{{sramio["rdata"]}}), .PIPE_STAGES({{mem.stage1}})) in_stage1{{suffix(row)}} (
                 .d(sram_io{{stage1_suffix}}[{{row}}][{{get("width")}}-1:{{sramio["rdata"]}}]),
                 .q(sram_io[{{row}}][{{get("width")}}-1:{{sramio["rdata"]}}]),
                 .clk(clk)
@@ -358,6 +372,21 @@ module {{ mem.module }}(
         //  - hero -
 
     {%- endif %}
+
+    `ifdef TBV
+    {%- for rport in rports %}
+        {{mem.pipe_module}} #(.WIDTH(1), .PIPE_STAGES({{mem.stage0+mem.stage1+1+mem.pipe0+mem.pipe1}})) rdata_vld{{suffix(rport)}} (
+            .d(rd{{suffix(rport)}}),
+            .q(),
+            .clk(clk)
+        );
+        {{mem.pipe_module}} #(.WIDTH({{mem.awidth}}), .PIPE_STAGES({{mem.stage0+mem.stage1+1+mem.pipe0+mem.pipe1}})) raddr_pipe{{suffix(rport)}} (
+            .d({{raddr}}{{suffix(rport)}}),
+            .q(),
+            .clk(clk)
+        );
+    {%- endfor %}
+    `endif  //  TBV
 
 endmodule : {{ mem.module }}
 

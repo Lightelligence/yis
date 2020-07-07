@@ -1,6 +1,5 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
 load("//env:lt_py.bzl", "lt_py_pylint")
 load("//env:doc.bzl", "markdown_to_html")
 
