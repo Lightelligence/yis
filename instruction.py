@@ -1,6 +1,6 @@
 import re
 
-from digital.rtl.scripts.yis.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+from instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
 
 
 def walk_fields(iformat, struct):

@@ -6,7 +6,7 @@ Specifications are broken up into two types of files - pkg (package) files and i
 Both pkgs and intfs may reference other pkgs, but intfs are considered to be top-level specifications and can't be referenced by pkgs or other intfs. Every item in any pkg must define a name and doc_summary (short form documentation). Additionally, every item may define a doc_verbose (long form multi-line documentation). You may create cross references to other yis types inside doc_summary and doc_verbose by enclosing the type in square braces.
 
 # Running YIS
-YIS is run under bazel. In order to run YIS on pkgs and intfs, your BUILD file needs to load the appropriate rules from //digital/rtl/scripts/yis:yis.bzl and the rules need to be added to your BUILD file. YIS target in your BUILD file generates the collateral for one YIS file.
+YIS is run under bazel. In order to run YIS on pkgs and intfs, your BUILD file needs to load the appropriate rules from @yis//:yis.bzl and the rules need to be added to your BUILD file. YIS target in your BUILD file generates the collateral for one YIS file.
 
 ## yis_pkg
 The yis_pkg rule creates the RTL and docs collateral for a single pkg. The pkg_deps argument is an in-order list of the YIS pkgs that must be parsed before parsing the target pkg. This list may be empty. The pkg argument is the target pkg that you want to generate RTL and docs collateral for.  

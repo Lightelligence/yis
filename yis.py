@@ -25,9 +25,9 @@ except ImportError:
 import yamale
 
 ################################################################################
-from scripts import cmn_logging
-from digital.rtl.scripts import gen_prot
-from digital.rtl.scripts.yis import instruction
+import cmn_logging
+import gen_prot
+import instruction
 
 ################################################################################
 # Constants
@@ -343,9 +343,9 @@ class Yis: # pylint: disable=too-many-instance-attributes
         # This hackery is to deal with using this repo as a bazel external
         # It was also required to set the following build strategy in the Platform repo's .bazelrc
         # build --strategy_regexp=@mosaic.*=local
-        self._yamale_schemas_dir = "digital/rtl/scripts/yis/yamale_schemas"
+        self._yamale_schemas_dir = "yamale_schemas"
         if not os.path.exists(self._yamale_schemas_dir):
-            self._yamale_schemas_dir = os.path.join("external/mosaic", self._yamale_schemas_dir)
+            self._yamale_schemas_dir = os.path.join("external/yis", self._yamale_schemas_dir)
 
         self._pkgs = OrderedDict()
         self._block_interface = None
@@ -477,7 +477,11 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Render the appropriate output file, either a pkg or an intf."""
         if self._suppress_output:
             return
-        env = Environment(loader=FileSystemLoader('digital/rtl/scripts/yis/templates'),
+        template_dir = 'templates'
+        if not os.path.exists(template_dir):
+            # Hacky way to get around dependency failure when used as an external
+            template_dir = "external/yis/templates"
+        env = Environment(loader=FileSystemLoader(template_dir),
                           autoescape=select_autoescape(
                               enabled_extensions=('html'),
                               default_for_string=True,

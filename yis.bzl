@@ -9,9 +9,9 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         name = "{}_rypkg_svh".format(name),
         srcs = pkg_deps + [pkg],
         outs = ["{}_rypkg.svh".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-rtl",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --gen-rtl",
         output_to_bindir = True,
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        tools = ["@yis//:yis"],
     )
     rtl_pkg(
         name = "{}_rypkg".format(name),
@@ -28,8 +28,8 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         name = "{}_mem_gen".format(name),
         srcs = pkg_deps + [mem],
         outs = ["{}_mem.sv".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
+        tools = ["@yis//:yis"],
         output_to_bindir = True,
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
@@ -38,12 +38,13 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         name = "{}_prot_gen".format(name),
         srcs = pkg_deps + [mem],
         outs = ["{}_prot.sv".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl --gen-deps",
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl --gen-deps",
+        tools = ["@yis//:yis"],
         output_to_bindir = True,
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
+    # FIXME more external deps that shouldn't have been added
     native.genrule(
         name = "{}_pipe_gen".format(name),
         outs = ["{name}_pipe.sv".format(name = name)],
@@ -53,7 +54,7 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
-
+    # FIXME more external deps that shouldn't have been added
     rtl_lib(
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
@@ -91,13 +92,14 @@ def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
         name = "{}_fifo_gen".format(name),
         srcs = pkg_deps + [yis],
         outs = ["{}_fifo.sv".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-generic fifo --gen-rtl",
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --block-generic fifo --gen-rtl",
+        tools = ["@yis//:yis"],
         output_to_bindir = True,
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
 
+    # FIXME more external deps that shouldn't have been added
     rtl_lib(
         name = "{}_fifo".format(name),
         lib_files = [":{}_fifo_gen".format(name)],
@@ -121,9 +123,9 @@ def yis_instruction(name, pkg_deps, pkg):
         name = "{}_instruction_pb".format(name),
         srcs = pkg_deps + [pkg],
         outs = ["{}_instruction.pb2".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-instruction",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --gen-instruction",
         output_to_bindir = True,
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        tools = ["@yis//:yis"],
         visibility = ["//visibility:public"],
     )
 
@@ -133,9 +135,9 @@ def yis_rdl_pkg(name, pkg_deps, pkg):
         name = "{}_yis_rdl".format(name),
         srcs = pkg_deps + [pkg],
         outs = ["{}_yis.rdl".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-rdl",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --gen-rdl",
         output_to_bindir = True,
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        tools = ["@yis//:yis"],
         visibility = ["//visibility:public"],
     )
 
@@ -145,10 +147,10 @@ def yis_dv_intf(name, pkg_deps, pkg):
         name = "{}_dv_intf_svh".format(name),
         srcs = pkg_deps + [pkg],
         outs = ["{}_intf.svh".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-dv",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-dv",
         output_to_bindir = True,
         visibility = ["//visibility:public"],
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        tools = ["@yis//:yis"],
     )
     dv_lib(
         name = "{}_dv_intf".format(name),
@@ -166,9 +168,9 @@ def yis_html_pkg(name, pkg_deps, pkg):
         name = "{}_rypkg_html".format(name),
         srcs = pkg_deps + [pkg] + [pkg_dep[:-4] + "_rypkg_html" for pkg_dep in pkg_deps],
         outs = ["{}_rypkg.html".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --gen-html",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --gen-html",
         output_to_bindir = True,
-        tools = ["//digital/rtl/scripts/yis:yis"] + [pkg_dep[:-4] + "_rypkg_html" for pkg_dep in pkg_deps],
+        tools = ["@yis//:yis"] + [pkg_dep[:-4] + "_rypkg_html" for pkg_dep in pkg_deps],
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
@@ -182,9 +184,9 @@ def yis_html_intf(name, pkg_deps, intf):
         name = "{}_rtl_intf_html".format(name),
         srcs = pkg_deps + [intf] + [pkg_dep[:-4] + "_rypkg_html" for pkg_dep in pkg_deps],
         outs = ["{}_rtl_intf.html".format(name)],
-        cmd = "$(location //digital/rtl/scripts/yis:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-html",
+        cmd = "$(location @yis//:yis) --pkgs $(SRCS) --output-file $@ --block-interface --gen-html",
         output_to_bindir = True,
-        tools = ["//digital/rtl/scripts/yis:yis"],
+        tools = ["@yis//:yis"],
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
