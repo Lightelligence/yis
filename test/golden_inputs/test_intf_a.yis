@@ -9,7 +9,7 @@ components:
       I'm on a new line
     connections:
       - name: mwc__try__hero_write
-        type: test_pkg_a::hero_write__st
+        type: test_pkg_a::hero_write_t
         doc_summary: hero write from BOG to TRY
         doc_verbose: type.doc_verbose
       - name: try__bog_hero__ack
@@ -24,5 +24,5 @@ components:
         width: test_pkg_b::NEW_PARAM.value
         doc_summary: width.doc_summary
       - name: bog__try__csr_rsp
-        type: test_pkg_b::several_things__st
+        type: test_pkg_b::several_things_t
         doc_summary: type.doc_summary

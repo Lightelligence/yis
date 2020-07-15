@@ -31,35 +31,35 @@ package test_pkg_a; // This is an example of what a package file could look like
     // documentation that none of the other values in this enum need.
     CYCLE_TYPE_VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
     CYCLE_TYPE_DONE // The command on the bus this is valid and this is the last cycle of data.
-  } CYCLE_TYPE__ET; // Indicates a command type of IDLE, VALID, or DONE.
+  } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
   typedef enum logic [1 - 1:0] {
     BOOL_TRUE = 1, // This is true
     BOOL_FALSE = 0 // This is false
-  } BOOL__ET; // Test for an enum that is width 1
+  } BOOL_E; // Test for an enum that is width 1
   
   typedef struct packed {
     logic [1 - 1:0] subfield_a; // Test that a width-1 logic field generates correctly
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_b; // This is a different parameter than the first.
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_c; // This is a different parameter than the first.
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_d; // This is a different parameter than the first.
-  } sub_def__st; // A sub-struct of hero_write_t that is declared afterwards.
+  } sub_def_t; // A sub-struct of hero_write_t that is declared afterwards.
   
   // This is a verbose doc. I'm writing it to provide that my verbose
   // doc links are working correctly.
   typedef struct packed {
     // I'm writing this verbose documentation so that we have something to
     // attempt to link in for cycle_type.
-    CYCLE_TYPE__ET cycle_type__e; // Indicates a command type of IDLE, VALID, or DONE.
+    CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [/* HERO_WIDTH.value */ 36 - 1:0] wdat; // Width of hero bus around the bag.
-    sub_def__st another_type_reference__s; // Test a struct of a struct
+    sub_def_t another_type_reference; // Test a struct of a struct
     logic [1 - 1:0] clk_en; // Clock enable for the bus
-  } hero_write__st; // A struct that wraps all fields needed for a single hero write.
+  } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
   // And it has a doc_verbose for good measure
-  typedef logic [6 - 1:0] vanilla_type__t; // This is a basic logic type and width
+  typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
   
-  typedef vanilla_type__t [/* ANOTHER_PARAM.value */ 2 - 1:0] nested_type__t; // Use another typedef as the base type, a localparam as the width
+  typedef vanilla_type_t [/* ANOTHER_PARAM.value */ 2 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
   
 
 endpackage : test_pkg_a

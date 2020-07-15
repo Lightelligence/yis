@@ -104,7 +104,7 @@ module {{ mem.module }}(
         {%- for signal, swidth in sramio.items() %}
         logic {{array(swidth)}} {{signal}};
         {%- endfor %}
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     // Write/Read in stages
@@ -185,7 +185,7 @@ module {{ mem.module }}(
                 {%- endif %}
         // ctrl/addr/data mux
             {%- set stage1_suffix = "_to_inp1" if mem.stage1 else "" %}
-            sram_io__st     sram_io{{stage1_suffix}} [{{mem.row-1}}:0];
+            sram_io_t     sram_io{{stage1_suffix}} [{{mem.row-1}}:0];
             {%- for row in range(mem.row) %}
             assign sram_io{{stage1_suffix}}[{{row}}].rd = rd_ctrl[{{row}}];
             assign sram_io{{stage1_suffix}}[{{row}}].wr = wr_ctrl[{{row}}];
@@ -230,7 +230,7 @@ module {{ mem.module }}(
                 {%- endif -%};
             {%- endfor %}
         {% if mem.stage1 > 0 -%}// in stage1
-            sram_io__st     sram_io [{{mem.row-1}}:0];
+            sram_io_t     sram_io [{{mem.row-1}}:0];
             {%- for row in range(mem.row) -%} {{set("width", 0)}} {%- for signal, swidth in sramio.items() -%} {{set("width", global_vars["width"]+swidth)}} {%- endfor %}
             {{mem.pipe_module}} #(.WIDTH({{get("width")}}-{{sramio["rdata"]}}), .PIPE_STAGES({{mem.stage1}})) in_stage1{{suffix(row)}} (
                 .d(sram_io{{stage1_suffix}}[{{row}}][{{get("width")}}-1:{{sramio["rdata"]}}]),

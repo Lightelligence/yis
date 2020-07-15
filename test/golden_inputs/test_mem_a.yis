@@ -8,7 +8,7 @@ memories:
       Boring info about memories. And now
       I'm on a new line
     width: test_pkg_a::TRIPLE_NESTED_PARAM.width+4
-    depth: test_pkg_a::hero_write__st.width+18
+    depth: test_pkg_a::hero_write_t.width+18
     prot: none
     ports: 2p
 
@@ -22,7 +22,7 @@ memories:
 
   - name: sub_banking
     doc_summary: enable sub banking
-    width: test_pkg_a::hero_write__st.width - 20
+    width: test_pkg_a::hero_write_t.width - 20
     depth: 1024
     prot: ecc
     ports: 2p
@@ -33,7 +33,7 @@ memories:
   - name: multiple_port_2p
     doc_summary: enable multi ports
     width: 8
-    depth: test_pkg_a::hero_write__st.width+18
+    depth: test_pkg_a::hero_write_t.width+18
     prot: parity
     ports: 2p
     row:  8
@@ -44,7 +44,7 @@ memories:
   - name: multiple_port_1p
     doc_summary: enable multi ports
     width: 11
-    depth: test_pkg_a::hero_write__st.width+18
+    depth: test_pkg_a::hero_write_t.width+18
     prot: ecc
     ports: 1p
     row:  8

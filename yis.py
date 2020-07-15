@@ -1015,8 +1015,8 @@ class PkgLocalparam(PkgItemBase):
 class PkgEnum(PkgItemBase):
     """Definition for an enum inside a pkg."""
 
-    TYPE_NAME_SUFFIX = "__ET"
-    INSTANCE_NAME_SUFFIX = "__e"
+    TYPE_NAME_SUFFIX = "_E"
+    INSTANCE_NAME_SUFFIX = ""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1211,7 +1211,7 @@ class PkgEnumValue(PkgItemBase):
 class PkgTypedef(PkgItemBase):
     """Definition for a typedef inside a pkg."""
 
-    TYPE_NAME_SUFFIX = "__t"
+    TYPE_NAME_SUFFIX = "_t"
     INSTANCE_NAME_SUFFIX = ""
 
     def __init__(self, **kwargs):
@@ -1287,8 +1287,8 @@ class PkgTypedef(PkgItemBase):
 class PkgStruct(PkgItemBase):
     """Definition for a struct inside a pkg."""
 
-    TYPE_NAME_SUFFIX = "__st"
-    INSTANCE_NAME_SUFFIX = "__s"
+    TYPE_NAME_SUFFIX = "_t"
+    INSTANCE_NAME_SUFFIX = ""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1497,8 +1497,8 @@ class PkgXaction(PkgStruct):
 class PkgUnion(PkgItemBase):
     """Definition for a union inside a pkg."""
 
-    INSTANCE_NAME_SUFFIX = "__u"
-    TYPE_NAME_SUFFIX = "__ut"
+    TYPE_NAME_SUFFIX = "_t"
+    INSTANCE_NAME_SUFFIX = ""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

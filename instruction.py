@@ -27,7 +27,7 @@ def render(pkg):
     aif = AllInstructionFormat()
 
     for child in pkg.children.values():
-        if child.name == "OPCODE__ET":
+        if child.name == "OPCODE_E":
             store_op_codes(child, aif.op_code_map)
             continue
 
@@ -36,7 +36,7 @@ def render(pkg):
             continue
 
         struct = child
-        instruction_name = re.search("^([a-z0-9_]+)__st$", struct.name).group(1)
+        instruction_name = re.search("^([a-z0-9_]+)_t$", struct.name).group(1)
 
         iformat = InstructionFormat(name=instruction_name.upper())
         for struct_child in struct.children.values():

@@ -9,9 +9,7 @@
 I'm on a new line
  */
 // width: test_pkg_a::TRIPLE_NESTED_PARAM.width+4  ==>  6
-// depth: 512  ==>  512
-// ecc: True
-// parity: False
+// depth: test_pkg_a::hero_write_t.width+18  ==>  64
 // ports: 2p
 // prot: none
 // sram_cfg: flop_array_2p
@@ -46,7 +44,7 @@ module behav_2p_mem(
         logic [5:0] wdata;
         logic  rd;
         logic [5:0] rdata;
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     // Write/Read in stages
@@ -64,7 +62,7 @@ module behav_2p_mem(
             assign rd_ctrl =rd;
             assign wr_ctrl =wr;
         // ctrl/addr/data mux
-            sram_io__st     sram_io [0:0];
+            sram_io_t     sram_io [0:0];
             assign sram_io[0].rd = rd_ctrl[0];
             assign sram_io[0].wr = wr_ctrl[0];
             assign sram_io[0].raddr =raddr[5:0];
@@ -169,7 +167,7 @@ module sram_1p_ecc_mem(
         logic [15:0] wdata;
         logic  rd;
         logic [15:0] rdata;
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     //  SRAM instance
@@ -189,7 +187,7 @@ module sram_1p_ecc_mem(
             assign rd_ctrl =rd;
             assign wr_ctrl =wr;
         // ctrl/addr/data mux
-            sram_io__st     sram_io [0:0];
+            sram_io_t     sram_io [0:0];
             assign sram_io[0].rd = rd_ctrl[0];
             assign sram_io[0].wr = wr_ctrl[0];
             assign sram_io[0].addr =addr[8:0];
@@ -277,10 +275,8 @@ endmodule : sram_1p_ecc_mem
 // name: wt_fifo
 // doc_summary: Weight FIFO Memory
 
-// width: 6  ==>  6
-// depth: test_pkg_a::hero_write__st.width  ==>  46
-// ecc: True
-// parity: False
+// width: test_pkg_a::hero_write_t.width - 20  ==>  26
+// depth: 1024  ==>  1024
 // ports: 2p
 // prot: ecc
 // sram_cfg: sadglsph4s2p768x16m4b8w0c1p0d0r1s10
@@ -315,7 +311,7 @@ module sub_banking_mem(
         logic [31:0] wdata;
         logic  rd;
         logic [31:0] rdata;
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     //  SRAM instance
@@ -337,7 +333,7 @@ module sub_banking_mem(
             assign rd_ctrl =(raddr_decoder[0] & { 2{rd} }) ;
             assign wr_ctrl =(waddr_decoder[0] & { 2{wr} }) ;
         // ctrl/addr/data mux
-            sram_io__st     sram_io [1:0];
+            sram_io_t     sram_io [1:0];
             assign sram_io[0].rd = rd_ctrl[0];
             assign sram_io[0].wr = wr_ctrl[0];
             assign sram_io[0].raddr =raddr[8:0];
@@ -514,7 +510,7 @@ endmodule : sub_banking_mem
 // doc_summary: adc FIFO Memory
 
 // width: 8  ==>  8
-// depth: test_pkg_a::hero_write__st.width+18  ==>  64
+// depth: test_pkg_a::hero_write_t.width+18  ==>  64
 // ports: 2p
 // prot: parity
 // sram_cfg: sadglsph4s2p768x16m4b8w0c1p0d0r1s10
@@ -573,7 +569,7 @@ module multiple_port_2p_mem(
         logic [8:0] wdata;
         logic  rd;
         logic [8:0] rdata;
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     //  SRAM instance
@@ -663,7 +659,7 @@ module multiple_port_2p_mem(
             assign rd_ctrl =(raddr_decoder[0] & { 8{rd_from_inp0_0} }) | (raddr_decoder[1] & { 8{rd_from_inp0_1} }) | (raddr_decoder[2] & { 8{rd_from_inp0_2} }) | (raddr_decoder[3] & { 8{rd_from_inp0_3} }) | (raddr_decoder[4] & { 8{rd_from_inp0_4} }) | (raddr_decoder[5] & { 8{rd_from_inp0_5} }) ;
             assign wr_ctrl =(waddr_decoder[0] & { 8{wr_from_inp0_0} }) | (waddr_decoder[1] & { 8{wr_from_inp0_1} }) | (waddr_decoder[2] & { 8{wr_from_inp0_2} }) | (waddr_decoder[3] & { 8{wr_from_inp0_3} }) ;
         // ctrl/addr/data mux
-            sram_io__st     sram_io [7:0];
+            sram_io_t     sram_io [7:0];
             assign sram_io[0].rd = rd_ctrl[0];
             assign sram_io[0].wr = wr_ctrl[0];
             assign sram_io[0].raddr =
@@ -1288,10 +1284,8 @@ endmodule : multiple_port_2p_mem
 // name: hero_fifo
 // doc_summary: hero FIFO Memory
 
-// width: 2  ==>  2
-// depth: test_pkg_a::hero_write__st.width  ==>  46
-// ecc: False
-// parity: False
+// width: 11  ==>  11
+// depth: test_pkg_a::hero_write_t.width+18  ==>  64
 // ports: 1p
 // prot: ecc
 // sram_cfg: sad2lsph4s1p784x16m4b1w0c1p0d0r3s10
@@ -1349,7 +1343,7 @@ module multiple_port_1p_mem(
         logic [15:0] wdata;
         logic  rd;
         logic [15:0] rdata;
-    }   sram_io__st;
+    }   sram_io_t;
 
     //==========================================================================
     //  SRAM instance
@@ -1396,7 +1390,7 @@ module multiple_port_1p_mem(
             assign rd_ctrl =(addr_decoder[0] & { 8{rd_0} }) | (addr_decoder[1] & { 8{rd_1} }) | (addr_decoder[2] & { 8{rd_2} }) | (addr_decoder[3] & { 8{rd_3} }) ;
             assign wr_ctrl =(addr_decoder[0] & { 8{wr_0} }) | (addr_decoder[1] & { 8{wr_1} }) | (addr_decoder[2] & { 8{wr_2} }) | (addr_decoder[3] & { 8{wr_3} }) | (addr_decoder[4] & { 8{wr_4} }) | (addr_decoder[5] & { 8{wr_5} }) ;
         // ctrl/addr/data mux
-            sram_io__st     sram_io_to_inp1 [7:0];
+            sram_io_t     sram_io_to_inp1 [7:0];
             assign sram_io_to_inp1[0].rd = rd_ctrl[0];
             assign sram_io_to_inp1[0].wr = wr_ctrl[0];
             assign sram_io_to_inp1[0].addr =
@@ -1542,7 +1536,7 @@ module multiple_port_1p_mem(
                 addr_decoder[5][7] ? data_in_5 :
                 'x;
         // in stage1
-            sram_io__st     sram_io [7:0];
+            sram_io_t     sram_io [7:0];
             test_mem_a_pipe #(.WIDTH(37-16), .PIPE_STAGES(1)) in_stage1_0 (
                 .d(sram_io_to_inp1[0][37-1:16]),
                 .q(sram_io[0][37-1:16]),

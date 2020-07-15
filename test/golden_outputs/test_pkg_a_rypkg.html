@@ -96,7 +96,7 @@ documentation.
 
 <h3>Enums</h3>
 
-<h4 id="test_pkg_a__CYCLE_TYPE__ET"><a href="#test_pkg_a__CYCLE_TYPE__ET">CYCLE_TYPE__ET</a></h4>
+<h4 id="test_pkg_a__CYCLE_TYPE_E"><a href="#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E</a></h4>
 <p>Indicates a command type of IDLE, VALID, or DONE.</p>
 
 <pre>I'm writing this verbose documentation so that we have something to attempt to link in
@@ -117,14 +117,14 @@ for cycle_type.
   </thead>
 
   <tr>
-      <td id="test_pkg_a__CYCLE_TYPE__ET__IDLE"><a href="#test_pkg_a__CYCLE_TYPE__ET__IDLE">IDLE</a></td>
+      <td id="test_pkg_a__CYCLE_TYPE_E__IDLE"><a href="#test_pkg_a__CYCLE_TYPE_E__IDLE">IDLE</a></td>
       <td></td>
       <td>The bus is idle this cycle.</td>
       <td></td>
   </tr>
 
   <tr>
-      <td id="test_pkg_a__CYCLE_TYPE__ET__VALID"><a href="#test_pkg_a__CYCLE_TYPE__ET__VALID">VALID</a></td>
+      <td id="test_pkg_a__CYCLE_TYPE_E__VALID"><a href="#test_pkg_a__CYCLE_TYPE_E__VALID">VALID</a></td>
       <td></td>
       <td>The command on the bus this is valid and there will be future VALID cycles for this transaction.</td>
       <td><pre>The enum value is so complicated it needs its own
@@ -133,7 +133,7 @@ verbose documentation that none of the other values in this enum need.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__CYCLE_TYPE__ET__DONE"><a href="#test_pkg_a__CYCLE_TYPE__ET__DONE">DONE</a></td>
+      <td id="test_pkg_a__CYCLE_TYPE_E__DONE"><a href="#test_pkg_a__CYCLE_TYPE_E__DONE">DONE</a></td>
       <td></td>
       <td>The command on the bus this is valid and this is the last cycle of data.</td>
       <td></td>
@@ -141,7 +141,7 @@ verbose documentation that none of the other values in this enum need.
 
 </table>
 
-<h4 id="test_pkg_a__BOOL__ET"><a href="#test_pkg_a__BOOL__ET">BOOL__ET</a></h4>
+<h4 id="test_pkg_a__BOOL_E"><a href="#test_pkg_a__BOOL_E">BOOL_E</a></h4>
 <p>Test for an enum that is width 1</p>
 
 <p> Width =1</p>
@@ -157,14 +157,14 @@ verbose documentation that none of the other values in this enum need.
   </thead>
 
   <tr>
-      <td id="test_pkg_a__BOOL__ET__TRUE"><a href="#test_pkg_a__BOOL__ET__TRUE">TRUE</a></td>
+      <td id="test_pkg_a__BOOL_E__TRUE"><a href="#test_pkg_a__BOOL_E__TRUE">TRUE</a></td>
       <td>1</td>
       <td>This is true</td>
       <td></td>
   </tr>
 
   <tr>
-      <td id="test_pkg_a__BOOL__ET__FALSE"><a href="#test_pkg_a__BOOL__ET__FALSE">FALSE</a></td>
+      <td id="test_pkg_a__BOOL_E__FALSE"><a href="#test_pkg_a__BOOL_E__FALSE">FALSE</a></td>
       <td>0</td>
       <td>This is false</td>
       <td></td>
@@ -189,7 +189,7 @@ verbose documentation that none of the other values in this enum need.
   </thead>
 
   <tr>
-      <td id="test_pkg_a__vanilla_type__t"><a href="#test_pkg_a__vanilla_type__t">vanilla_type__t</a></td>
+      <td id="test_pkg_a__vanilla_type_t"><a href="#test_pkg_a__vanilla_type_t">vanilla_type_t</a></td>
       <td>logic</td>
       <td>6</td>
       <td>6</td>
@@ -198,8 +198,8 @@ verbose documentation that none of the other values in this enum need.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__nested_type__t"><a href="#test_pkg_a__nested_type__t">nested_type__t</a></td>
-      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__vanilla_type__t">vanilla_type__t</a></td>
+      <td id="test_pkg_a__nested_type_t"><a href="#test_pkg_a__nested_type_t">nested_type_t</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__vanilla_type_t">vanilla_type_t</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
 </td>
       <td>12</td>
@@ -213,7 +213,7 @@ verbose documentation that none of the other values in this enum need.
 
 <h3>Structs</h3>
 
-<h4 id="test_pkg_a__hero_write__st"><a href="#test_pkg_a__hero_write__st">hero_write__st</a></h4>
+<h4 id="test_pkg_a__hero_write_t"><a href="#test_pkg_a__hero_write_t">hero_write_t</a></h4>
 <p>A struct that wraps all fields needed for a single hero write.</p>
 
 <pre>This is a verbose doc. I'm writing it to provide that my verbose
@@ -222,10 +222,10 @@ doc links are working correctly.
 
 <p> Calculated Width =46</p>
 
-<canvas id="hero_write__st_canvas"></canvas>
+<canvas id="hero_write_t_canvas"></canvas>
 <script>
-  var canvas = document.getElementById("hero_write__st_canvas");
-  var data = [{'field_names': ['cycle_type__e', 'wdat', 'another_type_reference__s', 'clk_en'], 'msbs': [45, 43, 7, 0], 'lsbs': [44, 8, 1, 0]}];
+  var canvas = document.getElementById("hero_write_t_canvas");
+  var data = [{'field_names': ['cycle_type', 'wdat', 'another_type_reference', 'clk_en'], 'msbs': [45, 43, 7, 0], 'lsbs': [44, 8, 1, 0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -243,8 +243,8 @@ doc links are working correctly.
   </thead>
 
   <tr>
-      <td id="test_pkg_a__hero_write__st__cycle_type__e"><a href="#test_pkg_a__hero_write__st__cycle_type__e">cycle_type__e</a></td>
-      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE__ET">CYCLE_TYPE__ET</a></td>
+      <td id="test_pkg_a__hero_write_t__cycle_type"><a href="#test_pkg_a__hero_write_t__cycle_type">cycle_type</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E</a></td>
       <td></td>
       <td>2</td>
       <td>Indicates a command type of IDLE, VALID, or DONE.</td>
@@ -254,7 +254,7 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__hero_write__st__wdat"><a href="#test_pkg_a__hero_write__st__wdat">wdat</a></td>
+      <td id="test_pkg_a__hero_write_t__wdat"><a href="#test_pkg_a__hero_write_t__wdat">wdat</a></td>
       <td>logic</td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
 </td>
@@ -264,8 +264,8 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__hero_write__st__another_type_reference__s"><a href="#test_pkg_a__hero_write__st__another_type_reference__s">another_type_reference__s</a></td>
-      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def__st">sub_def__st</a></td>
+      <td id="test_pkg_a__hero_write_t__another_type_reference"><a href="#test_pkg_a__hero_write_t__another_type_reference">another_type_reference</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def_t">sub_def_t</a></td>
       <td></td>
       <td>7</td>
       <td>Test a struct of a struct</td>
@@ -273,7 +273,7 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__hero_write__st__clk_en"><a href="#test_pkg_a__hero_write__st__clk_en">clk_en</a></td>
+      <td id="test_pkg_a__hero_write_t__clk_en"><a href="#test_pkg_a__hero_write_t__clk_en">clk_en</a></td>
       <td>logic</td>
       <td>1</td>
       <td>1</td>
@@ -283,14 +283,14 @@ for cycle_type.
 
 </table>
 
-<h4 id="test_pkg_a__sub_def__st"><a href="#test_pkg_a__sub_def__st">sub_def__st</a></h4>
+<h4 id="test_pkg_a__sub_def_t"><a href="#test_pkg_a__sub_def_t">sub_def_t</a></h4>
 <p>A sub-struct of hero_write_t that is declared afterwards.</p>
 
 <p> Calculated Width =7</p>
 
-<canvas id="sub_def__st_canvas"></canvas>
+<canvas id="sub_def_t_canvas"></canvas>
 <script>
-  var canvas = document.getElementById("sub_def__st_canvas");
+  var canvas = document.getElementById("sub_def_t_canvas");
   var data = [{'field_names': ['subfield_a', 'subfield_b', 'subfield_c', 'subfield_d'], 'msbs': [6, 5, 3, 1], 'lsbs': [6, 4, 2, 0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
@@ -309,7 +309,7 @@ for cycle_type.
   </thead>
 
   <tr>
-      <td id="test_pkg_a__sub_def__st__subfield_a"><a href="#test_pkg_a__sub_def__st__subfield_a">subfield_a</a></td>
+      <td id="test_pkg_a__sub_def_t__subfield_a"><a href="#test_pkg_a__sub_def_t__subfield_a">subfield_a</a></td>
       <td>logic</td>
       <td>1</td>
       <td>1</td>
@@ -318,7 +318,7 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__sub_def__st__subfield_b"><a href="#test_pkg_a__sub_def__st__subfield_b">subfield_b</a></td>
+      <td id="test_pkg_a__sub_def_t__subfield_b"><a href="#test_pkg_a__sub_def_t__subfield_b">subfield_b</a></td>
       <td>logic</td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
 </td>
@@ -328,7 +328,7 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__sub_def__st__subfield_c"><a href="#test_pkg_a__sub_def__st__subfield_c">subfield_c</a></td>
+      <td id="test_pkg_a__sub_def_t__subfield_c"><a href="#test_pkg_a__sub_def_t__subfield_c">subfield_c</a></td>
       <td>logic</td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
 </td>
@@ -338,7 +338,7 @@ for cycle_type.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__sub_def__st__subfield_d"><a href="#test_pkg_a__sub_def__st__subfield_d">subfield_d</a></td>
+      <td id="test_pkg_a__sub_def_t__subfield_d"><a href="#test_pkg_a__sub_def_t__subfield_d">subfield_d</a></td>
       <td>logic</td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
 </td>

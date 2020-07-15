@@ -16,7 +16,7 @@ module test_sync_fifo
   input  fifo_wr,
   input  fifo_rd,
   input  [15:0] fifo_din,
-  //FIXME: plumb this & DFT eventually input mem_pkg::dual_port_test_margin__st dual_port_test_margin__s,
+  //FIXME: plumb this & DFT eventually input mem_pkg::dual_port_test_margin_t dual_port_test_margin,
   output fifo_amt,
   output logic fifo_mt,
   output fifo_afull,

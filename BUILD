@@ -1,11 +1,15 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
+load("@com_google_protobuf//:protobuf.bzl", "py_proto_library", "cc_proto_library")
 
 all_jinja_templates = glob(["templates/**"])
 
 all_yamale_schemas = glob(["yamale_schemas/**"])
 
+cc_proto_library(
+    name = "instruction_proto_cc",
+    srcs = ["instruction.proto"],
+)
 
 py_proto_library(
     name = "instruction_proto_py",
