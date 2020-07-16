@@ -57,8 +57,12 @@
 {%- macro get(key) -%}
     {{ global_vars[key] }}
 {%- endmacro -%}
-{%- macro conn_unused(signal, num_unused_bits, leading=True) -%}
+{%- macro concat_unused(signal, num_unused_bits, leading=True) -%}
     {{"{unused[%0d:%0d], %s}"|format(global_vars['unused_bit']+num_unused_bits-1,global_vars['unused_bit'], signal) if num_unused_bits else signal }}
+    {%- set t=global_vars.update({'unused_bit': global_vars['unused_bit'] + num_unused_bits}) %}
+{%- endmacro  -%}
+{%- macro conn_unused(num_unused_bits) -%}
+    {{"unused[%0d:%0d]"|format(global_vars['unused_bit']+num_unused_bits-1,global_vars['unused_bit']) if num_unused_bits else signal }}
     {%- set t=global_vars.update({'unused_bit': global_vars['unused_bit'] + num_unused_bits}) %}
 {%- endmacro  -%}
 {%- macro trim(num, pattern="_P", condition=1) -%}
@@ -78,6 +82,7 @@ module {{ mem.module }}(
             {%- set t= signals.update({"rd":1}) -%}
             {%- set t= signals.update({"raddr":mem.awidth}) -%}
             {%- set t= signals.update({"rdata":mem.dwidth}) -%}
+            {%- set t= signals.update({"rvld":1}) -%}
         {%- endif -%}
         {%- if nport < mem.write_ports -%}
             {%- set t= signals.update({"wr":1}) -%}
@@ -86,19 +91,22 @@ module {{ mem.module }}(
         {%- endif -%}
 
         {%- for signal, swidth in signals.items() %}
-    {{"out" if signal in ["rdata","rdata_vld"] else "in"}}put {{array(swidth)}} {{signal}}{{suffix(nport)}},
+    {{"out" if signal in ["rdata","rvld"] else "in"}}put {{array(swidth)}} {{signal}}{{suffix(nport)}},
         {%- endfor -%}
     {%- endfor %}
-    // DFT
-    input   dft_i_xyz,
-    output  dft_o_xyz,
+    // misc
+    input [3:0]  misc_i_RM,
+    input   misc_i_RME,
+    {%- if 0 %}
     // prot
     input   prot_i_xyz,
     output  prot_o_xyz,
+    {%- endif %}
     input clk
 );
-    {% set unused_data_bits = mem.col*mem.row*mem.sram.bits-(mem.m+mem.r) if not mem.sram.behav else 0 -%}
-    {{ init_unused(unused_data_bits) }}
+    {% set unused_data_bits = mem.row*(mem.col*mem.sram.bits-(mem.m+mem.r)) if not mem.sram.behav else 0 -%}
+    {% set unused_dft_bits = (mem.col*mem.row*(1+5+1*(2 if mem.ports=="2p" else 1)+(mem.sram.bits-1))) if not mem.sram.behav else 0 -%}
+    {{ init_unused(unused_data_bits+unused_dft_bits) }}
 
     typedef struct packed {
         {%- for signal, swidth in sramio.items() %}
@@ -168,27 +176,22 @@ module {{ mem.module }}(
                     {%- endif -%}
             {%- endif -%}
         {%- endif %}
-        // ctrl bits
-            wire [{{mem.row-1}}:0] rd_ctrl;
-            wire [{{mem.row-1}}:0] wr_ctrl;
-            assign rd_ctrl =
-                {%- if mem.row > 1 -%} {%- for rport in rports -%}
-                    ({{raddr}}_decoder[{{rport}}] & { {{mem.row}}{rd{{stage0_suffix}}{{suffix(rport)}}} }) {{';' if loop.last else '| '}} {%- endfor -%}
-                {%- else -%}
-                    rd{{stage0_suffix}}{{suffix(0)}};
-                {%- endif %}
-            assign wr_ctrl =
-                {%- if mem.row > 1 -%} {%- for wport in wports -%}
-                    ({{waddr}}_decoder[{{wport}}] & { {{mem.row}}{wr{{stage0_suffix}}{{suffix(wport)}}} }) {{';' if loop.last else '| '}} {%- endfor -%}
-                {%- else -%}
-                    wr{{stage0_suffix}}{{suffix(0)}};
-                {%- endif %}
         // ctrl/addr/data mux
             {%- set stage1_suffix = "_to_inp1" if mem.stage1 else "" %}
             sram_io_t     sram_io{{stage1_suffix}} [{{mem.row-1}}:0];
             {%- for row in range(mem.row) %}
-            assign sram_io{{stage1_suffix}}[{{row}}].rd = rd_ctrl[{{row}}];
-            assign sram_io{{stage1_suffix}}[{{row}}].wr = wr_ctrl[{{row}}];
+            assign sram_io{{stage1_suffix}}[{{row}}].rd =
+                {%- if mem.row > 1 -%} {%- for rport in rports %}
+                rd{{stage0_suffix}}{{suffix(rport)}} & {{raddr}}_decoder[{{rport}}][{{row}}] {{';' if loop.last else '| '}} {%- endfor %}
+                {%- else -%}
+                rd{{stage0_suffix}}{{suffix(0)}};
+                {%- endif %}
+            assign sram_io{{stage1_suffix}}[{{row}}].wr =
+                {%- if mem.row > 1 -%} {%- for wport in wports %}
+                wr{{stage0_suffix}}{{suffix(wport)}} & {{waddr}}_decoder[{{wport}}][{{row}}] {{';' if loop.last else '| '}} {%- endfor %}
+                {%- else -%}
+                wr{{stage0_suffix}}{{suffix(0)}};
+                {%- endif %}
                 {%- if mem.ports == "1p" %}
             assign sram_io{{stage1_suffix}}[{{row}}].addr =
                     {%- if mem.num_ports > 1 -%}
@@ -270,14 +273,14 @@ module {{ mem.module }}(
             .clk(clk)
         {%- else %}
         // sram
-        `gumi_{{mem.sram_cfg}} u_mem_{{row}}_{{col}} (
+        {{mem.sram_cfg}}_wrapper u_mem_{{row}}_{{col}} (
             {% set sram_reserve_dp_ports = (mem.ports == "2p") and (mem.sram.sub_family in ['dsl']) -%}
             {% for port, conn in ports.items() -%}
             //  PORT_{{port|upper}}
             //  --
             //   - output
             {% if sram_reserve_dp_ports or 'rd' in ports[port]-%}
-            .Q{{"P" if use_qp}}{{port}}({{conn_unused("sram_io[%0d].rdata[%0d:%0d]"|format(row, col_offset+col_delta-1,col_offset), mem.sram.bits-col_delta) if 'rd' in ports[port]}}),
+            .Q{{"P" if use_qp}}{{port}}({{concat_unused("sram_io[%0d].rdata[%0d:%0d]"|format(row, col_offset+col_delta-1,col_offset), mem.sram.bits-col_delta) if 'rd' in ports[port]}}),
             //   - input
             .PIPEME{{port}}({{"'1" if 'rd' in ports[port] else "'0"}}),
             {% endif -%}
@@ -293,6 +296,56 @@ module {{ mem.module }}(
                 {%- endfor -%}
                 ),
             .ADR{{port}}({{fill_zeros("sram_io[%0d].%saddr"|format(row, conn[0].strip()), mem.sram.awidth-mem.bawidth)}}),
+            {% endfor -%}
+            //  DFT
+            //  -   input
+            .DFTCLKEN('0),
+            .DFTMASK('0),
+            .FISO('0),
+            .RSCEN('0),
+            .RSCIN('0),
+            .RSCLK('0),
+            .RSCTAX('0),
+            {% for port, conn in ports.items() -%}
+            {% if sram_reserve_dp_ports or 'wr' in ports[port] -%}
+            .TD{{port}}('0),
+            .TWE{{port}}('0),
+            .SI_D_H{{port}}('0),
+            .SI_D_L{{port}}('0),
+            {% endif -%}
+            {% if sram_reserve_dp_ports or 'rd' in ports[port] -%}
+            .SE_Q{{port}}('0),
+            .STICKY{{port}}('0),
+            .SI_Q_H{{port}}('0),
+            .SI_Q_L{{port}}('0),
+            .CAPT{{port}}('0),
+            .CD{{port}}('0),
+            .TPIPEME{{port}}('1),
+            {% endif -%}
+            .RM{{port}}(misc_i_RM),
+            .RME{{port}}(misc_i_RME),
+            .BISTE{{port}}('0),
+            .SE_IN{{port}}('0),
+            .SI_CNTR{{port}}('0),
+            .TADR{{port}}('0),
+            .TCLK{{port}}('0),
+            .TCLKE{{port}}('0),
+            .TEST1{{port}}('0),
+            .TME{{port}}('0),
+            {% endfor -%}
+            //  -   output
+            .RSCOUT({{conn_unused(1)}}),
+            {% for port, conn in ports.items() -%}
+            {% if sram_reserve_dp_ports or 'wr' in ports[port] -%}
+            .SO_D_H{{port}}({{conn_unused(1)}}),
+            .SO_D_L{{port}}({{conn_unused(1)}}),
+            {% endif -%}
+            {% if sram_reserve_dp_ports or 'rd' in ports[port]-%}
+            .Q{{"P" if not use_qp}}{{port}}({{conn_unused(mem.sram.bits)}}),
+            .SO_Q_H{{port}}({{conn_unused(1)}}),
+            .SO_Q_L{{port}}({{conn_unused(1)}}),
+            {% endif -%}
+            .SO_CNTR{{port}}({{conn_unused(1)}}),
             {% endfor -%}
             //  light sleep
             .LS(1'b0)
@@ -373,13 +426,15 @@ module {{ mem.module }}(
 
     {%- endif %}
 
-    `ifdef TBV
     {%- for rport in rports %}
-        {{mem.pipe_module}} #(.WIDTH(1), .PIPE_STAGES({{mem.stage0+mem.stage1+1+mem.pipe0+mem.pipe1}})) rdata_vld{{suffix(rport)}} (
+        {{mem.pipe_module}} #(.WIDTH(1), .PIPE_STAGES({{mem.stage0+mem.stage1+1+mem.pipe0+mem.pipe1}})) rd_pipe{{suffix(rport)}} (
             .d(rd{{suffix(rport)}}),
-            .q(),
+            .q(rvld{{suffix(rport)}}),
             .clk(clk)
         );
+    {%- endfor %}
+    `ifdef TBV
+    {%- for rport in rports %}
         {{mem.pipe_module}} #(.WIDTH({{mem.awidth}}), .PIPE_STAGES({{mem.stage0+mem.stage1+1+mem.pipe0+mem.pipe1}})) raddr_pipe{{suffix(rport)}} (
             .d({{raddr}}{{suffix(rport)}}),
             .q(),

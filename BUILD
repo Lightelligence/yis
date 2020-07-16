@@ -6,6 +6,11 @@ all_jinja_templates = glob(["templates/**"])
 
 all_yamale_schemas = glob(["yamale_schemas/**"])
 
+filegroup(
+    name = "instruction_proto_proto_srcs",
+    srcs = ["instruction.proto"],
+)
+
 cc_proto_library(
     name = "instruction_proto_cc",
     srcs = ["instruction.proto"],
