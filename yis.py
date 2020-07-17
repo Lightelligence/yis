@@ -564,6 +564,7 @@ class YisNode: # pylint: disable=too-few-public-methods
             self.log.error("%s is type %s; therefore it must end with '%s' according to naming conventions.", self.name,
                            self.__class__.__name__, self.TYPE_NAME_SUFFIX)
         self._naming_convention_callback()
+        self._check_triple_under()
 
     def _check_link_instance_naming(self, attr_name):
         attr = getattr(self, attr_name)
@@ -581,6 +582,11 @@ class YisNode: # pylint: disable=too-few-public-methods
         """Hook to allow subclasses to run additional naming convention checks."""
         pass # pylint: disable=unnecessary-pass
 
+    def _check_triple_under(self):
+        """Ban triple underscores"""
+        if "___" in self.name:
+            self.log.error(F"{self.name} is not a valid name - triple underscores in names are not allowed")
+ 
     def _check_dunder_name(self):
         if "__" in self.name[:-len(self.TYPE_NAME_SUFFIX)]:
             self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
@@ -938,7 +944,7 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
-
+        
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
 
@@ -1114,7 +1120,7 @@ class PkgEnum(PkgItemBase):
         enum_value_arr = []
         for row in self.children.values():
             enum_value_arr.extend(row.render_rtl_sv_pkg())
-
+            
         # Add leading spaces to make all children line up
         enum_value_arr[0] = F"  {enum_value_arr[0]}"
 
@@ -1331,6 +1337,14 @@ class PkgStruct(PkgItemBase):
         for child in self.children.values():
             field_arr.extend(child.render_rtl_sv_pkg())
 
+        #If a valid bit is present, ensure that it is the msb 
+        for field, value in enumerate(self.children.values()):
+            if "vld" in value.name:
+                if field != 0:
+                    self.log.error(F"{value} in struct {self.name} should be the msb.")
+                    #field_arr.insert(0, field_arr.pop(field))
+                    break
+               
         # Add leading spaces to make all fields line up
         field_arr[0] = F"  {field_arr[0]}"
 
@@ -1386,7 +1400,22 @@ class PkgStructField(PkgItemBase):
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
         if is_verilog_primitive(self.sv_type) and self.width is None:
-            self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
+            self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())            
+        self._check_vld_bit()
+      
+    def _check_vld_bit(self):
+        """Check if there is valid (vld) bit present in the struct, and if there is, 
+        make sure it is named 'vld', has width = '1', and sv_type = 'logic'
+        """
+        if self.name in ['valid', 'vld', 'val']:
+            if self.name != 'vld':
+                self.log.error(F"{self.name} bit in struct {self.parent.name} should have naming convention of 'vld'") 
+
+            if self.width != 1:
+                self.log.error(F"{self.name} bit in struct {self.parent.name} should have width = 1")
+
+            if self.sv_type != 'logic':
+                self.log.error(F"{self.name} bit in struct {self.parent.name} should have sv_type = 'logic'")  
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
