@@ -2,6 +2,9 @@ import re
 
 from instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
 
+ALLOWED_UNIONS = [
+    "lisa_instr_t",
+]
 
 def walk_fields(iformat, struct):
     # This is gross, need a better way to do it:
@@ -9,7 +12,10 @@ def walk_fields(iformat, struct):
         for child in struct.sv_type.children.values():
             walk_fields(iformat, child)
     elif 'Union' in struct.sv_type.__class__.__name__:
-        raise ValueError("Unions not support in instruction generator")
+        if struct.sv_type.name in ALLOWED_UNIONS:
+            pass
+        else:
+            raise ValueError("Unions not support in instruction generator")
     else:
         new_field = iformat.fields.add()
         new_field.CopyFrom(Field(name=struct.name, width=struct.computed_width))

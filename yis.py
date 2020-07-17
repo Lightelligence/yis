@@ -383,7 +383,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         try:
             yamale.validate(schema, data, strict=True)
         except ValueError as exc:
-            self.log.error(F"Error validating input file {data_file}{str(exc)}")
+            self.log.error(F"Error validating input file {data_file}\n{str(exc)}")
 
     def _parse_one_pkg(self, fname):
         try:

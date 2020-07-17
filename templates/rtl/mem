@@ -44,7 +44,7 @@
     {%- set t=global_vars.update({'unused_bit': 0}) %}
     {%- if num_unused_bits -%}
     wire [{{num_unused_bits-1}}:0]  unused;
-    wire unused_ok;
+    wire unused_ok;  // lint: disable=URDWIR
     assign unused_ok = |unused;
     {%- endif -%}
 {%- endmacro -%}
@@ -95,8 +95,10 @@ module {{ mem.module }}(
         {%- endfor -%}
     {%- endfor %}
     // misc
+    {%- if not mem.sram.behav %}
     input [3:0]  misc_i_RM,
     input   misc_i_RME,
+    {%- endif %}
     {%- if 0 %}
     // prot
     input   prot_i_xyz,
@@ -165,7 +167,7 @@ module {{ mem.module }}(
             {%- if mem.ports == "1p" %}
             wire [{{mem.row-1}}:0]    addr_decoder[{{mem.num_ports-1}}:0];
                     {%- if mem.decoder_rotator -%} {%- for nport in nports %}
-            assign addr_decoder[{{nport}}] = 1'b1 << addr{{stage0_suffix}}{{suffix(nport)}}[{{mem.awidth-1}}:{{mem.bawidth}}]; {%- endfor -%}
+            assign addr_decoder[{{nport}}] = 1'b1 << addr{{stage0_suffix}}{{suffix(nport)}}[{{mem.awidth-1}}:{{mem.bawidth}}]; // lint: disable=SHFTNC {%- endfor -%}
                     {%- endif -%}
             {%- elif mem.ports == "2p" %}
             wire [{{mem.row-1}}:0]    raddr_decoder[{{mem.read_ports-1}}:0];
@@ -178,7 +180,7 @@ module {{ mem.module }}(
         {%- endif %}
         // ctrl/addr/data mux
             {%- set stage1_suffix = "_to_inp1" if mem.stage1 else "" %}
-            sram_io_t     sram_io{{stage1_suffix}} [{{mem.row-1}}:0];
+            sram_io_t     sram_io{{stage1_suffix}} [{{mem.row-1}}:0]; // lint: disable=UASREG,DFDRVS
             {%- for row in range(mem.row) %}
             assign sram_io{{stage1_suffix}}[{{row}}].rd =
                 {%- if mem.row > 1 -%} {%- for rport in rports %}
@@ -294,7 +296,7 @@ module {{ mem.module }}(
                 {%- for pin in conn.strip().split('|') -%}
                 sram_io[{{row}}].{{pin}}{{' | ' if not loop.last}}
                 {%- endfor -%}
-                ),
+                ), // lint: disable=EXPIPC
             .ADR{{port}}({{fill_zeros("sram_io[%0d].%saddr"|format(row, conn[0].strip()), mem.sram.awidth-mem.bawidth)}}),
             {% endfor -%}
             //  DFT
@@ -372,7 +374,7 @@ module {{ mem.module }}(
             {%- set pipe0_suffix = "_to_oup0" if mem.pipe0-use_qp else data_o_suffix %}
             {%- for rport in rports %}
             wire [{{mem.m+mem.r-1}}:0] data{{pipe0_suffix}}{{suffix(rport)}};
-            assign data{{pipe0_suffix}}{{suffix(rport)}} = sram_io[{{"rd_sel"+suffix(rport) if mem.row > 1 else "0"}}].rdata;
+            assign data{{pipe0_suffix}}{{suffix(rport)}} = sram_io[{{"rd_sel"+suffix(rport) if mem.row > 1 else "0"}}].rdata; // lint: disable=POOBID
             {%- endfor %}
         {% if mem.pipe0-use_qp -%}//  out pipe 0
             {%- for rport in rports %}

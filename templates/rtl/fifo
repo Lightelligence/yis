@@ -34,7 +34,7 @@
 {%- endmacro -%}
 
 
-module {{ mem.name }}_sync_fifo
+module {{ mem.name }}_sync_fifo // lint: disable=DIFFMN
 (
   input  clk,
   input  reset_n,
@@ -55,20 +55,30 @@ module {{ mem.name }}_sync_fifo
 
   logic [{{ mem.awidth-1 }}:0] waddr;
   logic [{{ mem.awidth-1 }}:0] raddr;
-  logic we_n;
+  logic we_n;  // lint: disable=URDREG
   logic pop_req_n;
   logic push_req_n;
+  logic rd;
 {%- if mem.ports == "1p" %}
   // logic [{{ mem.awidth-1 }}:0] addr;
 
   // simple arb if this is a 1P mem. assertion to go along with it.
   // assign addr = fifo_wr ? waddr : raddr;
-  ERR_RW_CONFLICT_ON_SINGLE_PORT_MEM: assert property (@(posedge clk) !(fifo_wr && fifo_rd)) else $error("%t: %m: ERROR: Can't read and write single-port FIFO in the same cycle", $time);
+  ERR_RW_CONFLICT_ON_SINGLE_PORT_MEM: assert property (
+    @(posedge clk) !(fifo_wr && fifo_rd)
+  ) else
+    $error("%t: %m: ERROR: Can't read and write single-port FIFO in the same cycle", $time);
 
 {%- endif %}
 
   assign push_req_n = ~fifo_wr;
   assign pop_req_n  = ~fifo_rd;
+
+{%- if mem.fwft == True %}
+  assign rd = 1'b1;
+{%- else %}
+  assign rd = fifo_rd;
+{%- endif %}
 
   // err_mode 0 means the error bit is latched until reset on any of the following (refer to the CW_fifoctl_s1_sf module for more details.):
   // 1. Overflow (push and no pop while full).
@@ -95,15 +105,17 @@ module {{ mem.name }}_sync_fifo
 
   {{ mem.module }} fifo_mem (
     .clk(clk),
-    .rd(fifo_rd),
+    .rd(rd),
     .wr(fifo_wr),
     .waddr(waddr),
     .raddr(raddr),
     .rdata(fifo_dout),
     .wdata(fifo_din),
-    .rvld(fifo_rd_vld),
-    .misc_i_RM(), // FIXME
-    .misc_i_RME() // FIXME
+    {%- if not mem.sram.behav %}
+    .misc_i_RM('0), // FIXME
+    .misc_i_RME('0), // FIXME
+    {%- endif %}
+    .rvld(fifo_rd_vld)
   );
 
 endmodule : {{ mem.name }}_sync_fifo
