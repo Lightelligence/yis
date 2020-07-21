@@ -1300,6 +1300,7 @@ class PkgStruct(PkgItemBase):
         super().__init__(**kwargs)
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
+        self._check_vld_msb()
 
     def _naming_convention_callback(self):
         # FAILING ipa
@@ -1336,14 +1337,6 @@ class PkgStruct(PkgItemBase):
         field_arr = []
         for child in self.children.values():
             field_arr.extend(child.render_rtl_sv_pkg())
-
-        #If a valid bit is present, ensure that it is the msb 
-        for field, value in enumerate(self.children.values()):
-            if "vld" in value.name:
-                if field != 0:
-                    self.log.error(F"{value} in struct {self.name} should be the msb.")
-                    #field_arr.insert(0, field_arr.pop(field))
-                    break
                
         # Add leading spaces to make all fields line up
         field_arr[0] = F"  {field_arr[0]}"
@@ -1351,6 +1344,14 @@ class PkgStruct(PkgItemBase):
         ret_arr.append("\n    ".join(field_arr))
         ret_arr.append(F"}} {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
+
+    def _check_vld_msb(self):
+        """If a valid bit is present, ensure that it is the msb"""
+        for field, value in enumerate(self.children.values()):
+            if "vld" in value.name:
+                if field != 0:
+                    self.log.error(F"'{value.name}' field in struct '{self.name}' should be the msb.")
+                    break
 
     def html_canvas_data(self, label=""):
         """Return a dictionary of data to render the struct-canvas in html."""
@@ -1410,7 +1411,7 @@ class PkgStructField(PkgItemBase):
         if self.name in ['valid', 'vld', 'val']:
             if self.name != 'vld':
                 self.log.error(F"{self.name} bit in struct {self.parent.name} should have naming convention of 'vld'") 
-
+        
             if self.width != 1:
                 self.log.error(F"{self.name} bit in struct {self.parent.name} should have width = 1")
 
