@@ -791,8 +791,9 @@ class Pkg(YisNode):
             # Handle case when an item type is defined but it's empty
             if kwargs.get(offspring) is None:
                 return
-
+            # yaml data into object
             for row in kwargs.get(offspring, []):
+                #self.log.info(str(cls) + str(row))
                 cls(parent=self, log=self.log, **row)
 
         self._offspring_iterate(initialize)
@@ -944,7 +945,15 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
-        
+        self._gen_new_param_obj()
+       
+    def _gen_new_param_obj(self):
+        """Generate localparams for WIDTH of all structs and typedefs"""
+        if 'WIDTH' not in self.name and self.value != 0:
+            PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"))
+        else:
+            pass 
+
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
 
@@ -1301,7 +1310,7 @@ class PkgStruct(PkgItemBase):
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
         self._check_vld_msb()
-
+    
     def _naming_convention_callback(self):
         # FAILING ipa
         # self._check_dunder_name()
