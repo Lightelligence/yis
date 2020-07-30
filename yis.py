@@ -949,7 +949,11 @@ class PkgLocalparam(PkgItemBase):
        
     def _gen_new_param_obj(self):
         """Generate localparams for WIDTH of all structs and typedefs"""
-        if 'WIDTH' not in self.name and self.value != 0:
+        #width cannot be in name due to infinite recursion
+        #since I am naming the newly generated localparam ('..._WIDTH_TEMP')
+        #whatever is in the naming convention of these generated localparams,
+        #it must also be a condition in the if statement to not include it 
+        if 'TEMP' not in self.name and self.value != 0:
             PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"))
         else:
             pass 
