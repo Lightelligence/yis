@@ -889,6 +889,10 @@ class PkgItemBase(YisNode):
     """Base class for all objects contained in a pkg."""
     allowed_symbols_for_linking = []
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._implicit = kwargs.pop('implicit', False)
+
     def _extract_link_pieces(self, link_name):
         parent_pkg = self.get_parent_pkg()
         match = PKG_SCOPE_REGEXP.match(link_name)
@@ -946,20 +950,19 @@ class PkgLocalparam(PkgItemBase):
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
         self._gen_new_param_obj()
-       
-    def _gen_new_param_obj(self):
-        """Generate localparams for WIDTH of all structs and typedefs"""
-        #width cannot be in name due to infinite recursion
-        #since I am naming the newly generated localparam ('..._WIDTH_TEMP')
-        #whatever is in the naming convention of these generated localparams,
-        #it must also be a condition in the if statement to not include it 
-        if 'TEMP' not in self.name and self.value != 0:
-            PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"))
-        else:
-            pass 
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
+       
+    def _gen_new_param_obj(self):
+        """Generate localparams for WIDTH of all structs and typedefs"""
+        if not self._implicit:
+            if self.value == 0:
+                self.value = 1
+                PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"), 
+                              doc_verbose = (F"PkgLocalparam object {self.name} had a value of 0, which would create an error when trying to do clog2 math. Forced {self.name}.value = 1."), implicit = True)
+            else:
+                PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"), implicit = True)
 
     @only_run_once
     def resolve_links(self):
