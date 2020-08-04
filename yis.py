@@ -957,12 +957,14 @@ class PkgLocalparam(PkgItemBase):
     def _gen_new_param_obj(self):
         """Generate localparams for WIDTH of all structs and typedefs"""
         if not self._implicit:
+            value = F"clog2({self.name}.value)"
+            doc_verb = None 
+
             if self.value == 0:
-                self.value = 1
-                PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"), 
-                              doc_verbose = (F"PkgLocalparam object {self.name} had a value of 0, which would create an error when trying to do clog2 math. Forced {self.name}.value = 1."), implicit = True)
-            else:
-                PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = (F"clog2({self.name}.value)"), doc_summary = (F"Number of bits needed to render {self.name}"), implicit = True)
+                value = 1
+                doc_verb = F"PkgLocalparam object {self.name} had a value of 0, which would create an error when trying to do clog2 math. Forced {self.name}.value = 1."
+        
+            PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = value, doc_summary = (F"Number of bits needed to render {self.name}"), doc_verbose = doc_verb, implicit = True)
 
     @only_run_once
     def resolve_links(self):
@@ -1363,11 +1365,14 @@ class PkgStruct(PkgItemBase):
 
     def _check_vld_msb(self):
         """If a valid bit is present, ensure that it is the msb"""
-        for field, value in enumerate(self.children.values()):
-            if "vld" in value.name:
-                if field != 0:
-                    self.log.error(F"'{value.name}' field in struct '{self.name}' should be the msb.")
-                    break
+        bits = list(enumerate(self.children.values()))
+        for index, field in bits:
+            if 'vld' in field.name:
+                for i in range(0, index+1):
+                    if 'vld' not in bits[i][1].name:
+                        self.log.error(F"'{bits[i][1].name}' field in struct '{self.name}' is not within the vld bits block located at the msb.")
+                    #else:
+                    #    self.log.info("okay msb block work")
 
     def html_canvas_data(self, label=""):
         """Return a dictionary of data to render the struct-canvas in html."""
