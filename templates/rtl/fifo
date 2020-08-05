@@ -103,7 +103,7 @@ module {{ mem.name }}_sync_fifo
     .wdata(fifo_din),
     .rvld(fifo_rd_vld),
     .misc_i_RM(), // FIXME
-    .misc_i_RME(), // FIXME
+    .misc_i_RME() // FIXME
   );
 
 endmodule : {{ mem.name }}_sync_fifo
