@@ -1321,9 +1321,7 @@ class PkgStruct(PkgItemBase):
         self._check_vld_msb()
     
     def _naming_convention_callback(self):
-        # FAILING ipa
-        # self._check_dunder_name()
-        pass
+        self._check_dunder_name()
 
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
@@ -1371,9 +1369,7 @@ class PkgStruct(PkgItemBase):
                 for i in range(0, index+1):
                     if 'vld' not in bits[i][1].name:
                         self.log.error(F"'{bits[i][1].name}' field in struct '{self.name}' is not within the vld bits block located at the msb.")
-                    #else:
-                    #    self.log.info("okay msb block work")
-
+                 
     def html_canvas_data(self, label=""):
         """Return a dictionary of data to render the struct-canvas in html."""
         data = {"field_names": [], "msbs": [], "lsbs": []}
