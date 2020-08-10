@@ -1,6 +1,11 @@
 import re
 
-from instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+try:
+   from yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+except ImportError:
+   from external.yis.yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+
+# from yis.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
 
 ALLOWED_UNIONS = [
     "lisa_instr_t",

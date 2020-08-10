@@ -1,5 +1,7 @@
 syntax = "proto2";
 
+package yis_sdk;
+
 message Field {
   required string name = 1;
   required int32 width = 2;

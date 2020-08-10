@@ -793,7 +793,6 @@ class Pkg(YisNode):
                 return
             # yaml data into object
             for row in kwargs.get(offspring, []):
-                #self.log.info(str(cls) + str(row))
                 cls(parent=self, log=self.log, **row)
 
         self._offspring_iterate(initialize)
