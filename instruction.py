@@ -1,15 +1,14 @@
 import re
 
 try:
-   from yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+    from yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
 except ImportError:
-   from external.yis.yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
-
-# from yis.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
+    from external.yis.yis_sdk.instruction_pb2 import Field, InstructionFormat, AllInstructionFormat
 
 ALLOWED_UNIONS = [
     "lisa_instr_t",
 ]
+
 
 def walk_fields(iformat, struct):
     # This is gross, need a better way to do it:
@@ -23,7 +22,8 @@ def walk_fields(iformat, struct):
             raise ValueError("Unions not support in instruction generator")
     else:
         new_field = iformat.fields.add()
-        new_field.CopyFrom(Field(name=struct.name, width=struct.computed_width))
+        new_field.CopyFrom(Field(name=struct.name,
+                                 width=struct.computed_width))
         # iformat.fields.append(Field(name=struct.name, width=struct.computed_width))
 
 
@@ -42,7 +42,8 @@ def render(pkg):
             store_op_codes(child, aif.op_code_map)
             continue
 
-        if not re.search("^([a-zA-Z0-9_\-]+) instruction\.$", child.doc_summary):
+        if not re.search("^([a-zA-Z0-9_\-]+) instruction\.$",
+                         child.doc_summary):
             # FIXME ^^ need a better way to indicate this
             continue
 
