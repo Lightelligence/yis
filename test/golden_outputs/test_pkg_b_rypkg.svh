@@ -11,9 +11,15 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [/* test_pkg_a::ANOTHER_PARAM.value */ 2 - 1:0] NEW_PARAM = 3; // This should link up to [test_pkg_a::ANOTHER_PARAM]
   
+  localparam [32 - 1:0] NEW_PARAM_WIDTH_TEMP = /* clog2(NEW_PARAM.value) */ 2; // Number of bits needed to render NEW_PARAM
+  
   localparam [32 - 1:0] MAX_WR_CYCLES = 4; // Maximum number of write cycles allowed for the pipelined write
   
+  localparam [32 - 1:0] MAX_WR_CYCLES_WIDTH_TEMP = /* clog2(MAX_WR_CYCLES.value) */ 2; // Number of bits needed to render MAX_WR_CYCLES
+  
   localparam [32 - 1:0] WR_WIDTH = 8; // Width of a single write cycle
+  
+  localparam [32 - 1:0] WR_WIDTH_WIDTH_TEMP = /* clog2(WR_WIDTH.value) */ 3; // Number of bits needed to render WR_WIDTH
   
   typedef enum logic [3 - 1:0] {
     WRITE_TYPE_STD, // Standard write, nothing special
@@ -22,8 +28,8 @@ package test_pkg_b; // Example of what a dependent package looks like
   } WRITE_TYPE_E; // Specifies how the write should be handled
   
   typedef struct packed {
+    logic [1 - 1:0] vld; // This cmd is valid, this is the start of a new pipelined write
     logic [/* test_pkg_a::CYCLE_TYPE_E.width + 2 */ 4 - 1:0] rsvd; // Reserved
-    logic [1 - 1:0] val; // This cmd is valid, this is the start of a new pipelined write
     logic [/* clog2(MAX_WR_CYCLES.value - 1) */ 2 - 1:0] num_cycles; // Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
     WRITE_TYPE_E write_type; // Specifies how the write should be handled
   } write_cmd_t; // The command cycle of a pipelined write

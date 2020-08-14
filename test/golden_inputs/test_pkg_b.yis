@@ -79,14 +79,14 @@ structs:
   - name: write_cmd_t
     doc_summary: The command cycle of a pipelined write
     fields:
+      - name: vld
+        type: logic
+        width: 1
+        doc_summary: This cmd is valid, this is the start of a new pipelined write
       - name: rsvd
         type: logic
         width: test_pkg_a::CYCLE_TYPE_E.width + 2
         doc_summary: Reserved
-      - name: val
-        type: logic
-        width: 1
-        doc_summary: This cmd is valid, this is the start of a new pipelined write
       - name: num_cycles
         type: logic
         width: clog2(MAX_WR_CYCLES.value - 1)

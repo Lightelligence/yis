@@ -23,6 +23,14 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This parameter has a paramterized width and a parameterized type.
   
+  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_TEMP = /* clog2(TRIPLE_NESTED_PARAM.value) */ 1; // Number of bits needed to render TRIPLE_NESTED_PARAM
+  
+  localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH_TEMP = /* clog2(DOUBLE_LINK_PARAM.value) */ 1; // Number of bits needed to render DOUBLE_LINK_PARAM
+  
+  localparam [32 - 1:0] HERO_WIDTH_WIDTH_TEMP = /* clog2(HERO_WIDTH.value) */ 6; // Number of bits needed to render HERO_WIDTH
+  
+  localparam [32 - 1:0] ANOTHER_PARAM_WIDTH_TEMP = /* clog2(ANOTHER_PARAM.value) */ 1; // Number of bits needed to render ANOTHER_PARAM
+  
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
   typedef enum logic [/* TRIPLE_NESTED_PARAM.value */ 2 - 1:0] {
