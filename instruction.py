@@ -22,8 +22,7 @@ def walk_fields(iformat, struct):
             raise ValueError("Unions not support in instruction generator")
     else:
         new_field = iformat.fields.add()
-        new_field.CopyFrom(Field(name=struct.name,
-                                 width=struct.computed_width))
+        new_field.CopyFrom(Field(name=struct.name, width=struct.computed_width))
         # iformat.fields.append(Field(name=struct.name, width=struct.computed_width))
 
 
@@ -39,11 +38,14 @@ def render(pkg):
 
     for child in pkg.children.values():
         if child.name == "OPCODE_E":
-            store_op_codes(child, aif.op_code_map)
+            store_op_codes(child, aif.instr_op_code_map)
             continue
 
-        if not re.search("^([a-zA-Z0-9_\-]+) instruction\.$",
-                         child.doc_summary):
+        if child.name == "PIE_OP_E":
+            store_op_codes(child, aif.alu_op_code_map)
+            continue
+
+        if not re.search("^([a-zA-Z0-9_\-]+) instruction\.$", child.doc_summary):
             # FIXME ^^ need a better way to indicate this
             continue
 

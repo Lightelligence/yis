@@ -1920,6 +1920,11 @@ class MemItem(YisNode): # pylint: disable=too-many-instance-attributes
             kwargs['row'] = 1
         if 'col' not in kwargs:
             kwargs['col'] = 1
+        if 'sync_fifo' not in kwargs:
+            kwargs['sync_fifo'] = False
+        if 'fwft' not in kwargs:
+            # FWFT=First-Word Fall Through. This option is only applicable for FIFOs.
+            kwargs['fwft'] = False
         if 'read_ports' not in kwargs:
             kwargs['read_ports'] = 1
         if 'write_ports' not in kwargs:
@@ -2037,8 +2042,6 @@ class SramItem: # pylint: disable=too-few-public-methods
             self.bits  = int(self.bits)
             self.awidth = math.ceil(math.log(self.words, 2))
 
-<<<<<<< HEAD
-=======
 
 class Fifo(Mem):
     """Class to hold MemItemBase objects, representing a whole mem."""
@@ -2052,7 +2055,6 @@ class Fifo(Mem):
                     components="\n  -".join([repr(component) for component in self.children.values()])))
 
 
->>>>>>> a2885e8... isolate fifo template from mem
 def main(options, log):
     """Main execution."""
     if not options.pkgs:

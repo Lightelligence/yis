@@ -20,6 +20,9 @@ memory:
   row:  int(min=1, required=False)
   col:  int(min=1, required=False)
   # -----
+  sync_fifo: bool(required=False)
+  fwft: bool(required=False)
+  # -----
   read_ports: int(min=1, required=False)
   write_ports: int(min=1, required=False)
   # -----

@@ -103,7 +103,7 @@ def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
     rtl_lib(
         name = "{}_fifo".format(name),
         lib_files = [":{}_fifo_gen".format(name)],
-        deps = ["{}_mem".format(name), "//digital/rtl/common:bagware"],
+        deps = ["{}_mem".format(name), "@bagware//:bagware"],
         visibility = ["//visibility:public"],
     )
 
