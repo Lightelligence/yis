@@ -586,7 +586,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         """Ban triple underscores"""
         if "___" in self.name:
             self.log.error(F"{self.name} is not a valid name - triple underscores in names are not allowed")
- 
+
     def _check_dunder_name(self):
         if "__" in self.name[:-len(self.TYPE_NAME_SUFFIX)]:
             self.log.error(F"{self.name} is not a valid name - double underscores in names are not allowed in "
@@ -952,18 +952,24 @@ class PkgLocalparam(PkgItemBase):
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
-       
+
     def _gen_new_param_obj(self):
         """Generate localparams for WIDTH of all structs and typedefs"""
         if not self._implicit:
             value = F"clog2({self.name}.value)"
-            doc_verb = None 
+            doc_verb = None
 
             if self.value == 0:
                 value = 1
                 doc_verb = F"PkgLocalparam object {self.name} had a value of 0, which would create an error when trying to do clog2 math. Forced {self.name}.value = 1."
-        
-            PkgLocalparam(parent = self.parent, log = self.log, name = (F"{self.name}_WIDTH_TEMP"), value = value, doc_summary = (F"Number of bits needed to render {self.name}"), doc_verbose = doc_verb, implicit = True)
+
+            PkgLocalparam(parent=self.parent,
+                          log=self.log,
+                          name=(F"{self.name}_WIDTH_TEMP"),
+                          value=value,
+                          doc_summary=(F"Number of bits needed to render {self.name}"),
+                          doc_verbose=doc_verb,
+                          implicit=True)
 
     @only_run_once
     def resolve_links(self):
@@ -1137,7 +1143,7 @@ class PkgEnum(PkgItemBase):
         enum_value_arr = []
         for row in self.children.values():
             enum_value_arr.extend(row.render_rtl_sv_pkg())
-            
+
         # Add leading spaces to make all children line up
         enum_value_arr[0] = F"  {enum_value_arr[0]}"
 
@@ -1318,7 +1324,7 @@ class PkgStruct(PkgItemBase):
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
         self._check_vld_msb()
-    
+
     def _naming_convention_callback(self):
         self._check_dunder_name()
 
@@ -1352,7 +1358,7 @@ class PkgStruct(PkgItemBase):
         field_arr = []
         for child in self.children.values():
             field_arr.extend(child.render_rtl_sv_pkg())
-               
+
         # Add leading spaces to make all fields line up
         field_arr[0] = F"  {field_arr[0]}"
 
@@ -1365,10 +1371,12 @@ class PkgStruct(PkgItemBase):
         bits = list(enumerate(self.children.values()))
         for index, field in bits:
             if 'vld' in field.name:
-                for i in range(0, index+1):
+                for i in range(0, index + 1):
                     if 'vld' not in bits[i][1].name:
-                        self.log.error(F"'{bits[i][1].name}' field in struct '{self.name}' is not within the vld bits block located at the msb.")
-                 
+                        self.log.error(
+                            F"'{bits[i][1].name}' field in struct '{self.name}' is not within the vld bits block located at the msb."
+                        )
+
     def html_canvas_data(self, label=""):
         """Return a dictionary of data to render the struct-canvas in html."""
         data = {"field_names": [], "msbs": [], "lsbs": []}
@@ -1417,22 +1425,22 @@ class PkgStructField(PkgItemBase):
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
         if is_verilog_primitive(self.sv_type) and self.width is None:
-            self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())            
+            self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
         self._check_vld_bit()
-      
+
     def _check_vld_bit(self):
         """Check if there is valid (vld) bit present in the struct, and if there is, 
         make sure it is named 'vld', has width = '1', and sv_type = 'logic'
         """
         if self.name in ['valid', 'vld', 'val']:
             if self.name != 'vld':
-                self.log.error(F"{self.name} bit in struct {self.parent.name} should have naming convention of 'vld'") 
-        
+                self.log.error(F"{self.name} bit in struct {self.parent.name} should have naming convention of 'vld'")
+
             if self.width != 1:
                 self.log.error(F"{self.name} bit in struct {self.parent.name} should have width = 1")
 
             if self.sv_type != 'logic':
-                self.log.error(F"{self.name} bit in struct {self.parent.name} should have sv_type = 'logic'")  
+                self.log.error(F"{self.name} bit in struct {self.parent.name} should have sv_type = 'logic'")
 
     def _naming_convention_callback(self):
         self._check_dunder_name()

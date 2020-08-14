@@ -1,0 +1,29 @@
+trigger:
+- master
+
+stages:
+  - stage: 'all'
+    pool:
+      name: CI_no_license
+    jobs:
+    - job: 'bazel_tests'
+      displayName: 'Bazel Tests'
+      steps:
+      - script: |
+          source activate digital
+          yapf --diff --recursive . --style .style.yapf
+        # Do an automatic regen with
+        # yapf --in-place --recursive . --style .style.yapf
+        displayName: 'yapf Check'
+
+      - bash: |
+          source activate digital
+          find -L `bazel info bazel-testlogs` -name "test.xml" | xargs rm -f
+          bazel test --cache_test_results=no --jobs 8 --test_output=all ...
+        displayName: 'Run Tests'
+
+      - task: PublishTestResults@2
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFiles: 'bazel-testlogs/**/*.xml'
+          testRunTitle: 'Publish test results.'
