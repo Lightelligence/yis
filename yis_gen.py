@@ -1480,7 +1480,8 @@ class PkgStructField(PkgItemBase):
     @memoize_property
     def computed_width(self):
         """Compute width by looking at width and type."""
-        self.log.debug("Computing width for %s %s - width is %s, type is %s", self.parent.name, self.name, self.width, self.sv_type)
+        self.log.debug("Computing width for %s %s - width is %s, type is %s", self.parent.name, self.name, self.width,
+                       self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
         if is_verilog_primitive(self.sv_type):
