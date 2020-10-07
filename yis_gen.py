@@ -1473,11 +1473,14 @@ class PkgStructField(PkgItemBase):
         if not is_verilog_primitive(self.sv_type) and self.width is not None:
             self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
                            "a non-logic/wire type. Only logic/wire can have a width")
+        if self.computed_width <= 0:
+            self.log.error("Struct field %s.%s has computed width of %d. It cannot be represented in verilog",
+                           self.parent.name, self.name, self.computed_width)
 
     @memoize_property
     def computed_width(self):
         """Compute width by looking at width and type."""
-        self.log.debug("Computing width for %s - width is %s, type is %s", self.name, self.width, self.sv_type)
+        self.log.debug("Computing width for %s %s - width is %s, type is %s", self.parent.name, self.name, self.width, self.sv_type)
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
             return self.width
         if is_verilog_primitive(self.sv_type):
@@ -2070,6 +2073,7 @@ def setup_context():
     verbosity = cmn_logging.DEBUG if options.tool_debug else cmn_logging.INFO
     log = cmn_logging.build_logger("yis", level=verbosity)
     main(options, log)
+    log.exit_if_warnings_or_errors("Encountered previous errors")
 
 
 if __name__ == "__main__":
