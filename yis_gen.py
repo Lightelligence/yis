@@ -1517,6 +1517,11 @@ class PkgXaction(PkgStruct):
         kwargs['fields'] = kwargs.pop('cycles')
         super().__init__(**kwargs)
 
+    @only_run_once
+    def resolve_links(self):
+        super().resolve_links()
+        _ = self.computed_width
+
     @memoize_property
     def computed_width(self):
         """Xactions must have equal width cycles, but the total width is aggregrate across all cycles."""
@@ -1529,7 +1534,7 @@ class PkgXaction(PkgStruct):
             else:
                 if child.computed_width != width:
                     self.log.error(("In %s, field %s and %s have different widths: %s and %s.\n"
-                                    "Union fields must be padded to match widths exactly."), self.name, first.name,
+                                    "Xaction fields must be padded to match widths exactly."), self.name, first.name,
                                    child.name, width, child.computed_width)
 
         return width * len(self.children)
@@ -1565,6 +1570,11 @@ class PkgUnion(PkgItemBase):
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
+
+    @only_run_once
+    def resolve_links(self):
+        super().resolve_links()
+        _ = self.computed_width
 
     def __repr__(self):
         fields = "\n    -".join([str(child) for child in self.children.values()])
