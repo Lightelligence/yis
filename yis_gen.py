@@ -841,19 +841,20 @@ class Pkg(YisNode):
             else:
                 doc_verb = None
                 width = clog2(localparam.computed_value)
-                
-            self.add_localparam(parent=localparam, 
-                                name=F"{localparam.name}_WIDTH", 
-                                value=width, 
+
+            self.add_localparam(parent=localparam,
+                                name=F"{localparam.name}_WIDTH",
+                                value=width,
                                 width=32,
-                                doc_sum=F"Computed width of {localparam.name}", 
+                                doc_sum=F"Computed width of {localparam.name}",
                                 doc_verb=doc_verb)
-            self.add_localparam(parent=localparam, 
-                                name=F"{localparam.name}_WIDTH_ONE", 
-                                value=1,
-                                width=width, 
-                                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators", 
-                                doc_verb=None)
+            self.add_localparam(
+                parent=localparam,
+                name=F"{localparam.name}_WIDTH_ONE",
+                value=1,
+                width=width,
+                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators",
+                doc_verb=None)
 
         for item in types:
             self.add_localparam(parent=item,
@@ -872,13 +873,15 @@ class Pkg(YisNode):
                 localparam_exists = True
                 self.log.debug(F"Attempted to generate localparam {name} but it already exists")
                 if localparam.computed_value != value:
-                    self.log.critical("Generated vs. explicit localparam value mismatch: "
-                                      "localparam %s explicit value %d != generated value %d", localparam.name,
-                                      localparam.computed_value, value)
+                    self.log.critical(
+                        "Generated vs. explicit localparam value mismatch: "
+                        "localparam %s explicit value %d != generated value %d", localparam.name,
+                        localparam.computed_value, value)
                 if localparam.computed_width != width:
-                    self.log.critical("Generated vs. explicit localparam width mismatch: "
-                                      "localparam %s explicit width %d != generated width %d", localparam.name,
-                                      localparam.computed_width, width)
+                    self.log.critical(
+                        "Generated vs. explicit localparam width mismatch: "
+                        "localparam %s explicit width %d != generated width %d", localparam.name,
+                        localparam.computed_width, width)
 
         if not localparam_exists:
             new_localparam = PkgLocalparam(parent=localparam.parent,
@@ -890,13 +893,12 @@ class Pkg(YisNode):
                                            doc_verbose=doc_verb)
             new_localparam.resolve_links()
 
-
     def get_localparams(self):
         """ gets a list of the localparams """
         localparams = []
         for offspring in self.offspring:
             for item in getattr(self, offspring).values():
-                if(isinstance(item, PkgLocalparam)):
+                if (isinstance(item, PkgLocalparam)):
                     localparams.append(item)
 
         return localparams
@@ -906,7 +908,7 @@ class Pkg(YisNode):
         types = []
         for offspring in self.offspring:
             for item in getattr(self, offspring).values():
-                if(isinstance(item, PkgTypedef) or isinstance(item, PkgStruct) or isinstance(item, PkgEnum)):
+                if (isinstance(item, PkgTypedef) or isinstance(item, PkgStruct) or isinstance(item, PkgEnum)):
                     types.append(item)
 
         return types
