@@ -469,7 +469,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Walk all packages and generate some additional symbols like *_WIDTH and *_WIDTH_ONE localparams"""
         for pkg in self._pkgs.values():
             self.log.debug(F"Generating new symbols for {pkg.name}")
-            pkg.generate_width_localparams()
+            pkg.generate_new_symbols()
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
         """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
@@ -826,7 +826,11 @@ class Pkg(YisNode):
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, typedefs, and unions.")
 
-    def generate_width_localparams(self):
+    def generate_new_symbols(self):
+        """ Wrapper for all of the different symbols to auto-generate. right now just 1 function call but can expand in the future """
+        self._generate_width_localparams()
+
+    def _generate_width_localparams(self):
         """ Auto-generate *_WIDTH and *_WIDTH_ONE localparams based on the pre-existing localparams and types defined by the user """
         localparams = self.get_localparams()
         types = self.get_typedefs_structs_enums()
@@ -853,7 +857,7 @@ class Pkg(YisNode):
 
         for item in types:
             self.add_localparam(parent=item,
-                                name=F"{item.name[:-2].upper()}_WIDTH",
+                                name=F"{item.name.upper()}_WIDTH",
                                 value=item.computed_width,
                                 width=32,
                                 doc_sum=F"Computed width of {item.name}",
@@ -1809,6 +1813,9 @@ class Intf(YisNode):
                 "Components:\n  -{components}\n".format(
                     components="\n  -".join([repr(component) for component in self.children.values()])))
 
+    def generate_new_symbols(self):
+        pass # nothing to generate for Mem
+
     @memoize_property
     def computed_width(self):
         """Compute width of the each child object, then accumulate all widths to form master width."""
@@ -1976,6 +1983,9 @@ class Mem(YisNode):
             self.modules.append(module)
             return True
         return False
+
+    def generate_new_symbols(self):
+        pass # nothing to generate for Mem
 
     @only_run_once
     def resolve_links(self):
