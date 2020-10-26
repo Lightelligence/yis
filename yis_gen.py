@@ -354,6 +354,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         self._parse_files(pkgs)
         self.log.debug("Finished parsing all files")
         self._link_symbols()
+        self._generate_new_symbols()
 
     def _parse_files(self, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
@@ -463,6 +464,12 @@ class Yis: # pylint: disable=too-many-instance-attributes
         if self._block_generic:
             self._block_generic.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
+
+    def _generate_new_symbols(self):
+        """Walk all packages and generate some additional symbols like *_WIDTH and *_WIDTH_ONE localparams"""
+        for pkg in self._pkgs.values():
+            self.log.debug(F"Generating new symbols for {pkg.name}")
+            pkg.generate_width_localparams()
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
         """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
@@ -794,6 +801,7 @@ class Pkg(YisNode):
             # yaml data into object
             for row in kwargs.get(offspring, []):
                 cls(parent=self, log=self.log, **row)
+                self.log.debug(cls)
 
         self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']
@@ -817,6 +825,68 @@ class Pkg(YisNode):
         else:
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, typedefs, and unions.")
+
+    def generate_width_localparams(self):
+        """ Auto-generate *_WIDTH and *_WIDTH_ONE localparams based on the pre-existing localparams and types defined by the user """
+        localparams = self.get_localparams()
+        types = self.get_typedefs_structs_enums()
+        for localparam in localparams:
+            if localparam.computed_value < 2:
+                doc_verb = F"clog2({localparam.name}.value) is either undefined (clog2(0)) or 0 (clog2(1)). Forcing width to 1."
+                width = 1
+            else:
+                doc_verb = None
+                width = F"clog2({localparam.name}.value)"
+                
+            width_localparam = PkgLocalparam(parent=localparam.parent,
+                                             log=localparam.log,
+                                             name=(F"{localparam.name}_WIDTH"),
+                                             value=width,
+                                             doc_summary=(F"Width of {localparam.name}"),
+                                             doc_verbose=doc_verb,
+                                             implicit=True)
+
+            width_one_localparam = PkgLocalparam(parent=localparam.parent,
+                                                 log=localparam.log,
+                                                 name=(F"{localparam.name}_WIDTH_ONE"),
+                                                 value=1,
+                                                 width=(F"{width_localparam.name}.value"),
+                                                 doc_summary=(F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators"),
+                                                 doc_verbose=doc_verb,
+                                                 implicit=True)
+            width_localparam.resolve_links()
+            width_one_localparam.resolve_links()
+
+        for item in types:
+            name = F"{item.name[:-2].upper()}_WIDTH"
+            width_localparam = PkgLocalparam(parent=item.parent,
+                                             log=item.log,
+                                             name=name,
+                                             value=item.computed_width,
+                                             doc_summary=(F"Width of {item.name}"),
+                                             doc_verbose=doc_verb,
+                                             implicit=True)
+            width_localparam.resolve_links()
+
+    def get_localparams(self):
+        """ gets a list of the localparams """
+        localparams = []
+        for offspring in self.offspring:
+            for item in getattr(self, offspring).values():
+                if(isinstance(item, PkgLocalparam)):
+                    localparams.append(item)
+
+        return localparams
+
+    def get_typedefs_structs_enums(self):
+        """ gets a list of the typedefs, structs, and enums """
+        types = []
+        for offspring in self.offspring:
+            for item in getattr(self, offspring).values():
+                if(isinstance(item, PkgTypedef) or isinstance(item, PkgStruct) or isinstance(item, PkgEnum)):
+                    types.append(item)
+
+        return types
 
     @only_run_once
     def resolve_links(self):
@@ -948,28 +1018,9 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
-        self._gen_new_param_obj()
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
-
-    def _gen_new_param_obj(self):
-        """Generate localparams for WIDTH of all structs and typedefs"""
-        if not self._implicit:
-            value = F"clog2({self.name}.value)"
-            doc_verb = None
-
-            if self.value == 0:
-                value = 1
-                doc_verb = F"PkgLocalparam object {self.name} had a value of 0, which would create an error when trying to do clog2 math. Forced {self.name}.value = 1."
-
-            PkgLocalparam(parent=self.parent,
-                          log=self.log,
-                          name=(F"{self.name}_WIDTH_TEMP"),
-                          value=value,
-                          doc_summary=(F"Number of bits needed to render {self.name}"),
-                          doc_verbose=doc_verb,
-                          implicit=True)
 
     @only_run_once
     def resolve_links(self):
