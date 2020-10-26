@@ -837,16 +837,23 @@ class Pkg(YisNode):
         for localparam in localparams:
             if localparam.computed_value < 2:
                 doc_verb = F"clog2({localparam.name}.value) is either undefined (clog2(0)) or 0 (clog2(1)). Forcing width to 1."
-                width = 1
+                count_width = width = 1
             else:
                 doc_verb = None
                 width = clog2(localparam.computed_value)
+                count_width = clog2(localparam.computed_value + 1)
 
             self.add_localparam(parent=localparam,
                                 name=F"{localparam.name}_WIDTH",
                                 value=width,
                                 width=32,
                                 doc_sum=F"Computed width of {localparam.name}",
+                                doc_verb=doc_verb)
+            self.add_localparam(parent=localparam,
+                                name=F"{localparam.name}_COUNT_WIDTH",
+                                value=count_width,
+                                width=32,
+                                doc_sum=F"Computed count_width of {localparam.name}",
                                 doc_verb=doc_verb)
             self.add_localparam(
                 parent=localparam,
@@ -883,7 +890,7 @@ class Pkg(YisNode):
                         "localparam %s explicit width %d != generated width %d", localparam.name,
                         localparam.computed_width, width)
 
-        if not localparam_exists:
+        if not localparam_exists and current_localparams:
             new_localparam = PkgLocalparam(parent=localparam.parent,
                                            log=localparam.log,
                                            name=name,
