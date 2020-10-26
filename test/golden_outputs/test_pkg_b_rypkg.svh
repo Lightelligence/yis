@@ -17,13 +17,19 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [32 - 1:0] NEW_PARAM_WIDTH = 2; // Computed width of NEW_PARAM
   
+  localparam [32 - 1:0] NEW_PARAM_COUNT_WIDTH = 2; // Computed count_width of NEW_PARAM
+  
   localparam [2 - 1:0] NEW_PARAM_WIDTH_ONE = 1; // NEW_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
   localparam [32 - 1:0] MAX_WR_CYCLES_WIDTH = 2; // Computed width of MAX_WR_CYCLES
   
+  localparam [32 - 1:0] MAX_WR_CYCLES_COUNT_WIDTH = 3; // Computed count_width of MAX_WR_CYCLES
+  
   localparam [2 - 1:0] MAX_WR_CYCLES_WIDTH_ONE = 1; // MAX_WR_CYCLES_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
   localparam [32 - 1:0] WR_WIDTH_WIDTH = 3; // Computed width of WR_WIDTH
+  
+  localparam [32 - 1:0] WR_WIDTH_COUNT_WIDTH = 4; // Computed count_width of WR_WIDTH
   
   localparam [3 - 1:0] WR_WIDTH_WIDTH_ONE = 1; // WR_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   

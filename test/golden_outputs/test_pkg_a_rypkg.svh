@@ -25,17 +25,25 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH = 1; // Computed width of TRIPLE_NESTED_PARAM
   
+  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_COUNT_WIDTH = 2; // Computed count_width of TRIPLE_NESTED_PARAM
+  
   localparam [1 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_ONE = 1; // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
   localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH = 1; // Computed width of DOUBLE_LINK_PARAM
+  
+  localparam [32 - 1:0] DOUBLE_LINK_PARAM_COUNT_WIDTH = 2; // Computed count_width of DOUBLE_LINK_PARAM
   
   localparam [1 - 1:0] DOUBLE_LINK_PARAM_WIDTH_ONE = 1; // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
   localparam [32 - 1:0] HERO_WIDTH_WIDTH = 6; // Computed width of HERO_WIDTH
   
+  localparam [32 - 1:0] HERO_WIDTH_COUNT_WIDTH = 6; // Computed count_width of HERO_WIDTH
+  
   localparam [6 - 1:0] HERO_WIDTH_WIDTH_ONE = 1; // HERO_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
   localparam [32 - 1:0] ANOTHER_PARAM_WIDTH = 1; // Computed width of ANOTHER_PARAM
+  
+  localparam [32 - 1:0] ANOTHER_PARAM_COUNT_WIDTH = 2; // Computed count_width of ANOTHER_PARAM
   
   localparam [1 - 1:0] ANOTHER_PARAM_WIDTH_ONE = 1; // ANOTHER_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
