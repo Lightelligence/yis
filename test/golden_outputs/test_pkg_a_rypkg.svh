@@ -23,13 +23,33 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This parameter has a paramterized width and a parameterized type.
   
-  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_TEMP = /* clog2(TRIPLE_NESTED_PARAM.value) */ 1; // Number of bits needed to render TRIPLE_NESTED_PARAM
+  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH = 1; // Computed width of TRIPLE_NESTED_PARAM
   
-  localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH_TEMP = /* clog2(DOUBLE_LINK_PARAM.value) */ 1; // Number of bits needed to render DOUBLE_LINK_PARAM
+  localparam [1 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_ONE = 1; // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
   
-  localparam [32 - 1:0] HERO_WIDTH_WIDTH_TEMP = /* clog2(HERO_WIDTH.value) */ 6; // Number of bits needed to render HERO_WIDTH
+  localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH = 1; // Computed width of DOUBLE_LINK_PARAM
   
-  localparam [32 - 1:0] ANOTHER_PARAM_WIDTH_TEMP = /* clog2(ANOTHER_PARAM.value) */ 1; // Number of bits needed to render ANOTHER_PARAM
+  localparam [1 - 1:0] DOUBLE_LINK_PARAM_WIDTH_ONE = 1; // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] HERO_WIDTH_WIDTH = 6; // Computed width of HERO_WIDTH
+  
+  localparam [6 - 1:0] HERO_WIDTH_WIDTH_ONE = 1; // HERO_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] ANOTHER_PARAM_WIDTH = 1; // Computed width of ANOTHER_PARAM
+  
+  localparam [1 - 1:0] ANOTHER_PARAM_WIDTH_ONE = 1; // ANOTHER_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = 2; // Computed width of CYCLE_TYPE_E
+  
+  localparam [32 - 1:0] BOOL_E_WIDTH = 1; // Computed width of BOOL_E
+  
+  localparam [32 - 1:0] HERO_WRITE_T_WIDTH = 46; // Computed width of hero_write_t
+  
+  localparam [32 - 1:0] SUB_DEF_T_WIDTH = 7; // Computed width of sub_def_t
+  
+  localparam [32 - 1:0] VANILLA_TYPE_T_WIDTH = 6; // Computed width of vanilla_type_t
+  
+  localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = 12; // Computed width of nested_type_t
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.

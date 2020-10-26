@@ -11,15 +11,39 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [/* test_pkg_a::ANOTHER_PARAM.value */ 2 - 1:0] NEW_PARAM = 3; // This should link up to [test_pkg_a::ANOTHER_PARAM]
   
-  localparam [32 - 1:0] NEW_PARAM_WIDTH_TEMP = /* clog2(NEW_PARAM.value) */ 2; // Number of bits needed to render NEW_PARAM
-  
   localparam [32 - 1:0] MAX_WR_CYCLES = 4; // Maximum number of write cycles allowed for the pipelined write
-  
-  localparam [32 - 1:0] MAX_WR_CYCLES_WIDTH_TEMP = /* clog2(MAX_WR_CYCLES.value) */ 2; // Number of bits needed to render MAX_WR_CYCLES
   
   localparam [32 - 1:0] WR_WIDTH = 8; // Width of a single write cycle
   
-  localparam [32 - 1:0] WR_WIDTH_WIDTH_TEMP = /* clog2(WR_WIDTH.value) */ 3; // Number of bits needed to render WR_WIDTH
+  localparam [32 - 1:0] NEW_PARAM_WIDTH = 2; // Computed width of NEW_PARAM
+  
+  localparam [2 - 1:0] NEW_PARAM_WIDTH_ONE = 1; // NEW_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] MAX_WR_CYCLES_WIDTH = 2; // Computed width of MAX_WR_CYCLES
+  
+  localparam [2 - 1:0] MAX_WR_CYCLES_WIDTH_ONE = 1; // MAX_WR_CYCLES_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] WR_WIDTH_WIDTH = 3; // Computed width of WR_WIDTH
+  
+  localparam [3 - 1:0] WR_WIDTH_WIDTH_ONE = 1; // WR_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  
+  localparam [32 - 1:0] WRITE_TYPE_E_WIDTH = 3; // Computed width of WRITE_TYPE_E
+  
+  localparam [32 - 1:0] PIPELINED_WRITE_T_WIDTH = 50; // Computed width of pipelined_write_t
+  
+  localparam [32 - 1:0] SEVERAL_THINGS_T_WIDTH = 87; // Computed width of several_things_t
+  
+  localparam [32 - 1:0] TYPE_LINKS_T_WIDTH = 100; // Computed width of type_links_t
+  
+  localparam [32 - 1:0] WRITE_CMD_T_WIDTH = 10; // Computed width of write_cmd_t
+  
+  localparam [32 - 1:0] WRITE_DATA_T_WIDTH = 10; // Computed width of write_data_t
+  
+  localparam [32 - 1:0] FITAX_DEFINED_TYPE_T_WIDTH = 6; // Computed width of first_defined_type_t
+  
+  localparam [32 - 1:0] SECOND_DEFINED_TYPE_T_WIDTH = 92; // Computed width of second_defined_type_t
+  
+  localparam [32 - 1:0] LOCAL_ITEM_TYPE_T_WIDTH = 174; // Computed width of local_item_type_t
   
   typedef enum logic [3 - 1:0] {
     WRITE_TYPE_STD, // Standard write, nothing special
