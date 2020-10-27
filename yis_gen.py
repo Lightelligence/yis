@@ -801,7 +801,6 @@ class Pkg(YisNode):
             # yaml data into object
             for row in kwargs.get(offspring, []):
                 cls(parent=self, log=self.log, **row)
-                self.log.debug(cls)
 
         self._offspring_iterate(initialize)
         self.source_file = kwargs['source_file']
@@ -1823,7 +1822,7 @@ class Intf(YisNode):
                     components="\n  -".join([repr(component) for component in self.children.values()])))
 
     def generate_new_symbols(self):
-        pass # nothing to generate for Mem
+        pass # nothing to generate for Intf
 
     @memoize_property
     def computed_width(self):
