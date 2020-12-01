@@ -854,13 +854,12 @@ class Pkg(YisNode):
                                 width=32,
                                 doc_sum=F"Computed count_width of {localparam.name}",
                                 doc_verb=doc_verb)
-            self.add_localparam(
-                parent=localparam,
-                name=F"{localparam.name}_WIDTH_ONE",
-                value=1,
-                width=width,
-                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators",
-                doc_verb=None)
+            self.add_localparam(parent=localparam,
+                                name=F"{localparam.name}_WIDTH_ONE",
+                                value=1,
+                                width=width,
+                                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators",
+                                doc_verb=None)
 
         for item in types:
             self.add_localparam(parent=item,
