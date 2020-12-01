@@ -858,7 +858,8 @@ class Pkg(YisNode):
                                 name=F"{localparam.name}_WIDTH_ONE",
                                 value=1,
                                 width=width,
-                                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators",
+                                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters "\
+                                "and decrementers of matching length operators",
                                 doc_verb=None)
 
         for item in types:
