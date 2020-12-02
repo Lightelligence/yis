@@ -184,6 +184,11 @@ class Equation(ast.NodeTransformer):
         """Return previously calculated value."""
         return self._result
 
+    @computed_width.setter
+    def computed_width(self, value):
+        """Set a new computed width."""
+        self._result = value
+
     def get_doc_link(self):
         """Return a linked node."""
         if len(self.linked_nodes) != 1:
@@ -353,8 +358,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         self._block_generic = None
         self._parse_files(pkgs)
         self.log.debug("Finished parsing all files")
-        self._elaborate()
-        self._generate_new_symbols()
+        self._link_symbols()
 
     def _parse_files(self, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
@@ -451,7 +455,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         except IOError:
             self.log.critical("Couldn't open {}".format(yaml_to_parse))
 
-    def _elaborate(self):
+    def _link_symbols(self):
         """Walk all children, link the appropriate types, fields, etc."""
         # Only do a link first. Skip computing widths until after link is finished
         for pkg in self._pkgs.values():
@@ -464,12 +468,6 @@ class Yis: # pylint: disable=too-many-instance-attributes
         if self._block_generic:
             self._block_generic.resolve_links()
         self.log.exit_if_warnings_or_errors("Found errors linking pkgs")
-
-    def _generate_new_symbols(self):
-        """Walk all packages and generate some additional symbols like *_WIDTH and *_WIDTH_ONE localparams"""
-        for pkg in self._pkgs.values():
-            self.log.debug(F"Generating new symbols for {pkg.name}")
-            pkg.generate_new_symbols()
 
     def resolve_symbol(self, link_pkg, link_symbol, symbol_types):
         """Attempt to find a symbol in the specified pkg, raise a LinkError if it can't be found."""
@@ -815,7 +813,6 @@ class Pkg(YisNode):
         """
         super().add_child(child)
 
-        self.children[child.name] = child
         for offspring, offspring_type in self.offspring.items():
             if isinstance(child, getattr(sys.modules[__name__], offspring_type)):
                 offspring_handle = getattr(self, offspring)
@@ -824,100 +821,6 @@ class Pkg(YisNode):
         else:
             raise ValueError(F"Can't add {child.name} to pkg {self.name} because it is a {type(child)}. "
                              "Can only add localparams, enums, structs, typedefs, and unions.")
-
-    def generate_new_symbols(self):
-        """ Wrapper for all of the different symbols to auto-generate. right now just 1 function call but can expand in the future """
-        self._generate_width_localparams()
-
-    def _generate_width_localparams(self):
-        """ Auto-generate *_WIDTH and *_WIDTH_ONE localparams based on the pre-existing localparams and types defined by the user """
-        localparams = self.get_localparams()
-        types = self.get_typedefs_structs_enums()
-        for localparam in localparams:
-            if localparam.computed_value < 2:
-                doc_verb = F"clog2({localparam.name}.value) is either undefined (clog2(0)) or 0 (clog2(1)). Forcing width to 1."
-                count_width = width = 1
-            else:
-                doc_verb = None
-                width = clog2(localparam.computed_value)
-                count_width = clog2(localparam.computed_value + 1)
-
-            self.add_localparam(parent=localparam,
-                                name=F"{localparam.name}_WIDTH",
-                                value=width,
-                                width=32,
-                                doc_sum=F"Computed width of {localparam.name}",
-                                doc_verb=doc_verb)
-            self.add_localparam(parent=localparam,
-                                name=F"{localparam.name}_COUNT_WIDTH",
-                                value=count_width,
-                                width=32,
-                                doc_sum=F"Computed count_width of {localparam.name}",
-                                doc_verb=doc_verb)
-            self.add_localparam(parent=localparam,
-                                name=F"{localparam.name}_WIDTH_ONE",
-                                value=1,
-                                width=width,
-                                doc_sum=F"{localparam.name}_WIDTH-wide 1 for incrmeneters "\
-                                "and decrementers of matching length operators",
-                                doc_verb=None)
-
-        for item in types:
-            self.add_localparam(parent=item,
-                                name=F"{item.name.upper()}_WIDTH",
-                                value=item.computed_width,
-                                width=32,
-                                doc_sum=F"Computed width of {item.name}",
-                                doc_verb=None)
-
-    def add_localparam(self, parent, name, value, width, doc_sum, doc_verb):
-        """ Add a localparam based on the parent if one doesn't already exist """
-        current_localparams = self.get_localparams()
-        localparam_exists = False
-        for localparam in current_localparams:
-            if name == localparam.name:
-                localparam_exists = True
-                self.log.debug(F"Attempted to generate localparam {name} but it already exists")
-                if localparam.computed_value != value:
-                    self.log.critical(
-                        "Generated vs. explicit localparam value mismatch: "
-                        "localparam %s explicit value %d != generated value %d", localparam.name,
-                        localparam.computed_value, value)
-                if localparam.computed_width != width:
-                    self.log.critical(
-                        "Generated vs. explicit localparam width mismatch: "
-                        "localparam %s explicit width %d != generated width %d", localparam.name,
-                        localparam.computed_width, width)
-
-        if not localparam_exists and current_localparams:
-            new_localparam = PkgLocalparam(parent=localparam.parent,
-                                           log=localparam.log,
-                                           name=name,
-                                           value=value,
-                                           width=width,
-                                           doc_summary=doc_sum,
-                                           doc_verbose=doc_verb)
-            new_localparam.resolve_links()
-
-    def get_localparams(self):
-        """ gets a list of the localparams """
-        localparams = []
-        for offspring in self.offspring:
-            for item in getattr(self, offspring).values():
-                if (isinstance(item, PkgLocalparam)):
-                    localparams.append(item)
-
-        return localparams
-
-    def get_typedefs_structs_enums(self):
-        """ gets a list of the typedefs, structs, and enums """
-        types = []
-        for offspring in self.offspring:
-            for item in getattr(self, offspring).values():
-                if (isinstance(item, PkgTypedef) or isinstance(item, PkgStruct) or isinstance(item, PkgEnum)):
-                    types.append(item)
-
-        return types
 
     @only_run_once
     def resolve_links(self):
@@ -991,7 +894,7 @@ class PkgItemBase(YisNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._implicit = kwargs.pop('implicit', False)
+        self.implicit = kwargs.pop('implicit', False)
 
     def _extract_link_pieces(self, link_name):
         parent_pkg = self.get_parent_pkg()
@@ -1037,6 +940,16 @@ class PkgItemBase(YisNode):
         """
         return ""
 
+    def _gen_width_param(self, width, doc_verb=""):
+        """Generate localparam for WIDTH of PkgItems """
+        PkgLocalparam(parent=self.parent,
+                      log=self.log,
+                      name=(F"{self.name.upper()}_WIDTH"),
+                      value=width,
+                      doc_summary=(F"Width of {self.name}"),
+                      doc_verbose=doc_verb,
+                      implicit=True)
+
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -1049,9 +962,39 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
+        if not self.implicit:
+            self._gen_width_param()
 
     def __repr__(self):
         return F"{id(self)} {self.name}, width {self.width}, value {self.value}"
+
+    def _gen_width_param(self):
+        """Generate localparam for WIDTH of explicit localparams """
+        if self.value == 0:
+            width = 1
+            doc_verb = "Value of 0 would lead to an undefined clog2 calculation. forcing a width of 1."
+        else:
+            width = F"clog2({self.name}.value)"
+            doc_verb = ""
+
+        super()._gen_width_param(width)
+
+        PkgLocalparam(parent=self.parent,
+                      log=self.log,
+                      name=(F"{self.name}_COUNT_WIDTH"),
+                      value=F"clog2({self.name}.value + 1)",
+                      doc_summary=(F"Width to count {self.name} items"),
+                      doc_verbose="",
+                      implicit=True)
+
+        PkgLocalparam(parent=self.parent,
+                      log=self.log,
+                      name=(F"{self.name}_WIDTH_ONE"),
+                      value=1,
+                      width=width,
+                      doc_summary=(F"{self.name}_WIDTH-wide 1 for incrementers and decrementers"),
+                      doc_verbose="",
+                      implicit=True)
 
     @only_run_once
     def resolve_links(self):
@@ -1060,6 +1003,9 @@ class PkgLocalparam(PkgItemBase):
         try:
             self.width = Equation(self, self.width)
             self.value = Equation(self, self.value)
+            if self.implicit and self.width.computed_width == 0:
+                self.width.computed_width = 1
+                self.doc_verbose = F"Width would be 0 because clog2(1)=0. Forcing to 1."
         except EquationError as exc:
             self.log.error(str(exc))
             self.log.critical(F"Previous errors parsing {self.name}")
@@ -1134,6 +1080,8 @@ class PkgEnum(PkgItemBase):
         self.width = kwargs.pop('width')
         for row in kwargs.pop('values'):
             PkgEnumValue(parent=self, log=self.log, **row)
+        if not self.implicit:
+            self._gen_width_param(F"{self.name}.width")
 
         self._explicit_values = False
 
@@ -1329,6 +1277,8 @@ class PkgTypedef(PkgItemBase):
         super().__init__(**kwargs)
         self.base_sv_type = kwargs.pop('base_type')
         self.width = kwargs.pop('width')
+        if not self.implicit:
+            self._gen_width_param(F"{self.name}.width")
 
     def __repr__(self):
         return F"typedef {id(self)} {self.name}"
@@ -1406,6 +1356,8 @@ class PkgStruct(PkgItemBase):
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
         self._check_vld_msb()
+        if not self.implicit:
+            self._gen_width_param(F"{self.name}.width")
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
@@ -1598,6 +1550,10 @@ class PkgXaction(PkgStruct):
     def __init__(self, **kwargs):
         kwargs['fields'] = kwargs.pop('cycles')
         super().__init__(**kwargs)
+
+    def _gen_width_param(self, width):
+        """ Override the super-class method for generating a width localparam. not needed for xactions. """
+        pass
 
     @only_run_once
     def resolve_links(self):
@@ -1821,9 +1777,6 @@ class Intf(YisNode):
                 "Components:\n  -{components}\n".format(
                     components="\n  -".join([repr(component) for component in self.children.values()])))
 
-    def generate_new_symbols(self):
-        pass # nothing to generate for Intf
-
     @memoize_property
     def computed_width(self):
         """Compute width of the each child object, then accumulate all widths to form master width."""
@@ -1991,9 +1944,6 @@ class Mem(YisNode):
             self.modules.append(module)
             return True
         return False
-
-    def generate_new_symbols(self):
-        pass # nothing to generate for Mem
 
     @only_run_once
     def resolve_links(self):
