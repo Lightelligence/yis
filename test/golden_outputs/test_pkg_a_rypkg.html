@@ -53,6 +53,45 @@ test/golden_inputs/test_pkg_a.yis - YIS</title>
   </tr>
 
   <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH">TRIPLE_NESTED_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>Width of TRIPLE_NESTED_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH">TRIPLE_NESTED_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count TRIPLE_NESTED_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE">TRIPLE_NESTED_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_a__DOUBLE_LINK_PARAM"><a href="#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.width</a>
 </td>
@@ -65,12 +104,90 @@ test/golden_inputs/test_pkg_a.yis - YIS</title>
   </tr>
 
   <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH">DOUBLE_LINK_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>Width of DOUBLE_LINK_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH">DOUBLE_LINK_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count DOUBLE_LINK_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE">DOUBLE_LINK_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_a__HERO_WIDTH"><a href="#test_pkg_a__HERO_WIDTH">HERO_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
       <td>36</td>
       <td>36</td>
       <td>Width of hero bus around the bag.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_WIDTH">HERO_WIDTH_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+    )
+</td>
+      <td>6</td>
+      <td>Width of HERO_WIDTH</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_COUNT_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_COUNT_WIDTH">HERO_WIDTH_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+     + 1)
+</td>
+      <td>6</td>
+      <td>Width to count HERO_WIDTH items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_WIDTH_ONE"><a href="#test_pkg_a__HERO_WIDTH_WIDTH_ONE">HERO_WIDTH_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+    )
+</td>
+      <td>6</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers</td>
       <td></td>
   </tr>
 
@@ -91,102 +208,15 @@ documentation.
   </tr>
 
   <tr>
-      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH">TRIPLE_NESTED_PARAM_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>1</td>
-      <td>1</td>
-      <td>Computed width of TRIPLE_NESTED_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH">TRIPLE_NESTED_PARAM_COUNT_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>2</td>
-      <td>2</td>
-      <td>Computed count_width of TRIPLE_NESTED_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE">TRIPLE_NESTED_PARAM_WIDTH_ONE</a></td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH">DOUBLE_LINK_PARAM_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>1</td>
-      <td>1</td>
-      <td>Computed width of DOUBLE_LINK_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH">DOUBLE_LINK_PARAM_COUNT_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>2</td>
-      <td>2</td>
-      <td>Computed count_width of DOUBLE_LINK_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE">DOUBLE_LINK_PARAM_WIDTH_ONE</a></td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__HERO_WIDTH_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_WIDTH">HERO_WIDTH_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>6</td>
-      <td>6</td>
-      <td>Computed width of HERO_WIDTH</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__HERO_WIDTH_COUNT_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_COUNT_WIDTH">HERO_WIDTH_COUNT_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>6</td>
-      <td>6</td>
-      <td>Computed count_width of HERO_WIDTH</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_a__HERO_WIDTH_WIDTH_ONE"><a href="#test_pkg_a__HERO_WIDTH_WIDTH_ONE">HERO_WIDTH_WIDTH_ONE</a></td>
-      <td>6</td>
-      <td>6</td>
-      <td>1</td>
-      <td>1</td>
-      <td>HERO_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
-      <td></td>
-  </tr>
-
-  <tr>
       <td id="test_pkg_a__ANOTHER_PARAM_WIDTH"><a href="#test_pkg_a__ANOTHER_PARAM_WIDTH">ANOTHER_PARAM_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+    )
+</td>
       <td>1</td>
-      <td>1</td>
-      <td>Computed width of ANOTHER_PARAM</td>
+      <td>Width of ANOTHER_PARAM</td>
       <td></td>
   </tr>
 
@@ -194,19 +224,25 @@ documentation.
       <td id="test_pkg_a__ANOTHER_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__ANOTHER_PARAM_COUNT_WIDTH">ANOTHER_PARAM_COUNT_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+     + 1)
+</td>
       <td>2</td>
-      <td>2</td>
-      <td>Computed count_width of ANOTHER_PARAM</td>
+      <td>Width to count ANOTHER_PARAM items</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_a__ANOTHER_PARAM_WIDTH_ONE"><a href="#test_pkg_a__ANOTHER_PARAM_WIDTH_ONE">ANOTHER_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+    )
+</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
-      <td>1</td>
-      <td>ANOTHER_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
+      <td>ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
       <td></td>
   </tr>
 
@@ -214,9 +250,10 @@ documentation.
       <td id="test_pkg_a__CYCLE_TYPE_E_WIDTH"><a href="#test_pkg_a__CYCLE_TYPE_E_WIDTH">CYCLE_TYPE_E_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E.width</a>
+</td>
       <td>2</td>
-      <td>2</td>
-      <td>Computed width of CYCLE_TYPE_E</td>
+      <td>Width of CYCLE_TYPE_E</td>
       <td></td>
   </tr>
 
@@ -224,9 +261,10 @@ documentation.
       <td id="test_pkg_a__BOOL_E_WIDTH"><a href="#test_pkg_a__BOOL_E_WIDTH">BOOL_E_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__BOOL_E">BOOL_E.width</a>
+</td>
       <td>1</td>
-      <td>1</td>
-      <td>Computed width of BOOL_E</td>
+      <td>Width of BOOL_E</td>
       <td></td>
   </tr>
 
@@ -234,9 +272,10 @@ documentation.
       <td id="test_pkg_a__HERO_WRITE_T_WIDTH"><a href="#test_pkg_a__HERO_WRITE_T_WIDTH">HERO_WRITE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__hero_write_t">hero_write_t.width</a>
+</td>
       <td>46</td>
-      <td>46</td>
-      <td>Computed width of hero_write_t</td>
+      <td>Width of hero_write_t</td>
       <td></td>
   </tr>
 
@@ -244,9 +283,10 @@ documentation.
       <td id="test_pkg_a__SUB_DEF_T_WIDTH"><a href="#test_pkg_a__SUB_DEF_T_WIDTH">SUB_DEF_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def_t">sub_def_t.width</a>
+</td>
       <td>7</td>
-      <td>7</td>
-      <td>Computed width of sub_def_t</td>
+      <td>Width of sub_def_t</td>
       <td></td>
   </tr>
 
@@ -254,9 +294,10 @@ documentation.
       <td id="test_pkg_a__VANILLA_TYPE_T_WIDTH"><a href="#test_pkg_a__VANILLA_TYPE_T_WIDTH">VANILLA_TYPE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__vanilla_type_t">vanilla_type_t.width</a>
+</td>
       <td>6</td>
-      <td>6</td>
-      <td>Computed width of vanilla_type_t</td>
+      <td>Width of vanilla_type_t</td>
       <td></td>
   </tr>
 
@@ -264,9 +305,10 @@ documentation.
       <td id="test_pkg_a__NESTED_TYPE_T_WIDTH"><a href="#test_pkg_a__NESTED_TYPE_T_WIDTH">NESTED_TYPE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__nested_type_t">nested_type_t.width</a>
+</td>
       <td>12</td>
-      <td>12</td>
-      <td>Computed width of nested_type_t</td>
+      <td>Width of nested_type_t</td>
       <td></td>
   </tr>
 

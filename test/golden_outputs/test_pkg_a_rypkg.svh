@@ -23,41 +23,29 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   localparam [/* DOUBLE_LINK_PARAM.value */ 2 - 1:0] TRIPLE_NESTED_PARAM = /* ANOTHER_PARAM.value */ 2; // This parameter has a paramterized width and a parameterized type.
   
-  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH = 1; // Computed width of TRIPLE_NESTED_PARAM
+  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_WIDTH = /* clog2(TRIPLE_NESTED_PARAM.value) */ 1; // Width of TRIPLE_NESTED_PARAM
   
-  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_COUNT_WIDTH = 2; // Computed count_width of TRIPLE_NESTED_PARAM
+  localparam [32 - 1:0] TRIPLE_NESTED_PARAM_COUNT_WIDTH = /* clog2(TRIPLE_NESTED_PARAM.value + 1) */ 2; // Width to count TRIPLE_NESTED_PARAM items
   
-  localparam [1 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_ONE = 1; // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  localparam [/* clog2(TRIPLE_NESTED_PARAM.value) */ 1 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_ONE = 1; // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
   
-  localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH = 1; // Computed width of DOUBLE_LINK_PARAM
+  localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH = /* clog2(DOUBLE_LINK_PARAM.value) */ 1; // Width of DOUBLE_LINK_PARAM
   
-  localparam [32 - 1:0] DOUBLE_LINK_PARAM_COUNT_WIDTH = 2; // Computed count_width of DOUBLE_LINK_PARAM
+  localparam [32 - 1:0] DOUBLE_LINK_PARAM_COUNT_WIDTH = /* clog2(DOUBLE_LINK_PARAM.value + 1) */ 2; // Width to count DOUBLE_LINK_PARAM items
   
-  localparam [1 - 1:0] DOUBLE_LINK_PARAM_WIDTH_ONE = 1; // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  localparam [/* clog2(DOUBLE_LINK_PARAM.value) */ 1 - 1:0] DOUBLE_LINK_PARAM_WIDTH_ONE = 1; // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
   
-  localparam [32 - 1:0] HERO_WIDTH_WIDTH = 6; // Computed width of HERO_WIDTH
+  localparam [32 - 1:0] HERO_WIDTH_WIDTH = /* clog2(HERO_WIDTH.value) */ 6; // Width of HERO_WIDTH
   
-  localparam [32 - 1:0] HERO_WIDTH_COUNT_WIDTH = 6; // Computed count_width of HERO_WIDTH
+  localparam [32 - 1:0] HERO_WIDTH_COUNT_WIDTH = /* clog2(HERO_WIDTH.value + 1) */ 6; // Width to count HERO_WIDTH items
   
-  localparam [6 - 1:0] HERO_WIDTH_WIDTH_ONE = 1; // HERO_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
+  localparam [/* clog2(HERO_WIDTH.value) */ 6 - 1:0] HERO_WIDTH_WIDTH_ONE = 1; // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
-  localparam [32 - 1:0] ANOTHER_PARAM_WIDTH = 1; // Computed width of ANOTHER_PARAM
+  localparam [32 - 1:0] ANOTHER_PARAM_WIDTH = /* clog2(ANOTHER_PARAM.value) */ 1; // Width of ANOTHER_PARAM
   
-  localparam [32 - 1:0] ANOTHER_PARAM_COUNT_WIDTH = 2; // Computed count_width of ANOTHER_PARAM
+  localparam [32 - 1:0] ANOTHER_PARAM_COUNT_WIDTH = /* clog2(ANOTHER_PARAM.value + 1) */ 2; // Width to count ANOTHER_PARAM items
   
-  localparam [1 - 1:0] ANOTHER_PARAM_WIDTH_ONE = 1; // ANOTHER_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators
-  
-  localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = 2; // Computed width of CYCLE_TYPE_E
-  
-  localparam [32 - 1:0] BOOL_E_WIDTH = 1; // Computed width of BOOL_E
-  
-  localparam [32 - 1:0] HERO_WRITE_T_WIDTH = 46; // Computed width of hero_write_t
-  
-  localparam [32 - 1:0] SUB_DEF_T_WIDTH = 7; // Computed width of sub_def_t
-  
-  localparam [32 - 1:0] VANILLA_TYPE_T_WIDTH = 6; // Computed width of vanilla_type_t
-  
-  localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = 12; // Computed width of nested_type_t
+  localparam [/* clog2(ANOTHER_PARAM.value) */ 1 - 1:0] ANOTHER_PARAM_WIDTH_ONE = 1; // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
@@ -69,10 +57,14 @@ package test_pkg_a; // This is an example of what a package file could look like
     CYCLE_TYPE_DONE // The command on the bus this is valid and this is the last cycle of data.
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
+  localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = /* CYCLE_TYPE_E.width */ 2; // Width of CYCLE_TYPE_E
+  
   typedef enum logic [1 - 1:0] {
     BOOL_TRUE = 1, // This is true
     BOOL_FALSE = 0 // This is false
   } BOOL_E; // Test for an enum that is width 1
+  
+  localparam [32 - 1:0] BOOL_E_WIDTH = /* BOOL_E.width */ 1; // Width of BOOL_E
   
   typedef struct packed {
     logic [1 - 1:0] subfield_a; // Test that a width-1 logic field generates correctly
@@ -92,10 +84,18 @@ package test_pkg_a; // This is an example of what a package file could look like
     logic [1 - 1:0] clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
+  localparam [32 - 1:0] HERO_WRITE_T_WIDTH = /* hero_write_t.width */ 46; // Width of hero_write_t
+  
+  localparam [32 - 1:0] SUB_DEF_T_WIDTH = /* sub_def_t.width */ 7; // Width of sub_def_t
+  
   // And it has a doc_verbose for good measure
   typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
   
+  localparam [32 - 1:0] VANILLA_TYPE_T_WIDTH = /* vanilla_type_t.width */ 6; // Width of vanilla_type_t
+  
   typedef vanilla_type_t [/* ANOTHER_PARAM.value */ 2 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
+  
+  localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = /* nested_type_t.width */ 12; // Width of nested_type_t
   
 
 endpackage : test_pkg_a

@@ -52,12 +52,90 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
   </tr>
 
   <tr>
+      <td id="test_pkg_b__NEW_PARAM_WIDTH"><a href="#test_pkg_b__NEW_PARAM_WIDTH">NEW_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__NEW_PARAM">NEW_PARAM.value</a>
+    )
+</td>
+      <td>2</td>
+      <td>Width of NEW_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__NEW_PARAM_COUNT_WIDTH"><a href="#test_pkg_b__NEW_PARAM_COUNT_WIDTH">NEW_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__NEW_PARAM">NEW_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count NEW_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__NEW_PARAM_WIDTH_ONE"><a href="#test_pkg_b__NEW_PARAM_WIDTH_ONE">NEW_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__NEW_PARAM">NEW_PARAM.value</a>
+    )
+</td>
+      <td>2</td>
+      <td>1</td>
+      <td>1</td>
+      <td>NEW_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_b__MAX_WR_CYCLES"><a href="#test_pkg_b__MAX_WR_CYCLES">MAX_WR_CYCLES</a></td>
       <td>32</td>
       <td>32</td>
       <td>4</td>
       <td>4</td>
       <td>Maximum number of write cycles allowed for the pipelined write</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__MAX_WR_CYCLES_WIDTH"><a href="#test_pkg_b__MAX_WR_CYCLES_WIDTH">MAX_WR_CYCLES_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__MAX_WR_CYCLES">MAX_WR_CYCLES.value</a>
+    )
+</td>
+      <td>2</td>
+      <td>Width of MAX_WR_CYCLES</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__MAX_WR_CYCLES_COUNT_WIDTH"><a href="#test_pkg_b__MAX_WR_CYCLES_COUNT_WIDTH">MAX_WR_CYCLES_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__MAX_WR_CYCLES">MAX_WR_CYCLES.value</a>
+     + 1)
+</td>
+      <td>3</td>
+      <td>Width to count MAX_WR_CYCLES items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__MAX_WR_CYCLES_WIDTH_ONE"><a href="#test_pkg_b__MAX_WR_CYCLES_WIDTH_ONE">MAX_WR_CYCLES_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__MAX_WR_CYCLES">MAX_WR_CYCLES.value</a>
+    )
+</td>
+      <td>2</td>
+      <td>1</td>
+      <td>1</td>
+      <td>MAX_WR_CYCLES_WIDTH-wide 1 for incrementers and decrementers</td>
       <td></td>
   </tr>
 
@@ -72,72 +150,14 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
   </tr>
 
   <tr>
-      <td id="test_pkg_b__NEW_PARAM_WIDTH"><a href="#test_pkg_b__NEW_PARAM_WIDTH">NEW_PARAM_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>2</td>
-      <td>2</td>
-      <td>Computed width of NEW_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__NEW_PARAM_COUNT_WIDTH"><a href="#test_pkg_b__NEW_PARAM_COUNT_WIDTH">NEW_PARAM_COUNT_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>2</td>
-      <td>2</td>
-      <td>Computed count_width of NEW_PARAM</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__NEW_PARAM_WIDTH_ONE"><a href="#test_pkg_b__NEW_PARAM_WIDTH_ONE">NEW_PARAM_WIDTH_ONE</a></td>
-      <td>2</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1</td>
-      <td>NEW_PARAM_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__MAX_WR_CYCLES_WIDTH"><a href="#test_pkg_b__MAX_WR_CYCLES_WIDTH">MAX_WR_CYCLES_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>2</td>
-      <td>2</td>
-      <td>Computed width of MAX_WR_CYCLES</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__MAX_WR_CYCLES_COUNT_WIDTH"><a href="#test_pkg_b__MAX_WR_CYCLES_COUNT_WIDTH">MAX_WR_CYCLES_COUNT_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>3</td>
-      <td>3</td>
-      <td>Computed count_width of MAX_WR_CYCLES</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__MAX_WR_CYCLES_WIDTH_ONE"><a href="#test_pkg_b__MAX_WR_CYCLES_WIDTH_ONE">MAX_WR_CYCLES_WIDTH_ONE</a></td>
-      <td>2</td>
-      <td>2</td>
-      <td>1</td>
-      <td>1</td>
-      <td>MAX_WR_CYCLES_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
-      <td></td>
-  </tr>
-
-  <tr>
       <td id="test_pkg_b__WR_WIDTH_WIDTH"><a href="#test_pkg_b__WR_WIDTH_WIDTH">WR_WIDTH_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td>clog2(<a href="./test_pkg_b_rypkg.html#test_pkg_b__WR_WIDTH">WR_WIDTH.value</a>
+    )
+</td>
       <td>3</td>
-      <td>3</td>
-      <td>Computed width of WR_WIDTH</td>
+      <td>Width of WR_WIDTH</td>
       <td></td>
   </tr>
 
@@ -145,19 +165,24 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__WR_WIDTH_COUNT_WIDTH"><a href="#test_pkg_b__WR_WIDTH_COUNT_WIDTH">WR_WIDTH_COUNT_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__WR_WIDTH">WR_WIDTH.value</a> +
+    1)
+</td>
       <td>4</td>
-      <td>4</td>
-      <td>Computed count_width of WR_WIDTH</td>
+      <td>Width to count WR_WIDTH items</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_b__WR_WIDTH_WIDTH_ONE"><a href="#test_pkg_b__WR_WIDTH_WIDTH_ONE">WR_WIDTH_WIDTH_ONE</a></td>
-      <td>3</td>
+      <td>clog2(<a href="./test_pkg_b_rypkg.html#test_pkg_b__WR_WIDTH">WR_WIDTH.value</a>
+    )
+</td>
       <td>3</td>
       <td>1</td>
       <td>1</td>
-      <td>WR_WIDTH_WIDTH-wide 1 for incrmeneters and decrementers of matching length operators</td>
+      <td>WR_WIDTH_WIDTH-wide 1 for incrementers and decrementers</td>
       <td></td>
   </tr>
 
@@ -165,19 +190,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__WRITE_TYPE_E_WIDTH"><a href="#test_pkg_b__WRITE_TYPE_E_WIDTH">WRITE_TYPE_E_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__WRITE_TYPE_E">WRITE_TYPE_E.width</a>
+</td>
       <td>3</td>
-      <td>3</td>
-      <td>Computed width of WRITE_TYPE_E</td>
-      <td></td>
-  </tr>
-
-  <tr>
-      <td id="test_pkg_b__PIPELINED_WRITE_T_WIDTH"><a href="#test_pkg_b__PIPELINED_WRITE_T_WIDTH">PIPELINED_WRITE_T_WIDTH</a></td>
-      <td>32</td>
-      <td>32</td>
-      <td>50</td>
-      <td>50</td>
-      <td>Computed width of pipelined_write_t</td>
+      <td>Width of WRITE_TYPE_E</td>
       <td></td>
   </tr>
 
@@ -185,9 +201,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__SEVERAL_THINGS_T_WIDTH"><a href="#test_pkg_b__SEVERAL_THINGS_T_WIDTH">SEVERAL_THINGS_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__several_things_t">several_things_t.width</a>
+</td>
       <td>87</td>
-      <td>87</td>
-      <td>Computed width of several_things_t</td>
+      <td>Width of several_things_t</td>
       <td></td>
   </tr>
 
@@ -195,9 +212,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__TYPE_LINKS_T_WIDTH"><a href="#test_pkg_b__TYPE_LINKS_T_WIDTH">TYPE_LINKS_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__type_links_t">type_links_t.width</a>
+</td>
       <td>100</td>
-      <td>100</td>
-      <td>Computed width of type_links_t</td>
+      <td>Width of type_links_t</td>
       <td></td>
   </tr>
 
@@ -205,9 +223,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__WRITE_CMD_T_WIDTH"><a href="#test_pkg_b__WRITE_CMD_T_WIDTH">WRITE_CMD_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_cmd_t">write_cmd_t.width</a>
+</td>
       <td>10</td>
-      <td>10</td>
-      <td>Computed width of write_cmd_t</td>
+      <td>Width of write_cmd_t</td>
       <td></td>
   </tr>
 
@@ -215,9 +234,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__WRITE_DATA_T_WIDTH"><a href="#test_pkg_b__WRITE_DATA_T_WIDTH">WRITE_DATA_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_data_t">write_data_t.width</a>
+</td>
       <td>10</td>
-      <td>10</td>
-      <td>Computed width of write_data_t</td>
+      <td>Width of write_data_t</td>
       <td></td>
   </tr>
 
@@ -225,9 +245,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__FITAX_DEFINED_TYPE_T_WIDTH"><a href="#test_pkg_b__FITAX_DEFINED_TYPE_T_WIDTH">FITAX_DEFINED_TYPE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__first_defined_type_t">first_defined_type_t.width</a>
+</td>
       <td>6</td>
-      <td>6</td>
-      <td>Computed width of first_defined_type_t</td>
+      <td>Width of first_defined_type_t</td>
       <td></td>
   </tr>
 
@@ -235,9 +256,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__SECOND_DEFINED_TYPE_T_WIDTH"><a href="#test_pkg_b__SECOND_DEFINED_TYPE_T_WIDTH">SECOND_DEFINED_TYPE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__second_defined_type_t">second_defined_type_t.width</a>
+</td>
       <td>92</td>
-      <td>92</td>
-      <td>Computed width of second_defined_type_t</td>
+      <td>Width of second_defined_type_t</td>
       <td></td>
   </tr>
 
@@ -245,9 +267,10 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
       <td id="test_pkg_b__LOCAL_ITEM_TYPE_T_WIDTH"><a href="#test_pkg_b__LOCAL_ITEM_TYPE_T_WIDTH">LOCAL_ITEM_TYPE_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__local_item_type_t">local_item_type_t.width</a>
+</td>
       <td>174</td>
-      <td>174</td>
-      <td>Computed width of local_item_type_t</td>
+      <td>Width of local_item_type_t</td>
       <td></td>
   </tr>
 
