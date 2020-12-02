@@ -41,6 +41,10 @@ typedefs:
     doc_summary: Use this package's struct as the type and an int for a width
     base_type: several_things_t
     width: 2
+  - name: type_from_implicit_param_t
+    doc_summary: Use an auto-generated localparam in the definition of another YIS type
+    base_type: logic
+    width: MAX_WR_CYCLES_WIDTH.value
 
 structs:
   - name: several_things_t

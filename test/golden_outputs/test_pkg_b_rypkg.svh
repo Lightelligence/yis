@@ -91,6 +91,10 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [32 - 1:0] LOCAL_ITEM_TYPE_T_WIDTH = /* local_item_type_t.width */ 174; // Width of local_item_type_t
   
+  typedef logic [/* MAX_WR_CYCLES_WIDTH.value */ 2 - 1:0] type_from_implicit_param_t; // Use an auto-generated localparam in the definition of another YIS type
+  
+  localparam [32 - 1:0] TYPE_FROM_IMPLICIT_PARAM_T_WIDTH = /* type_from_implicit_param_t.width */ 2; // Width of type_from_implicit_param_t
+  
   typedef struct packed {
     write_cmd_t cmd_cycle; // The command cycle of a pipelined write
     write_data_t dat0; // Data cycle of a pipelined write
