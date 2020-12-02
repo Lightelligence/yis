@@ -358,7 +358,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         self._block_generic = None
         self._parse_files(pkgs)
         self.log.debug("Finished parsing all files")
-        self._link_symbols()
+        self._elaborate()
 
     def _parse_files(self, pkgs):
         """Determine which files to parse as a Pkg or as an Intf."""
@@ -455,7 +455,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         except IOError:
             self.log.critical("Couldn't open {}".format(yaml_to_parse))
 
-    def _link_symbols(self):
+    def _elaborate(self):
         """Walk all children, link the appropriate types, fields, etc."""
         # Only do a link first. Skip computing widths until after link is finished
         for pkg in self._pkgs.values():
