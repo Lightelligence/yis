@@ -40,6 +40,22 @@ interface {{ interface.name }}__{{ component.name }}_intf (input clk, input rst_
 {%- endfor %}
   endclocking
 
+  task reset__src__dst();
+{%- for connection in component.children.values() %}
+    {%- if interface.src() == interface.src_dst_extract(connection.name)[0] %}
+        {{ connection.short_name }} <= '0;
+    {%- endif %}
+{%- endfor %}
+  endtask : reset__src__dst
+
+  task reset__dst__src();
+{%- for connection in component.children.values() %}
+    {%- if interface.dst() == interface.src_dst_extract(connection.name)[0] %}
+    	{{ connection.short_name }} <= '0;
+    {%- endif %}
+{%- endfor %}
+  endtask : reset__dst__src
+
 endinterface : {{ interface.name }}__{{ component.name }}_intf
 
 {% endfor -%}
