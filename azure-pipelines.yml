@@ -10,6 +10,10 @@ stages:
       displayName: 'Bazel Tests'
       steps:
       - script: |
+          pwd
+        displayName: 'Display PWD'
+
+      - script: |
           source activate digital
           yapf --diff --recursive . --style .style.yapf
         # Do an automatic regen with

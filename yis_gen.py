@@ -392,7 +392,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
 
     def _parse_one_pkg(self, fname):
         try:
-            self.log.info(F"Parsing pkg {fname}")
+            self.log.debug(F"Parsing pkg {fname}")
             self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_pkg.yaml'), fname)
             self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(fname) as yfile:
@@ -408,7 +408,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
     def _parse_block_interface(self, intf_to_parse):
         """Parse a block interface file, deserialize into relevant objects."""
         try:
-            self.log.info(F"Parsing intf {intf_to_parse}")
+            self.log.debug(F"Parsing intf {intf_to_parse}")
             self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_intf.yaml'), intf_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors doing initial YAML parse")
             with open(intf_to_parse) as yfile:
@@ -427,7 +427,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
     def _parse_block_memory(self, mem_to_parse):
         """Parse a block memory file, deserialize into relevant objects."""
         try:
-            self.log.info(F"Parsing mem {mem_to_parse}")
+            self.log.debug(F"Parsing mem {mem_to_parse}")
             self._yamale_validate(os.path.join(self._yamale_schemas_dir, 'rtl_mem.yaml'), mem_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors")
             with open(mem_to_parse) as yfile:
@@ -442,7 +442,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
     def _parse_block_generic(self, yaml_to_parse, blk):
         """Parse a block memory file, deserialize into relevant objects."""
         try:
-            self.log.info(F"Parsing blk {yaml_to_parse}")
+            self.log.debug(F"Parsing blk {yaml_to_parse}")
             self._yamale_validate(os.path.join(self._yamale_schemas_dir, f'rtl_{blk}.yaml'), yaml_to_parse)
             self.log.exit_if_warnings_or_errors("Previous errors")
             with open(yaml_to_parse) as yfile:
@@ -529,7 +529,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
                                          pkgs=self._pkgs,
                                          target_pkg=target_pkg)
         with open(output_file, 'w') as fileh:
-            self.log.info(F"Writing {os.path.abspath(output_file)}")
+            self.log.debug(F"Writing {os.path.abspath(output_file)}")
             fileh.write(output_content)
 
     def add_child(self, child):
