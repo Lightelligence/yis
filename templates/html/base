@@ -14,20 +14,9 @@
   {% block html_head %}{% endblock %}
 </head>
 <body>
-  <a href="/">Go home...</a>
-  <br/>
-  <a href=".">Go to parent directory...</a>
-  </br>
   <div class="container-fluid">
     {% block content %}{% endblock %}
   </div>
-
-  <div id="footer">
-    {% block body_footer %}
-    &copy; Copyright {{ year }} by <a href="http://lightelligence.ai">Lightelligence</a>.
-    {% endblock %}
-  </div>
-
 </body>
 {% block footer %}
 {% endblock %}

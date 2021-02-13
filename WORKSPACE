@@ -27,3 +27,9 @@ git_repository(
     shallow_since = "1589560509 -0400",
 )
 
+git_repository(
+    name = "project_doc_server",
+    commit = "17ad3f72730d1b6f35caeac9948b9b06130b842a",
+    remote = "git@ssh.dev.azure.com:v3/LightelligencePlatform/project_doc_server/project_doc_server",
+    shallow_since = "1613180335 +0000",
+)

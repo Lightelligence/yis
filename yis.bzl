@@ -2,6 +2,7 @@
 
 load("@verilog_tools//:rtl.bzl", "rtl_lib", "rtl_pkg", "rtl_unit_test")
 load("@verilog_tools//:dv.bzl", "dv_lib")
+load("@project_doc_server//:doc.bzl", "rst_html_wrapper")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RTL pkg."""
@@ -174,6 +175,12 @@ def yis_html_pkg(name, pkg_deps, pkg):
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
+    rst_html_wrapper(
+        name = "{}_rypkg_rst".format(name),
+        title = "{} YIS".format(name.upper()),
+        html_file = "{}_rypkg.html".format(name),
+        tags = ["doc_export"],
+    )
 
 def yis_html_intf(name, pkg_deps, intf):
     expected_name = intf.rsplit(":")[1][:-4]
@@ -188,6 +195,12 @@ def yis_html_intf(name, pkg_deps, intf):
         output_to_bindir = True,
         tools = ["@yis//:yis_gen"],
         visibility = ["//visibility:public"],
+        tags = ["doc_export"],
+    )
+    rst_html_wrapper(
+        name = "{}_rtl_intf_rst".format(name),
+        title = "{} Interface".format(name.upper().replace("__", " to ")),
+        html_file = "{}_rtl_intf.html".format(name),
         tags = ["doc_export"],
     )
 
