@@ -1,7 +1,6 @@
 """Rules (well macros) for building yis files."""
 
-load("@verilog_tools//:rtl.bzl", "rtl_lib", "rtl_pkg", "rtl_unit_test")
-load("@verilog_tools//:dv.bzl", "dv_lib")
+load("@rules_verilog//verilog:defs.bzl", "verilog_dv_library", "verilog_rtl_library", "verilog_rtl_pkg", "verilog_rtl_unit_test")
 load("@project_doc_server//:doc.bzl", "rst_html_wrapper")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
@@ -14,7 +13,7 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         output_to_bindir = True,
         tools = ["@yis//:yis_gen"],
     )
-    rtl_pkg(
+    verilog_rtl_pkg(
         name = "{}_rypkg".format(name),
         direct = [":{}_rypkg_svh".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
@@ -56,7 +55,7 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
         tags = ["doc_export"],
     )
     # FIXME more external deps that shouldn't have been added
-    rtl_lib(
+    verilog_rtl_library(
         name = "{}_mem".format(name),
         lib_files = [":{}_mem_gen".format(name)],
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps] +
@@ -64,15 +63,15 @@ def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
                sram_deps,
         visibility = ["//visibility:public"],
     )
-    rtl_lib(
+    verilog_rtl_library(
         name = "{}_prot".format(name),
         lib_files = [":{}_prot_gen".format(name)],
     )
-    rtl_lib(
+    verilog_rtl_library(
         name = "{}_pipe".format(name),
         lib_files = [":{}_pipe_gen".format(name)],
     )
-    rtl_unit_test(
+    verilog_rtl_unit_test(
         name = "{}_mem_test".format(name),
         tags = [
             "lic_xcelium",
@@ -101,14 +100,14 @@ def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
     )
 
     # FIXME more external deps that shouldn't have been added
-    rtl_lib(
+    verilog_rtl_library(
         name = "{}_fifo".format(name),
         lib_files = [":{}_fifo_gen".format(name)],
         deps = ["{}_mem".format(name), "@bagware//:bagware"],
         visibility = ["//visibility:public"],
     )
 
-    rtl_unit_test(
+    verilog_rtl_unit_test(
         name = "{}_fifo_test".format(name),
         tags = [
             "lic_xcelium",
@@ -153,7 +152,7 @@ def yis_dv_intf(name, pkg_deps, pkg):
         visibility = ["//visibility:public"],
         tools = ["@yis//:yis_gen"],
     )
-    dv_lib(
+    verilog_dv_library(
         name = "{}_dv_intf".format(name),
         srcs = [":{}_dv_intf_svh".format(name)],
         in_flist = [":{}_dv_intf_svh".format(name)],
