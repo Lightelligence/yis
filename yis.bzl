@@ -3,7 +3,7 @@
 load("@rules_verilog//verilog:defs.bzl", "verilog_dv_library", "verilog_rtl_library", "verilog_rtl_pkg", "verilog_rtl_unit_test")
 load("@project_doc_server//:doc.bzl", "rst_html_wrapper")
 
-def yis_rtl_pkg(name, pkg_deps, pkg):
+def yis_verilog_rtl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RTL pkg."""
     native.genrule(
         name = "{}_rypkg_svh".format(name),
@@ -206,7 +206,7 @@ def yis_html_intf(name, pkg_deps, intf):
 def yis_pkg(name, pkg_deps, pkg):
     if not name.endswith("_yis"):
         fail("yis_pkg rule names must end with '_yis': {}".format(name))
-    yis_rtl_pkg(name[:-4], pkg_deps, pkg)
+    yis_verilog_rtl_pkg(name[:-4], pkg_deps, pkg)
     yis_rdl_pkg(name[:-4], pkg_deps, pkg)
     yis_html_pkg(name[:-4], pkg_deps, pkg)
 
