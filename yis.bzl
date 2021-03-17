@@ -3,7 +3,7 @@
 load("@rules_verilog//verilog:defs.bzl", "verilog_dv_library", "verilog_rtl_library", "verilog_rtl_pkg", "verilog_rtl_unit_test")
 load("@project_doc_server//:doc.bzl", "rst_html_wrapper")
 
-def yis_verilog_rtl_pkg(name, pkg_deps, pkg):
+def yis_rtl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RTL pkg."""
     native.genrule(
         name = "{}_rypkg_svh".format(name),
