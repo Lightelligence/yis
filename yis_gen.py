@@ -261,10 +261,11 @@ class Equation(ast.NodeTransformer):
         # The float type as a built-in is_integer function, but that doesn't work if the result is already an integer
         # We could instead do a type check or wrap an is_integer call around a try/except block, but this seems cleaner
         if float(int(self.computed_value)) != self.computed_value:
-            self.yisnode.log.error(f"Equation for {self.yisnode.name} has a non-integer computed value of {self.computed_value}. "
-                                   f"All rendered RTL must have integer widths. "
-                                   f"Consider using math.ceil() and math.floor() to round up or round down. "
-                                   f"The equation is: {self.equation}")
+            self.yisnode.log.error(
+                f"Equation for {self.yisnode.name} has a non-integer computed value of {self.computed_value}. "
+                f"All rendered RTL must have integer widths. Please double check the equation and "
+                f"consider using math.ceil() and math.floor() to round up or round down. "
+                f"The equation is: {self.equation}")
         # Automatically do int() cast to avoid needing to explicitly wrap equations in .yis files with int()
         return f"{comment}{int(self.computed_value)}"
 
