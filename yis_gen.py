@@ -258,7 +258,11 @@ class Equation(ast.NodeTransformer):
             comment = ""
         else:
             comment = f"/* {self.equation} */ "
-        return f"{comment}{self.computed_value}"
+        if float(int(self.computed_value)) != self.computed_value:
+            self.yisnode.log.error(f"Equation for {self.yisnode.name} has a non-integer computed value. "
+                                   f"All rendered RTL must have integer widths. "
+                                   f"The equation is: {self.equation}")
+        return f"{comment}{int(self.computed_value)}"
 
 
 class YisFileFilterAction(argparse.Action): # pylint: disable=too-few-public-methods
