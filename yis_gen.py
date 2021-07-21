@@ -1249,7 +1249,7 @@ class PkgEnumValue(PkgItemBase):
         parent_base_name = self.parent.name[:-len(self.parent.TYPE_NAME_SUFFIX)]
         exp_sv_value = ""
         if self.sv_value is not None:
-            exp_sv_value = F" = {self.sv_value}"
+            exp_sv_value = F" = {self.parent.computed_width}'d{self.sv_value}"
         ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}, // {self.doc_summary}")
         return ret_arr
 
