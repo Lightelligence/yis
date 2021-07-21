@@ -60,8 +60,8 @@ package test_pkg_a; // This is an example of what a package file could look like
   localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = /* CYCLE_TYPE_E.width */ 2; // Width of CYCLE_TYPE_E
   
   typedef enum logic [1 - 1:0] {
-    BOOL_TRUE = 1, // This is true
-    BOOL_FALSE = 0 // This is false
+    BOOL_TRUE = 1'd1, // This is true
+    BOOL_FALSE = 1'd0 // This is false
   } BOOL_E; // Test for an enum that is width 1
   
   localparam [32 - 1:0] BOOL_E_WIDTH = /* BOOL_E.width */ 1; // Width of BOOL_E
