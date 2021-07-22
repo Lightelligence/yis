@@ -22,6 +22,7 @@ stages:
 
       - bash: |
           source activate digital
+          source /opt/rh/devtoolset-8/enable 
           find -L `bazel info bazel-testlogs` -name "test.xml" | xargs rm -f
           bazel test --cache_test_results=no --jobs 8 --test_output=all ...
         displayName: 'Run Tests'

@@ -1249,6 +1249,9 @@ class PkgEnumValue(PkgItemBase):
         parent_base_name = self.parent.name[:-len(self.parent.TYPE_NAME_SUFFIX)]
         exp_sv_value = ""
         if self.sv_value is not None:
+            # Add the parent's computed width to keep lint and back-end tools happy
+            # Without the explicit width, some tools treated the raw value as a 32-bit, then threw an error because
+            # there was a 32-bit value in an enum that was only a few bits wide
             exp_sv_value = F" = {self.parent.computed_width}'d{self.sv_value}"
         ret_arr.append(F"{parent_base_name}_{self.name}{exp_sv_value}, // {self.doc_summary}")
         return ret_arr
