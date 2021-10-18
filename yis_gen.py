@@ -316,6 +316,8 @@ def parse_args(argv):
 
     parser.add_argument('--gen-rtl', default=False, action='store_true', help="Use the rtl generator for output.")
 
+    parser.add_argument('--gen-hdr', default=False, action='store_true', help="Use the rtl generator for output.")
+
     parser.add_argument('--gen-rdl', default=False, action='store_true', help="Use the rdl generator for output.")
 
     parser.add_argument('--gen-dv', default=False, action='store_true', help="Use the dv generator for output.")
@@ -503,7 +505,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
         year = date.today().year
 
         target_pkg = next(reversed(self._pkgs.values()))
-
+        orderedElements = []
         if self.options.gen_rtl:
             template_directory = "rtl"
         elif self.options.gen_rdl:
@@ -516,6 +518,22 @@ class Yis: # pylint: disable=too-many-instance-attributes
             with open(output_file, 'wb') as fileh:
                 fileh.write(instruction.render(target_pkg))
             return
+        elif self.options.gen_hdr:
+            template_directory = "hdr"
+            env.lstrip_blocks = True # Avoid a lot of chomping (and other nashing of teeth)
+            env.trim_blocks = True # in the C templates.
+
+            # Add some tests that no one else seems to need
+            env.tests["struct"] = lambda obj: isinstance(obj, PkgStruct)
+            env.tests["union"] = lambda obj: isinstance(obj, PkgUnion)
+
+            # C header file is sensitive to definition ordering.  The .yis file could (probably)
+            #  be constructed to ensure ordering, but it is pretty far removed from the end user
+            #  (diagnostics or drivers) so better to ensure proper ordering here.
+            orderedElements = target_pkg.post_order_traversal_for_rtl_render()
+            orderedElements = [
+                obj for obj in orderedElements if isinstance(obj, PkgStruct) or isinstance(obj, PkgUnion)
+            ]
         else:
             self.log.critical("No generator specified.")
 
@@ -531,11 +549,13 @@ class Yis: # pylint: disable=too-many-instance-attributes
 
         self.log.debug("Rendering from template %s", template_name)
         template = env.get_template(template_name)
+
         output_content = template.render(year=year,
                                          interface=self._block_interface,
                                          memory=self._block_memory,
                                          blk=self._block_generic,
                                          pkgs=self._pkgs,
+                                         orderedElements=orderedElements,
                                          target_pkg=target_pkg)
         with open(output_file, 'w') as fileh:
             self.log.debug(F"Writing {os.path.abspath(output_file)}")
@@ -630,6 +650,23 @@ class YisNode: # pylint: disable=too-few-public-methods
             wrapper = textwrap.TextWrapper(initial_indent="// ", subsequent_indent=F"{indent_spaces}// ")
             return wrapper.fill(self.doc_verbose)
         return ""
+
+    def render_native_c_type(self):
+        """Render the passed object as the smallest uint that will hold it if it has a calculated width"""
+        # hacky - if we're in a struct with a declared type, print it.  Otherwise send out a uintN_t
+
+        if isinstance(self, PkgStructField) and not isinstance(self.sv_type, str):
+            return self.sv_type.name
+        elif isinstance(self, PkgUnionField) and not isinstance(self.sv_type, str):
+            return self.sv_type.name
+        else:
+            if self.computed_width <= 8:
+                return "uint8_t"
+            elif self.computed_width <= 16:
+                return "uint16_t"
+            elif self.computed_width <= 32:
+                return "uint32_t"
+            return "uint64_t"
 
     def resolve_link_from_str(self, link_name, allowed_symbols=[]): # pylint: disable=dangerous-default-value
         """Given a string, attempt to likn to a matching YisNode."""
