@@ -56,6 +56,13 @@ enums:
         doc_summary: This is false
         value: 0
     doc_summary: Test for an enum that is width 1
+  - name: CONCISE_E
+    width: 4
+    values:
+      - name: "SEQUENTIAL_THINGS"
+        value: range(11)
+        doc_summary: ThingX
+    doc_summary: Write a lot of enums without much YIS
 
 typedefs:
   - name: vanilla_type_t
