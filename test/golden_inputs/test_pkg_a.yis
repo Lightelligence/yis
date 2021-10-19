@@ -60,7 +60,10 @@ enums:
     width: 4
     values:
       - name: "SEQUENTIAL_THINGS"
-        value: range(11)
+        value: range(0, 10, 2)
+        doc_summary: ThingX
+      - name: "BEE"
+        value: 3
         doc_summary: ThingX
     doc_summary: Write a lot of enums without much YIS
 

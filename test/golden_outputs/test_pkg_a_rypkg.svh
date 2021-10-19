@@ -68,16 +68,11 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   typedef enum logic [4 - 1:0] {
     CONCISE_SEQUENTIAL_THINGS0 = 4'd0, // ThingX
-    CONCISE_SEQUENTIAL_THINGS1 = 4'd1, // ThingX
     CONCISE_SEQUENTIAL_THINGS2 = 4'd2, // ThingX
-    CONCISE_SEQUENTIAL_THINGS3 = 4'd3, // ThingX
     CONCISE_SEQUENTIAL_THINGS4 = 4'd4, // ThingX
-    CONCISE_SEQUENTIAL_THINGS5 = 4'd5, // ThingX
     CONCISE_SEQUENTIAL_THINGS6 = 4'd6, // ThingX
-    CONCISE_SEQUENTIAL_THINGS7 = 4'd7, // ThingX
     CONCISE_SEQUENTIAL_THINGS8 = 4'd8, // ThingX
-    CONCISE_SEQUENTIAL_THINGS9 = 4'd9, // ThingX
-    CONCISE_SEQUENTIAL_THINGS10 = 4'd10 // ThingX
+    CONCISE_BEE = 4'd3 // ThingX
   } CONCISE_E; // Write a lot of enums without much YIS
   
   localparam [32 - 1:0] CONCISE_E_WIDTH = /* CONCISE_E.width */ 4; // Width of CONCISE_E

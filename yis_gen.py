@@ -1088,25 +1088,31 @@ class PkgEnum(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width')
         values = kwargs.pop('values')
+        expandedValues = []
 
-        # if the value is "range(n)", replace the original with n sequential copies.
-        if "value" in values[0] and isinstance(values[0]["value"], str):
-            original = values[0]
-            iStr = re.search("range\((.*)\)", values[0]["value"]).group(1)
-            values = []
-            for i in range(int(iStr)):
-                # modify the name and value, copy the docs
-                newVal = {
-                    'name': "{}{}".format(original['name'], i),
-                    'value': i,
-                    'doc_summary': original['doc_summary'],
-                }
-                # copy any other fields.
-                for k in set(list(original.keys())).difference(['name', 'doc_summary', 'value']):
-                    newVal[k] = original[k]
-                values.append(newVal)
+        for val in values:
+            # if the value is "range(n)", replace the original with n sequential copies.
+            if "value" in val and isinstance(val["value"], str):
+                original = val
+                try:
+                    indices = eval(val["value"])
+                except:
+                    self.log.critical(F"Errors parsing {val['value']}")
+                for i in indices:
+                    # modify the name and value, copy the docs
+                    newVal = {
+                        'name': "{}{}".format(original['name'], i),
+                        'value': i,
+                        'doc_summary': original['doc_summary'],
+                    }
+                    # copy any other fields.
+                    for k in set(list(original.keys())).difference(['name', 'doc_summary', 'value']):
+                        newVal[k] = original[k]
+                    expandedValues.append(newVal)
+            else:
+                expandedValues.append(val)
 
-        for row in values:
+        for row in expandedValues:
             PkgEnumValue(parent=self, log=self.log, **row)
         if not self.implicit:
             self._gen_width_param(F"{self.name}.width")
