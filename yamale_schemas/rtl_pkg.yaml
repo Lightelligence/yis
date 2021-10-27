@@ -50,11 +50,14 @@ typedef:
   width: include('equation')
 ---
 struct_name: regex('^[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid struct name. structs must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
+addr_macro: regex('^[A-Z][A-Z_]+[A-Z]$',name="valid address generator macros must be all CAPS or underscores and must start and end with a letter")
 pkg_scoped_struct_name: regex('^[a-z][a-z0-9_]*[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid package scoped struct name. structs must be at least 3 characters all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")
 any_struct_name: any(include('struct_name'), include('pkg_scoped_struct_name'))
 struct_field_name: regex('^[a-z][a-z0-9_]*[a-z0-9]$', name="valid struct field name. struct field names must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _")
+
 struct:
   name: include('struct_name')
+  addr_macro: include('addr_macro', required=False)
   fields: list(include('struct_field'))
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
@@ -62,8 +65,14 @@ struct_field:
   name: include('struct_field_name')
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
+  selectors: list(include('select'), required=False)
   type: any(include('verilog_primitive'), include('any_enum_name'), include('any_struct_name'), include('any_typedef_name'), include('any_union_name'))
   width: any(include('equation'), required=False)
+select:
+  name: include('struct_field_name')
+  select_with: list("values")
+  
+  
 ---
 union_name: regex('^[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid union name. unions must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t.")
 pkg_scoped_union_name: regex('^[a-z][a-z0-9_]*[a-z0-9]::[a-z][a-z0-9_]+[a-z0-9]_t$', name="valid package scoped union name. unions must be at least 3 characters, all lowercase, start with a letter, only contain letters, numbers, and _, and must end with _t. The package must be all lowercase and start with a letter.")

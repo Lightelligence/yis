@@ -534,6 +534,16 @@ class Yis: # pylint: disable=too-many-instance-attributes
             orderedElements = [
                 obj for obj in orderedElements if isinstance(obj, PkgStruct) or isinstance(obj, PkgUnion)
             ]
+
+            # C header files also can get address macros.
+            # If a struct has a field "addr_macro", we need to traverse the tree to figure
+            # out which bits go in which positions.
+            addrMacros = []
+            for obj in target_pkg.structs:
+                myStruct = target_pkg.structs[obj]
+                if myStruct.addr_macro != None:
+                    addrMacros.append( myStruct.render_addr_macro() )
+            addrMacros = [item for macro in addrMacros for item in macro]
         else:
             self.log.critical("No generator specified.")
 
@@ -556,6 +566,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
                                          blk=self._block_generic,
                                          pkgs=self._pkgs,
                                          orderedElements=orderedElements,
+                                         addressMacros=addrMacros,
                                          target_pkg=target_pkg)
         with open(output_file, 'w') as fileh:
             self.log.debug(F"Writing {os.path.abspath(output_file)}")
@@ -564,6 +575,104 @@ class Yis: # pylint: disable=too-many-instance-attributes
     def add_child(self, child):
         """Dummy add_child function to make the class inheritance for YisNode work."""
         pass # pylint: disable=unnecessary-pass
+
+class AddrError(Exception):
+    pass
+
+class AddrField:
+
+    def __init__(self, **kwargs):
+        yisObj = kwargs.pop('obj')
+        self.name = yisObj.name
+        self.type = "ddo"
+        self.kidCount = 0
+        self.bitCount = yisObj.computed_width
+        self.selects = yisObj.selectors
+        self.selectedBy = None
+        self.next = None
+
+    def addChild(self, newNode):
+        # add a branch at this node
+        if self.kidCount == 0:
+            self.next = []
+        self.next.append(newNode)
+        self.kidCount += 1
+
+    def appendNode(self, newNode):
+        if self.kidCount == 0:
+            self.next = []
+            self.next.append(newNode)
+            self.kidCount = 1
+        else:
+            for currNode in self.next:
+                currNode.appendNode(newNode)
+
+    def flatten(self, currentName, currentArgs, currentPath, remainingBits, macros):
+        """
+        return n, linked lists, one for each leaf node
+        Returns: [AddrField]
+
+        """
+
+        # What do we insert into the address macro?
+        #
+        # Either
+        # (field_name << n)
+        # or
+        # (ENUMVALUE << n)
+        #
+
+        macroVal = "((" + self.name + ")"
+
+        if self.selects != None:
+            macroVal = "((SELECTOR)"   # fill in the details when we find the union...
+
+        if self.selects == None and re.search("Placeholder", self.name) == None:
+            if currentArgs == "":
+                currentArgs = self.name
+            else:
+                currentArgs = currentArgs + ", " + self.name
+
+        macroVal = macroVal + " << {})".format(remainingBits - self.bitCount)
+        remainingBits = remainingBits - self.bitCount
+
+        # Don't add placeholders
+        if re.search("Placeholder", self.name) == None:
+            if currentPath == "":
+                currentPath = macroVal
+            else:
+                currentPath = currentPath + " | " + macroVal
+
+        currentPathStart = currentPath
+        currentNameStart = currentName
+
+        # If there is more than one child, this was a union.
+        #  It better have a selectedBy field of the same
+        #  dimension...
+        if self.selectedBy != None:
+            if len(self.selectedBy) != len(self.next):
+                raise AddrError("Union without defined selector found in address structure")
+            # replace the SELECTOR token with an actual value, this is complicated by the fact
+            #  that the SELECTOR can actually be an array...
+            for i in range(len(self.next)):
+                selVals = []
+                if isinstance(self.selectedBy[i], list):
+                    selVals = self.selectedBy[i]
+                else:
+                    selVals.append(self.selectedBy[i])
+
+                for sel in selVals:
+                    currentPath = re.sub("SELECTOR", sel, currentPathStart)
+                    # Append the evaluated name of the selector to the macro name
+                    currentName = currentNameStart + "_" + sel.upper()
+                    self.next[i].flatten( currentName, currentArgs, currentPath, remainingBits, macros )
+        elif self.next == None:
+            macros.append( "#define " + currentName + "(" + currentArgs + ")    (" + currentPath + ")" )
+        else:
+            for n in self.next:
+                n.flatten( currentName, currentArgs, currentPath, remainingBits, macros )
+
+        return
 
 
 class YisNode: # pylint: disable=too-few-public-methods
@@ -942,6 +1051,7 @@ class PkgItemBase(YisNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.selectors = kwargs.pop('selectors', None)
         self.implicit = kwargs.pop('implicit', False)
 
     def _extract_link_pieces(self, link_name):
@@ -998,6 +1108,18 @@ class PkgItemBase(YisNode):
                       doc_verbose=doc_verb,
                       implicit=True)
 
+
+    def get_addr_node(self):
+        """
+        This is a linked list of info ends up in the C macros for addresses.
+
+        For terminal nodes, next is an empty array, value is the field name (for now)
+
+        structs and unions override this because they do fucked up shit to the tree
+        Returns:
+
+        """
+        return AddrField(obj=self)
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -1440,6 +1562,7 @@ class PkgStruct(PkgItemBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.addr_macro = kwargs.pop('addr_macro', None)
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
         self._check_vld_msb()
@@ -1535,6 +1658,68 @@ class PkgStruct(PkgItemBase):
         ret_arr.append("};")
         return "\n".join(ret_arr)
 
+    def get_addr_node(self):
+        # This is a struct, so add a node per element
+        head = None
+
+        # When we hit a selectors: field in an enum, we need to make note
+        #  of it here, and attach it to the selectedBy field in the union's
+        #  node (which won't be defined for a bit...)
+
+        selectorsInFlight = [];
+
+        keys = list(self.children.keys())
+        for kidName in keys:
+            obj = self.children[kidName]
+            if isinstance(obj.sv_type, str):
+                # this is the leaf node
+                newNode = AddrField(obj=obj)
+                newNode.name = obj.name
+            else:
+                newNode = obj.sv_type.get_addr_node()
+                newNode.selects = obj.selectors
+                if obj.selectors != None:
+                    selectorsInFlight.append(obj.selectors)
+                # this is a bit hinky.  Basically taking the field name in the yis tree as the
+                # macro parameter in C, but only for leaf nodes...
+                if newNode.next == None:
+                    newNode.name = obj.name
+                # newNode.name = obj.name
+
+                if len( selectorsInFlight ) > 0:
+                    for sel in selectorsInFlight:
+                        if sel[0]["name"] == obj.name:
+                            newNode.selectedBy = sel[0]["select_with"]
+                            selectorsInFlight.remove(sel)
+
+
+            if head != None:
+                # append the current head to whatever we just got back
+                head.appendNode(newNode)
+            else:
+                head = newNode
+        return head
+
+
+    def render_addr_macro(self):
+        """
+        Produce "C" macros for structures decorated with an addr_map field.
+        Processing walks the fields in order, top to bottom.  When a selector
+        is encountered, is causes a bifurcation in the map.  Each value in the
+        selector is expected to be an enum, and will be hard-coded into the
+        address generator, which will in turn, have the enum mntrymonic appended
+        to its base name.
+
+        Returns:
+        """
+        macros = []
+        addrTree = self.get_addr_node()
+
+        # now walk the tree nodes and accumulate bits...
+        addrTree.flatten(self.addr_macro, "", "", self.computed_width, macros)
+
+
+        return macros
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
@@ -1545,6 +1730,7 @@ class PkgStructField(PkgItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
+
         if is_verilog_primitive(self.sv_type) and self.width is None:
             self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
         self._check_vld_bit()
@@ -1767,6 +1953,21 @@ class PkgUnion(PkgItemBase):
             all_data.append(data)
         return all_data
 
+    def get_addr_node(self):
+        #
+        # Each element of a union needs to become a "next"
+        #
+        retVal = AddrField(obj=self)
+        retVal.name = "Placeholder " + retVal.name
+        retVal.bitCount = 0    # these don't really take any space, the info in them does, but they don't
+        for fieldName in self.children:
+            obj = self.children[fieldName]
+            if isinstance(obj.sv_type, str):
+                retVal.addChild(AddrField(obj=obj))
+            else:
+                downStream = obj.sv_type.get_addr_node()
+                retVal.addChild(downStream)
+        return retVal
 
 class PkgUnionField(PkgItemBase):
     """Definition for a single field inside a union."""

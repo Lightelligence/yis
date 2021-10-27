@@ -46,11 +46,14 @@ typedef struct _{{o.name}} {
 typedef union _{{o.name}} {
 {% endif %}
 {% for f in o.children.values() %}
-    {{f.render_native_c_type() }} {{f.name}};    // {{f.doc_summary }}
+    {{f.render_native_c_type() }} {{f.name}};    // {{f.computed_width}} bits : {{f.doc_summary }}
 {% endfor %}
 } {{o.name}};
 
 {% endfor %}
 
+{% for m in addressMacros %}
+{{ m }}
+{% endfor %}
 
 #endif // __{{ pkg.name | upper }}_YIS_H__
