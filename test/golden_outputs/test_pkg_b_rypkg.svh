@@ -76,7 +76,7 @@ package test_pkg_b; // Example of what a dependent package looks like
   localparam [32 - 1:0] TYPE_LINKS_T_WIDTH = /* type_links_t.width */ 100; // Width of type_links_t
   
   typedef struct packed {
-    logic [1 - 1:0] vld; // This cmd is valid, this is the start of a new pipelined write
+    logic vld; // This cmd is valid, this is the start of a new pipelined write
     logic [/* test_pkg_a::CYCLE_TYPE_E.width + 2 */ 4 - 1:0] rsvd; // Reserved
     logic [/* clog2(MAX_WR_CYCLES.value - 1) */ 2 - 1:0] num_cycles; // Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value
     WRITE_TYPE_E write_type; // Specifies how the write should be handled

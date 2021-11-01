@@ -59,7 +59,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   
   localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = /* CYCLE_TYPE_E.width */ 2; // Width of CYCLE_TYPE_E
   
-  typedef enum logic [1 - 1:0] {
+  typedef enum logic {
     BOOL_TRUE = 1'd1, // This is true
     BOOL_FALSE = 1'd0 // This is false
   } BOOL_E; // Test for an enum that is width 1
@@ -78,7 +78,7 @@ package test_pkg_a; // This is an example of what a package file could look like
   localparam [32 - 1:0] CONCISE_E_WIDTH = /* CONCISE_E.width */ 4; // Width of CONCISE_E
   
   typedef struct packed {
-    logic [1 - 1:0] subfield_a; // Test that a width-1 logic field generates correctly
+    logic subfield_a; // Test that a width-1 logic field generates correctly
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_b; // This is a different parameter than the first.
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_c; // This is a different parameter than the first.
     logic [/* ANOTHER_PARAM.value */ 2 - 1:0] subfield_d; // This is a different parameter than the first.
@@ -92,7 +92,7 @@ package test_pkg_a; // This is an example of what a package file could look like
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [/* HERO_WIDTH.value */ 36 - 1:0] wdat; // Width of hero bus around the bag.
     sub_def_t another_type_reference; // Test a struct of a struct
-    logic [1 - 1:0] clk_en; // Clock enable for the bus
+    logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
   localparam [32 - 1:0] HERO_WRITE_T_WIDTH = /* hero_write_t.width */ 46; // Width of hero_write_t
