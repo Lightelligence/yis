@@ -617,7 +617,7 @@ class YisNode: # pylint: disable=too-few-public-methods
 
     def _render_formatted_width(self, raw_type):
         render_width = self.width.render_rtl()
-        if render_width == 1:
+        if render_width == "1":
             return F"{raw_type}"
         return F"{raw_type} [{render_width} - 1:0]"
 
