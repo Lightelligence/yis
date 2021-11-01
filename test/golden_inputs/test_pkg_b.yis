@@ -16,6 +16,11 @@ localparams:
   - name: WR_WIDTH
     value: 8
     doc_summary: Width of a single write cycle
+  - name: THIS_IS_ONE
+    value: 1
+    doc_summary: A localparam value of 1
+    doc_verbose: |
+      Used to verify logic fields of width 1 in a a struct via an equation.
 
 enums:
   - name: WRITE_TYPE_E
@@ -113,6 +118,22 @@ structs:
         type: logic
         width: WR_WIDTH.value
         doc_summary: One data cycle
+
+  - name: one_bit_field_t
+    doc_summary: Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct
+    fields:
+      - name: vld
+        type: logic
+        width: 1
+        doc_summary: This field should be rendered as bare logic without anything else
+      - name: new_bit_field
+        type: logic
+        width: (2 * THIS_IS_ONE.value) - THIS_IS_ONE.value
+        doc_summary: This field should be rendered to just a bare logic with the equation in comments
+      - name: simple_bit_field
+        type: logic
+        width: THIS_IS_ONE.value
+        doc_summary: This field should be rendered to just a bare logic with the equation in comments
 
 unions:
       

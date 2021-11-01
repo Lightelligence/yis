@@ -41,6 +41,17 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [/* clog2(WR_WIDTH.value) */ 3 - 1:0] WR_WIDTH_WIDTH_ONE = 1; // WR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
+  // Used to verify logic fields of width 1 in a a struct via an
+  // equation.
+  localparam [32 - 1:0] THIS_IS_ONE = 1; // A localparam value of 1
+  
+  localparam [32 - 1:0] THIS_IS_ONE_WIDTH = /* clog2(THIS_IS_ONE.value) */ 0; // Width of THIS_IS_ONE
+  
+  localparam [32 - 1:0] THIS_IS_ONE_COUNT_WIDTH = /* clog2(THIS_IS_ONE.value + 1) */ 1; // Width to count THIS_IS_ONE items
+  
+  // Width would be 0 because clog2(1)=0. Forcing to 1.
+  localparam [/* clog2(THIS_IS_ONE.value) */ 1 - 1:0] THIS_IS_ONE_WIDTH_ONE = 1; // THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers
+  
   typedef enum logic [3 - 1:0] {
     WRITE_TYPE_STD, // Standard write, nothing special
     WRITE_TYPE_MULTI_WDONE, // Send a wdone for each individual cycle completing
@@ -90,6 +101,14 @@ package test_pkg_b; // Example of what a dependent package looks like
   } write_data_t; // Data cycle of a pipelined write
   
   localparam [32 - 1:0] WRITE_DATA_T_WIDTH = /* write_data_t.width */ 10; // Width of write_data_t
+  
+  typedef struct packed {
+    logic vld; // This field should be rendered as bare logic without anything else
+    logic /* (2 * THIS_IS_ONE.value) - THIS_IS_ONE.value */ new_bit_field; // This field should be rendered to just a bare logic with the equation in comments
+    logic /* THIS_IS_ONE.value */ simple_bit_field; // This field should be rendered to just a bare logic with the equation in comments
+  } one_bit_field_t; // Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct
+  
+  localparam [32 - 1:0] ONE_BIT_FIELD_T_WIDTH = /* one_bit_field_t.width */ 3; // Width of one_bit_field_t
   
   localparam [32 - 1:0] FITAX_DEFINED_TYPE_T_WIDTH = /* first_defined_type_t.width */ 6; // Width of first_defined_type_t
   

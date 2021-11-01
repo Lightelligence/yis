@@ -233,6 +233,56 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
   </tr>
 
   <tr>
+      <td id="test_pkg_b__THIS_IS_ONE"><a href="#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>1</td>
+      <td>1</td>
+      <td>A localparam value of 1</td>
+      <td><pre>Used to verify logic fields of width 1 in a a struct via an equation.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__THIS_IS_ONE_WIDTH"><a href="#test_pkg_b__THIS_IS_ONE_WIDTH">THIS_IS_ONE_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a>
+    )
+</td>
+      <td>0</td>
+      <td>Width of THIS_IS_ONE</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__THIS_IS_ONE_COUNT_WIDTH"><a href="#test_pkg_b__THIS_IS_ONE_COUNT_WIDTH">THIS_IS_ONE_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a>
+     + 1)
+</td>
+      <td>1</td>
+      <td>Width to count THIS_IS_ONE items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__THIS_IS_ONE_WIDTH_ONE"><a href="#test_pkg_b__THIS_IS_ONE_WIDTH_ONE">THIS_IS_ONE_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td><pre>Width would be 0 because clog2(1)=0. Forcing to 1.</pre></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_b__WRITE_TYPE_E_WIDTH"><a href="#test_pkg_b__WRITE_TYPE_E_WIDTH">WRITE_TYPE_E_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
@@ -284,6 +334,17 @@ test/golden_inputs/test_pkg_b.yis - YIS</title>
 </td>
       <td>10</td>
       <td>Width of write_data_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__ONE_BIT_FIELD_T_WIDTH"><a href="#test_pkg_b__ONE_BIT_FIELD_T_WIDTH">ONE_BIT_FIELD_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__one_bit_field_t">one_bit_field_t.width</a>
+</td>
+      <td>3</td>
+      <td>Width of one_bit_field_t</td>
       <td></td>
   </tr>
 
@@ -667,6 +728,62 @@ that we can have a multi-line verbose doc that can be linked through
 </td>
       <td>8</td>
       <td>One data cycle</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_b__one_bit_field_t"><a href="#test_pkg_b__one_bit_field_t">one_bit_field_t</a></h4>
+<p>Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct</p>
+
+<p> Calculated Width =3</p>
+
+<canvas id="one_bit_field_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("one_bit_field_t_canvas");
+  var data = [{'field_names': ['vld', 'new_bit_field', 'simple_bit_field'], 'msbs': [2, 1, 0], 'lsbs': [2, 1, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_b__one_bit_field_t__vld"><a href="#test_pkg_b__one_bit_field_t__vld">vld</a></td>
+      <td>logic</td>
+      <td>1</td>
+      <td>1</td>
+      <td>This field should be rendered as bare logic without anything else</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__one_bit_field_t__new_bit_field"><a href="#test_pkg_b__one_bit_field_t__new_bit_field">new_bit_field</a></td>
+      <td>logic</td>
+      <td>2 * <a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a> - <a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a>
+</td>
+      <td>1</td>
+      <td>This field should be rendered to just a bare logic with the equation in comments</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_b__one_bit_field_t__simple_bit_field"><a href="#test_pkg_b__one_bit_field_t__simple_bit_field">simple_bit_field</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__THIS_IS_ONE">THIS_IS_ONE.value</a>
+</td>
+      <td>1</td>
+      <td>This field should be rendered to just a bare logic with the equation in comments</td>
       <td></td>
   </tr>
 
