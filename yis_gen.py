@@ -506,6 +506,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
 
         target_pkg = next(reversed(self._pkgs.values()))
         orderedElements = []
+        addrMacros = []
         if self.options.gen_rtl:
             template_directory = "rtl"
         elif self.options.gen_rdl:
@@ -538,11 +539,10 @@ class Yis: # pylint: disable=too-many-instance-attributes
             # C header files also can get address macros.
             # If a struct has a field "addr_macro", we need to traverse the tree to figure
             # out which bits go in which positions.
-            addrMacros = []
             for obj in target_pkg.structs:
                 myStruct = target_pkg.structs[obj]
                 if myStruct.addr_macro != None:
-                    addrMacros.append( myStruct.render_addr_macro() )
+                    addrMacros.append(myStruct.render_addr_macro())
             addrMacros = [item for macro in addrMacros for item in macro]
         else:
             self.log.critical("No generator specified.")
@@ -576,8 +576,10 @@ class Yis: # pylint: disable=too-many-instance-attributes
         """Dummy add_child function to make the class inheritance for YisNode work."""
         pass # pylint: disable=unnecessary-pass
 
+
 class AddrError(Exception):
     pass
+
 
 class AddrField:
 
@@ -625,7 +627,7 @@ class AddrField:
         macroVal = "((" + self.name + ")"
 
         if self.selects != None:
-            macroVal = "((SELECTOR)"   # fill in the details when we find the union...
+            macroVal = "((SELECTOR)" # fill in the details when we find the union...
 
         if self.selects == None and re.search("Placeholder", self.name) == None:
             if currentArgs == "":
@@ -665,12 +667,12 @@ class AddrField:
                     currentPath = re.sub("SELECTOR", sel, currentPathStart)
                     # Append the evaluated name of the selector to the macro name
                     currentName = currentNameStart + "_" + sel.upper()
-                    self.next[i].flatten( currentName, currentArgs, currentPath, remainingBits, macros )
+                    self.next[i].flatten(currentName, currentArgs, currentPath, remainingBits, macros)
         elif self.next == None:
-            macros.append( "#define " + currentName + "(" + currentArgs + ")    (" + currentPath + ")" )
+            macros.append("#define " + currentName + "(" + currentArgs + ")    (" + currentPath + ")")
         else:
             for n in self.next:
-                n.flatten( currentName, currentArgs, currentPath, remainingBits, macros )
+                n.flatten(currentName, currentArgs, currentPath, remainingBits, macros)
 
         return
 
@@ -1108,7 +1110,6 @@ class PkgItemBase(YisNode):
                       doc_verbose=doc_verb,
                       implicit=True)
 
-
     def get_addr_node(self):
         """
         This is a linked list of info ends up in the C macros for addresses.
@@ -1120,6 +1121,7 @@ class PkgItemBase(YisNode):
 
         """
         return AddrField(obj=self)
+
 
 class PkgLocalparam(PkgItemBase):
     """Definition for a localparam in a pkg."""
@@ -1666,7 +1668,7 @@ class PkgStruct(PkgItemBase):
         #  of it here, and attach it to the selectedBy field in the union's
         #  node (which won't be defined for a bit...)
 
-        selectorsInFlight = [];
+        selectorsInFlight = []
 
         keys = list(self.children.keys())
         for kidName in keys:
@@ -1686,12 +1688,11 @@ class PkgStruct(PkgItemBase):
                     newNode.name = obj.name
                 # newNode.name = obj.name
 
-                if len( selectorsInFlight ) > 0:
+                if len(selectorsInFlight) > 0:
                     for sel in selectorsInFlight:
                         if sel[0]["name"] == obj.name:
                             newNode.selectedBy = sel[0]["select_with"]
                             selectorsInFlight.remove(sel)
-
 
             if head != None:
                 # append the current head to whatever we just got back
@@ -1699,7 +1700,6 @@ class PkgStruct(PkgItemBase):
             else:
                 head = newNode
         return head
-
 
     def render_addr_macro(self):
         """
@@ -1718,8 +1718,8 @@ class PkgStruct(PkgItemBase):
         # now walk the tree nodes and accumulate bits...
         addrTree.flatten(self.addr_macro, "", "", self.computed_width, macros)
 
-
         return macros
+
 
 class PkgStructField(PkgItemBase):
     """Definition for a single field inside a struct."""
@@ -1959,7 +1959,7 @@ class PkgUnion(PkgItemBase):
         #
         retVal = AddrField(obj=self)
         retVal.name = "Placeholder " + retVal.name
-        retVal.bitCount = 0    # these don't really take any space, the info in them does, but they don't
+        retVal.bitCount = 0 # these don't really take any space, the info in them does, but they don't
         for fieldName in self.children:
             obj = self.children[fieldName]
             if isinstance(obj.sv_type, str):
@@ -1968,6 +1968,7 @@ class PkgUnion(PkgItemBase):
                 downStream = obj.sv_type.get_addr_node()
                 retVal.addChild(downStream)
         return retVal
+
 
 class PkgUnionField(PkgItemBase):
     """Definition for a single field inside a union."""

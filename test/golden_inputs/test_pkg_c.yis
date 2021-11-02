@@ -1,0 +1,321 @@
+# -*- yaml -*-
+# See digital/rtl/scripts/yis/README.md for yis documentation
+---
+doc_summary: Define the addressing schema
+localparams:
+  - name: ADDR_WIDTH
+    value: 27
+    doc_summary: The default address width
+    doc_verbose: |
+      This is an assumption that we will have 40 bits of addressing over PCIE.
+      Even if not using PCIE, this might be a good assumption to make for future proofing.
+
+enums:
+  - name: RACK_ZAP_ID_E
+    width: 3
+    doc_summary: The zap id within a rack.
+    values:
+      - name: ZAP0
+        value: 0
+        doc_summary: Zap 0 within RACK
+      - name: ZAP1
+        value: 1
+        doc_summary: Zap 1 within RACK
+      - name: ZAP2
+        value: 2
+        doc_summary: Zap 2 within RACK
+      - name: ZAP3
+        value: 3
+        doc_summary: Zap 3 within RACK
+      - name: ZAP4
+        value: 4
+        doc_summary: Zap 4 within RACK
+      - name: ZAP5
+        value: 5
+        doc_summary: Zap 5 within RACK
+      - name: ZAP6
+        value: 6
+        doc_summary: Zap 6 within RACK
+      - name: ZAP7
+        value: 7
+        doc_summary: Zap 7 within RACK
+
+  - name: ADDR_TYPE_E
+    width: 1
+    doc_summary: Indicates top-level address type.
+    values:
+      - name: MEM
+        value: 0
+        doc_summary: This is a memory address.
+      - name: CSR
+        value: 1
+        doc_summary: This is an CSR address.
+
+  - name: IS_ZAP_E
+    width: 1
+    doc_summary: Indicates a zap address or a non-zap address.
+    values:
+      - name : NON_ZAP
+        value: 0
+        doc_summary: This address targets something outside a zap.
+      - name: ZAP
+        value: 1
+        doc_summary: This address targets something inside a zap.
+
+  - name: NON_ZAP_BLOCK_ID_E
+    width: 3
+    doc_summary: The ID of an individual block in the bag that does not live inside ZAP.
+    values:
+      - name: LEG_ID
+        value: 0
+        doc_summary: LEG
+      - name: TAX_ID
+        value: 1
+        doc_summary: LEG controller
+      - name: EGO_ID
+        value: 2
+        doc_summary: EGO controller
+      - name: ASH_ID
+        value: 4
+        doc_summary: Interrupt Controller
+      - name: SIN_ID
+        value: 5
+        doc_summary: Lorem ipsum dolor
+      - name: RACK_ID
+        value: 6
+        doc_summary: One of the non-zap blocks within the RACK
+      - name: FOX_ID
+        value: 7
+        doc_summary: Sit amet
+
+  - name: ZAP_BLOCK_ID_E
+    width: 4
+    doc_summary: A subblock ID inside a ZAP.
+    values:
+      - name: TRY
+        value: 1
+        doc_summary: Consectetur adipiscing
+      - name: HORN
+        value: 2
+        doc_summary: Zap Miscellaneous Bus Controller
+      - name: EYE
+        value: 3
+        doc_summary: Eye beams
+      - name: PIE_SLICE0
+        value: 4
+        doc_summary: PIE slice 0
+      - name: PIE_SLICE1
+        value: 5
+        doc_summary: PIE slice 1
+      - name: PIE_SLICE2
+        value: 6
+        doc_summary: PIE slice 2
+      - name: PIE_SLICE3
+        value: 7
+        doc_summary: PIE slice 2
+      - name: KID
+        value: 8
+        doc_summary: Pellentesque eget
+      - name: JOB
+        value: 9
+        doc_summary: Aliquet lorem
+      - name: TIP
+        value: 10
+        doc_summary: JOB Bridge
+      - name: GET
+        value: 11
+        doc_summary: Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Receive
+      - name: GRE
+        value: 12
+        doc_summary: Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Transmit
+
+  - name: RACK_BLOCK_ID_E
+    width: 2
+    doc_summary: A block instantiated at RACK-level that is not a zap
+    values:
+      - name: ICE
+        value: 0
+        doc_summary: Sed eget
+      - name: CRY
+        value: 1
+        doc_summary: Sed lobortis congue Receive
+      - name: CUP
+        value: 2
+        doc_summary: Sed lobortis congue Transmit
+
+  - name: CUP_ID_E
+    width: 3
+    doc_summary: CUP numbering for address generation
+    values:
+      - name: CUP
+        value: range(8)
+        doc_summary: CUPn 
+    
+  - name: CRY_ID_E
+    width: 7
+    doc_summary: CRY numbering for address generation
+    values:
+      - name: CRY
+        value: range(128)
+        doc_summary: CRYn 
+    
+  - name: ICE_ID_E
+    width: 1
+    doc_summary: ICE Numbering
+    values: 
+      - name: ICE0
+        value: 0
+        doc_summary: ICE 0
+
+typedefs:
+  - name: rack_id_t
+    doc_summary: ID of a rack
+    base_type: logic
+    width: clog2(8)
+
+  - name: rack_block_inst_id_t
+    doc_summary: ID number for one of the non-zap blocks instantiated at RACK-level
+    doc_verbose: |
+      clog2(NUM_ZAP) is used here because this field needs to address individual instances of any non-zap block
+      instantiated in the RACK (CRY, CUP, ICE). In this case, there are more CRY instances (NUM_ZAP) than CUP or ICE instances
+      so NUM_ZAP is used.
+    base_type: logic
+    width: clog2(8)
+
+  - name: quad_id_t
+    doc_summary: ID of a quad
+    base_type: logic
+    width: clog2(4)
+
+structs:
+  - name: zap_id_t
+    doc_summary: The ID for a given ZAP
+    fields:
+      - name: rack_id
+        type: rack_id_t
+        doc_summary: type.doc_summary
+      - name: zap_id
+        type: RACK_ZAP_ID_E
+        doc_summary: Zap ID (Within a rack)
+
+  - name: addr_t
+    addr_macro: ADDRESS
+    doc_summary: A generic address
+    fields:
+      - name: is_zap
+        type: IS_ZAP_E
+        selectors:
+          - name: sub_addr
+            select_with:
+              - ZAP
+              - NON_ZAP
+        doc_summary: type.doc_summary
+
+      - name: sub_addr
+        type: addr_sub_addr_t
+        doc_summary: type.doc_summary
+
+  - name: umem_addr_t
+    doc_summary: JOB Addr struct
+    fields:
+      - name: offset
+        type: logic
+        width: ADDR_WIDTH.value - IS_ZAP_E.width - ADDR_TYPE_E.width - zap_id_t.width
+        doc_summary: JOB Address Offset
+
+  - name: zap_csr_addr_t
+    doc_summary: Zap CSR Addr Struct
+    fields:
+      - name: zap_block_id
+        type: ZAP_BLOCK_ID_E
+        doc_summary: type.doc_summary
+      - name: offset
+        type: logic
+        width: ADDR_WIDTH.value - IS_ZAP_E.width - ADDR_TYPE_E.width - zap_id_t.width - ZAP_BLOCK_ID_E.width
+        doc_summary: offset into the CSR address space
+
+  - name: zap_addr_t
+    doc_summary: A memory address
+    doc_verbose: |
+      Only valid when addr_t.addr_type == ADDR_TYPE_E::MEM
+    fields:
+      - name: is_csr
+        type: ADDR_TYPE_E
+        selectors:
+          - name: sub_addr
+            select_with:
+              - MEM
+              - CSR
+        doc_summary: type.doc_summary
+      - name: zap_id
+        type: zap_id_t
+        doc_summary: type.doc_summary
+      - name: sub_addr
+        type: zap_addr_sub_addr_t
+        doc_summary: type.doc_summary
+
+  - name: non_zap_addr_t
+    doc_summary: Non-Zap Addr Struct
+    fields:
+      - name: non_zap_block_id
+        type: NON_ZAP_BLOCK_ID_E
+        selectors:
+          - name: sub_addr
+            select_with:
+              - [LEG_ID, TAX_ID, EGO_ID, ASH_ID, SIN_ID, FOX_ID]
+              - RACK_ID
+        doc_summary: type.doc_summary
+      - name: sub_addr
+        type: non_zap_subaddr_t
+        doc_summary: type.doc_summary
+
+  - name: rack_addr_t
+    doc_summary: Address for blocks within the RACK
+    fields:
+      - name: rack_id
+        type: rack_id_t
+        doc_summary: type.doc_summary
+      - name: rack_block_id
+        type: RACK_BLOCK_ID_E
+        doc_summary: which type of block
+      - name: rack_block_inst_id
+        type: rack_block_inst_id_t
+        doc_summary: Which instance of this block-type
+      - name: offset
+        type: logic
+        width: ADDR_WIDTH.value - IS_ZAP_E.width - NON_ZAP_BLOCK_ID_E.width - rack_id_t.width - RACK_BLOCK_ID_E.width - rack_block_inst_id_t.width
+        doc_summary: offset within this instance's addr space
+
+unions:
+  - name: non_zap_subaddr_t
+    doc_summary: Union for sub_addr field in addr_t
+    fields:
+      - name: offset
+        type: logic
+        width: ADDR_WIDTH.value - IS_ZAP_E.width - NON_ZAP_BLOCK_ID_E.width
+        doc_summary: offset for cases where this is not a RACK-block
+
+      - name: rack_addr
+        type: rack_addr_t
+        doc_summary: type.doc_summary
+
+  - name: addr_sub_addr_t
+    doc_summary: Union for sub_addr field in addr_t
+    fields:
+      - name: zap_addr
+        type: zap_addr_t
+        doc_summary: type.doc_summary
+
+      - name: non_zap_addr
+        type: non_zap_addr_t
+        doc_summary: type.doc_summary
+
+  - name: zap_addr_sub_addr_t
+    doc_summary: Union of the sub_addr field in zap_addr_t
+    fields:
+      - name: umem_addr
+        type: umem_addr_t
+        doc_summary: type.doc_summary
+      - name: zap_csr_addr
+        type: zap_csr_addr_t
+        doc_summary: type.doc_summary

@@ -10,6 +10,12 @@ golden_pkg_tests(
     },
 )
 
+golden_pkg_tests(
+    deps = {
+        "test_pkg_c": [],
+    },
+)
+
 golden_intf_tests(
     deps = {
         "test_intf_a": [
