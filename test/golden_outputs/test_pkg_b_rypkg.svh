@@ -122,6 +122,14 @@ package test_pkg_b; // Example of what a dependent package looks like
   
   localparam [32 - 1:0] TYPE_FROM_IMPLICIT_PARAM_T_WIDTH = /* type_from_implicit_param_t.width */ 2; // Width of type_from_implicit_param_t
   
+  typedef logic width_one_typedef_t; // A logic typedef width of 1
+  
+  localparam [32 - 1:0] WIDTH_ONE_TYPEDEF_T_WIDTH = /* width_one_typedef_t.width */ 1; // Width of width_one_typedef_t
+  
+  typedef logic /* THIS_IS_ONE.value + THIS_IS_ONE.value - THIS_IS_ONE.value */ width_one_eqn_typedef_t; // A logic typedef width of 1 from an equation
+  
+  localparam [32 - 1:0] WIDTH_ONE_EQN_TYPEDEF_T_WIDTH = /* width_one_eqn_typedef_t.width */ 1; // Width of width_one_eqn_typedef_t
+  
   typedef struct packed {
     write_cmd_t cmd_cycle; // The command cycle of a pipelined write
     write_data_t dat0; // Data cycle of a pipelined write

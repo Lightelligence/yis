@@ -1381,9 +1381,17 @@ class PkgTypedef(PkgItemBase):
         render_type = self._get_render_base_sv_type()
         render_width = self.width.render_rtl()
         if self.width.computed_width == 1:
-            self.log.critical(
-                "typdefs with a width of 1 are unsupported. Why do you need {self.name} array of width 1?")
-        ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
+            if is_verilog_primitive(render_type):
+                self.log.debug("Converting tyepdef %s to raw logic typedef from a vector because it's a 1-bit logic")
+                if render_width == "1":
+                    ret_arr.append(F"typedef logic {self.name}; // {self.doc_summary}")
+                else:
+                    ret_arr.append(F"typedef logic /* {self.width.equation} */ {self.name}; // {self.doc_summary}")
+            else:
+                self.log.critical("typdefs with a width of 1 are unsupported. Why do you need %s array of width 1?",
+                                  self.name)
+        else:
+            ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
 

@@ -55,6 +55,16 @@ typedefs:
     base_type: logic
     width: MAX_WR_CYCLES_WIDTH.value
 
+  - name: width_one_typedef_t
+    doc_summary: A logic typedef width of 1
+    base_type: logic
+    width: 1
+
+  - name: width_one_eqn_typedef_t
+    doc_summary: A logic typedef width of 1 from an equation
+    base_type: logic
+    width: THIS_IS_ONE.value + THIS_IS_ONE.value - THIS_IS_ONE.value
+
 structs:
   - name: several_things_t
     doc_summary: Testing inter-package dependencies within struct fields.
