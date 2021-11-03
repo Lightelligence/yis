@@ -577,59 +577,84 @@ class Yis: # pylint: disable=too-many-instance-attributes
         pass # pylint: disable=unnecessary-pass
 
 
+# move along, nothing to see here.
 class AddrError(Exception):
     pass
 
 
 class AddrField:
+    """
+    This is just an n-ary tree.  The n part pops up when the address field in question is
+    a union and segments the address space based on the number of elements it contains.
+
+    The selects: property is read from the input yis file and specifies (for an enum)
+    which sub-field (union) the enum pertains to.  It also contains a list of descriptors
+    (enum values) to use when selecting the fields of the union.
+
+    The selectedBy: property is the equivalent to the selects: property, except that it
+    is attached to the union for which the selecting is going to happen.  There are some
+    very lightweight checks to ensure that any union found in an address generating
+    structure's descendants has a specified selector.
+    """
 
     def __init__(self, **kwargs):
         yisObj = kwargs.pop('obj')
         self.name = yisObj.name
-        self.type = "ddo"
-        self.kidCount = 0
         self.bitCount = yisObj.computed_width
         self.selects = yisObj.selectors
         self.selectedBy = None
         self.next = None
 
     def addChild(self, newNode):
-        # add a branch at this node
-        if self.kidCount == 0:
+        # Add a new child (branch) at this point in the tree.
+        if self.isTerminal():
             self.next = []
         self.next.append(newNode)
-        self.kidCount += 1
 
     def appendNode(self, newNode):
-        if self.kidCount == 0:
+        # recursively descend the list until the end is found.
+        # attach the newNode there.
+        if self.isTerminal():
             self.next = []
             self.next.append(newNode)
-            self.kidCount = 1
         else:
             for currNode in self.next:
                 currNode.appendNode(newNode)
 
+    def hasChildren(self) -> bool:
+        return self.next != None and len(self.next) > 1
+
+    def hasChild(self) -> bool:
+        return self.next != None and len(self.next) == 1
+
+    def isTerminal(self) -> bool:
+        return self.next == None
+
     def flatten(self, currentName, currentArgs, currentPath, remainingBits, macros):
-        """
-        return n, linked lists, one for each leaf node
-        Returns: [AddrField]
-
-        """
-
-        # What do we insert into the address macro?
+        # This is a bit fiddly.
         #
-        # Either
-        # (field_name << n)
-        # or
-        # (ENUMVALUE << n)
+        # We traverse the tree, accumulating bits along the way.
         #
-
+        # Each time we encounter an actual address field (a node with at most
+        # one child), we accumulate a new field in the macro's value (RHS) and
+        # a new argument to the macro.  ie - we add a ((blah) << n) to the RHS.
+        # "blah" becomes an argument.
+        #
+        # When we come across an enum which is used to select from a union (which
+        # we don't see til later), we put a placeholder "SELECTOR" in the RHS.
+        # when we eventually reach the union, we resolve the placeholder with
+        # the proper enum value.  At that point, we update the macro name to
+        # indicate which enum is baked into the resulting address and recursively
+        # descend all of the paths created by the union.
+        #
+        # Finally, when we reach a leaf node, we form the final macro and add it
+        #  to the array of macros we've been building.
         macroVal = "((" + self.name + ")"
 
         if self.selects != None:
             macroVal = "((SELECTOR)" # fill in the details when we find the union...
 
-        if self.selects == None and re.search("Placeholder", self.name) == None:
+        if self.selects == None and not self.hasChildren():
             if currentArgs == "":
                 currentArgs = self.name
             else:
@@ -638,8 +663,9 @@ class AddrField:
         macroVal = macroVal + " << {})".format(remainingBits - self.bitCount)
         remainingBits = remainingBits - self.bitCount
 
-        # Don't add placeholders
-        if re.search("Placeholder", self.name) == None:
+        # Don't add placeholders (these happen when we hit a union - only the
+        # children end up actually generating bits in the address.)
+        if not self.hasChildren():
             if currentPath == "":
                 currentPath = macroVal
             else:
@@ -651,9 +677,14 @@ class AddrField:
         # If there is more than one child, this was a union.
         #  It better have a selectedBy field of the same
         #  dimension...
+        if self.hasChildren() and self.selectedBy == None:
+            raise AddrError(
+                "Unselected union ({}) in address structure, please add a selector enum to the structure".format(
+                    self.name))
+
         if self.selectedBy != None:
             if len(self.selectedBy) != len(self.next):
-                raise AddrError("Union without defined selector found in address structure")
+                raise AddrError("Union ({}) without defined selector found in address structure".format(self.name))
             # replace the SELECTOR token with an actual value, this is complicated by the fact
             #  that the SELECTOR can actually be an array...
             for i in range(len(self.next)):
@@ -668,7 +699,7 @@ class AddrField:
                     # Append the evaluated name of the selector to the macro name
                     currentName = currentNameStart + "_" + sel.upper()
                     self.next[i].flatten(currentName, currentArgs, currentPath, remainingBits, macros)
-        elif self.next == None:
+        elif self.isTerminal():
             macros.append("#define " + currentName + "(" + currentArgs + ")    (" + currentPath + ")")
         else:
             for n in self.next:
@@ -1053,6 +1084,8 @@ class PkgItemBase(YisNode):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # this field was added for address macro generation
         self.selectors = kwargs.pop('selectors', None)
         self.implicit = kwargs.pop('implicit', False)
 
@@ -1116,9 +1149,9 @@ class PkgItemBase(YisNode):
 
         For terminal nodes, next is an empty array, value is the field name (for now)
 
-        structs and unions override this because they do fucked up shit to the tree
+        structs and unions override this because they do strange things to the tree
         Returns:
-
+            A fresh, shiny new node for the address tree.
         """
         return AddrField(obj=self)
 
@@ -1686,8 +1719,10 @@ class PkgStruct(PkgItemBase):
                 # macro parameter in C, but only for leaf nodes...
                 if newNode.next == None:
                     newNode.name = obj.name
-                # newNode.name = obj.name
 
+                # Apply the selectors found earlier to the union
+                # This implicitly requires that any enum used as a selector
+                # must be in the same struct as the union is selects.
                 if len(selectorsInFlight) > 0:
                     for sel in selectorsInFlight:
                         if sel[0]["name"] == obj.name:
@@ -1711,6 +1746,7 @@ class PkgStruct(PkgItemBase):
         to its base name.
 
         Returns:
+            An array of strings which can be dumped directly into the C header file.
         """
         macros = []
         addrTree = self.get_addr_node()
@@ -1956,9 +1992,11 @@ class PkgUnion(PkgItemBase):
     def get_addr_node(self):
         #
         # Each element of a union needs to become a "next"
+        # Give the union a nice obvious name so it is easier
+        # to see in the debugger when pulling one's hair out.
         #
         retVal = AddrField(obj=self)
-        retVal.name = "Placeholder " + retVal.name
+        # retVal.name = "Placeholder " + retVal.name
         retVal.bitCount = 0 # these don't really take any space, the info in them does, but they don't
         for fieldName in self.children:
             obj = self.children[fieldName]

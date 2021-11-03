@@ -41,6 +41,8 @@
 #define SECOND_DEFINED_TYPE_T_WIDTH 92           // Width of second_defined_type_t
 #define LOCAL_ITEM_TYPE_T_WIDTH 174           // Width of local_item_type_t
 #define TYPE_FROM_IMPLICIT_PARAM_T_WIDTH 2           // Width of type_from_implicit_param_t
+#define WIDTH_ONE_TYPEDEF_T_WIDTH 1           // Width of width_one_typedef_t
+#define WIDTH_ONE_EQN_TYPEDEF_T_WIDTH 1           // Width of width_one_eqn_typedef_t
 
 
 // Specifies how the write should be handled
@@ -62,6 +64,12 @@ typedef uint64_t local_item_type_t;    // 174 bits wide
 
 // Use an auto-generated localparam in the definition of another YIS type
 typedef uint8_t type_from_implicit_param_t;    // 2 bits wide
+
+// A logic typedef width of 1
+typedef uint8_t width_one_typedef_t;    // 1 bits wide
+
+// A logic typedef width of 1 from an equation
+typedef uint8_t width_one_eqn_typedef_t;    // 1 bits wide
 
 
 // Testing inter-package dependencies within struct fields.
