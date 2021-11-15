@@ -316,7 +316,10 @@ def parse_args(argv):
 
     parser.add_argument('--gen-rtl', default=False, action='store_true', help="Use the rtl generator for output.")
 
-    parser.add_argument('--gen-c-hdr', default=False, action='store_true', help="Use the C header generator for output.")
+    parser.add_argument('--gen-c-hdr',
+                        default=False,
+                        action='store_true',
+                        help="Use the C header generator for output.")
 
     parser.add_argument('--gen-rdl', default=False, action='store_true', help="Use the rdl generator for output.")
 
