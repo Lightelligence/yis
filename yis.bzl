@@ -19,13 +19,13 @@ def yis_rtl_pkg(name, pkg_deps, pkg):
         deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps],
     )
 
-def yis_hdr_pkg(name, pkg_deps, pkg):
+def yis_c_hdr(name, pkg_deps, pkg):
     """Create a single yis-generate C header file."""
     native.genrule(
-        name = "{}_rypkg_hdr".format(name),
+        name = "{}_h".format(name),
         srcs = pkg_deps + [pkg],
-        outs = ["{}_rypkg.h".format(name)],
-        cmd = "$(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --gen-hdr",
+        outs = ["{}.h".format(name)],
+        cmd = "$(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --gen-c-hdr",
         output_to_bindir = True,
         tools = ["@yis//:yis_gen"],
     )

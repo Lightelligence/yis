@@ -1,6 +1,6 @@
 """Test helpers for yis."""
 
-load("//:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_fifo", "yis_rtl_mem", "yis_rtl_pkg", "yis_hdr_pkg")
+load("//:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_fifo", "yis_rtl_mem", "yis_rtl_pkg", "yis_c_hdr")
 
 golden_out_location = "//test/golden_outputs:"
 
@@ -28,7 +28,7 @@ def golden_rtl_pkg_test(name, pkg_deps):
 def golden_hdr_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
 
-    yis_hdr_pkg(
+    yis_c_hdr(
         name = "{}".format(name),
         pkg_deps = pkg_deps,
         pkg = ":{}.yis".format(name),
@@ -39,10 +39,10 @@ def golden_hdr_test(name, pkg_deps):
         size = "small",
         srcs = ["//test:passthrough.sh"],
         data = [
-            ":{}_rypkg_hdr".format(name),
-            "{}{}_rypkg.h".format(golden_out_location, name),
+            ":{}_h".format(name),
+            "{}{}.h".format(golden_out_location, name),
         ],
-        args = ["diff $(location :{name}_rypkg_hdr) $(location {gout}{name}_rypkg.h)".format(gout = golden_out_location, name = name)],
+        args = ["diff $(location :{name}_h) $(location {gout}{name}.h)".format(gout = golden_out_location, name = name)],
         tags = ["gold"],
     )
 

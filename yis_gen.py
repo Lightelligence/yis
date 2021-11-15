@@ -316,7 +316,7 @@ def parse_args(argv):
 
     parser.add_argument('--gen-rtl', default=False, action='store_true', help="Use the rtl generator for output.")
 
-    parser.add_argument('--gen-hdr', default=False, action='store_true', help="Use the rtl generator for output.")
+    parser.add_argument('--gen-c-hdr', default=False, action='store_true', help="Use the C header generator for output.")
 
     parser.add_argument('--gen-rdl', default=False, action='store_true', help="Use the rdl generator for output.")
 
@@ -519,7 +519,7 @@ class Yis: # pylint: disable=too-many-instance-attributes
             with open(output_file, 'wb') as fileh:
                 fileh.write(instruction.render(target_pkg))
             return
-        elif self.options.gen_hdr:
+        elif self.options.gen_c_hdr:
             template_directory = "hdr"
             env.lstrip_blocks = True # Avoid a lot of chomping (and other nashing of teeth)
             env.trim_blocks = True # in the C templates.
