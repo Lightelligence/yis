@@ -1170,6 +1170,7 @@ class PkgLocalparam(PkgItemBase):
         super().__init__(**kwargs)
         self.width = kwargs.pop('width', 32)
         self.value = kwargs.pop('value')
+        self._sv_render_no_width = kwargs.pop('sv_render_no_width', None)
         if not self.implicit:
             self._gen_width_param()
 
@@ -1238,6 +1239,10 @@ class PkgLocalparam(PkgItemBase):
         return value
 
     def _width_check(self):
+        if self._sv_render_no_width and self.width.computed_value != 32:
+            self.log.error("%s has sv_render_no_width set but the width is %d (%s). Only 32-bit localparams can "
+                           "omit the render width", self.name, self.width.computed_value, self.width)
+            return
         max_value = (1 << self.width.computed_value) - 1
         value = self.computed_value
         if value > max_value: # pylint: disable=comparison-with-callable
@@ -1262,7 +1267,10 @@ class PkgLocalparam(PkgItemBase):
             ret_arr.append(doc_verbose)
         render_width = self.width.render_rtl()
         render_value = self.value.render_rtl()
-        ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {render_value}; // {self.doc_summary}")
+        if self._sv_render_no_width:
+            ret_arr.append(F"localparam {self.name} = {render_value}; // {self.doc_summary}")
+        else:
+            ret_arr.append(F"localparam [{render_width} - 1:0] {self.name} = {render_value}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
     def render_rdl_pkg(self):

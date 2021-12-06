@@ -9,7 +9,7 @@
 package test_pkg_a; // This is an example of what a package file could look like.
 
   
-  localparam [32 - 1:0] HERO_WIDTH = 36; // Width of hero bus around the bag.
+  localparam HERO_WIDTH = 36; // Width of hero bus around the bag.
   
   // This field has extra verbose documentation surrounding it for
   // reasons that might be clear later. The intent of these different
