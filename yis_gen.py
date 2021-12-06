@@ -1240,8 +1240,9 @@ class PkgLocalparam(PkgItemBase):
 
     def _width_check(self):
         if self._sv_render_no_width and self.width.computed_value != 32:
-            self.log.error("%s has sv_render_no_width set but the width is %d (%s). Only 32-bit localparams can "
-                           "omit the render width", self.name, self.width.computed_value, self.width)
+            self.log.error(
+                "%s has sv_render_no_width set but the width is %d (%s). Only 32-bit localparams can "
+                "omit the render width", self.name, self.width.computed_value, self.width)
             return
         max_value = (1 << self.width.computed_value) - 1
         value = self.computed_value
