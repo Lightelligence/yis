@@ -829,7 +829,9 @@ class YisNode: # pylint: disable=too-few-public-methods
         try:
             link = root.resolve_symbol(link_pkg, link_symbol, allowed_symbols)
         except LinkError:
-            self.log.error("Couldn't resolve a link from %s to %s", self.name, link_name)
+            self.log.error(
+                "Couldn't resolve a link from %s::%s to %s. Check to make sure you're using .width or .value correctly for the definition of %s",
+                self.parent.name, self.name, link_symbol, self.name)
             return None
         else:
             self.local_links.append(link)
@@ -1814,7 +1816,10 @@ class PkgStructField(PkgItemBase):
             try:
                 self.width = Equation(self, self.width)
             except EquationError as exc:
-                self.log.error(str(exc))
+                # If the EquationError doesn't have a message, don't render it to log
+                # This is the only place I've seen this bad formatting orackr, so I only fixed the code here
+                if str(exc):
+                    self.log.error(str(exc))
                 self.log.critical(F"Previous error parsing width field for {self.name}")
 
         else:
