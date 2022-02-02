@@ -1432,6 +1432,9 @@ class PkgEnum(PkgItemBase):
     def render_rdl_pkg(self):
         """Render the RDL for this enum.
         """
+        # If this enum doesn't use explicit values, don't render it to RDL and comment why it wasn't rendered
+        if list(self.children.values())[0].sv_value is None:
+            return "// Skipping rdl render for {} because it doesn't declare explicit enum values".format(self.name)
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
         doc_verbose = self.render_doc_verbose(2)

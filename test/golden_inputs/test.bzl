@@ -1,6 +1,6 @@
 """Test helpers for yis."""
 
-load("//:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_fifo", "yis_rtl_mem", "yis_rtl_pkg", "yis_c_hdr")
+load("//:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_fifo", "yis_rtl_mem", "yis_rtl_pkg", "yis_c_hdr", "yis_rdl_pkg")
 
 golden_out_location = "//test/golden_outputs:"
 
@@ -43,6 +43,27 @@ def golden_hdr_test(name, pkg_deps):
             "{}{}.h".format(golden_out_location, name),
         ],
         args = ["diff $(location :{name}_h) $(location {gout}{name}.h)".format(gout = golden_out_location, name = name)],
+        tags = ["gold"],
+    )
+
+def golden_rdl_test(name, pkg_deps):
+    """Compares a generated file to a statically checked in file."""
+
+    yis_rdl_pkg(
+        name = "{}".format(name),
+        pkg_deps = pkg_deps,
+        pkg = ":{}.yis".format(name),
+    )
+
+    native.sh_test(
+        name = "{}_rdl_pkg_gold_test".format(name),
+        size = "small",
+        srcs = ["//test:passthrough.sh"],
+        data = [
+            ":{}_yis_rdl".format(name),
+            "{}{}_yis.rdl".format(golden_out_location, name),
+        ],
+        args = ["diff $(location :{name}_yis_rdl) $(location {gout}{name}_yis.rdl)".format(gout = golden_out_location, name = name)],
         tags = ["gold"],
     )
 
@@ -138,6 +159,7 @@ def golden_pkg_tests(deps):
         golden_rtl_pkg_test(key, row)
         golden_hdr_test(key, row)
         golden_html_pkg_test(key, row)
+        golden_rdl_test(key, row)
 
 def golden_intf_tests(deps):
     """Run all golden intf tests, allow pkg dependencies."""

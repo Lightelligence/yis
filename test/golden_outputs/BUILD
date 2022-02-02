@@ -6,5 +6,6 @@ exports_files(
         "*.h",
         "*.sv",
         "*.html",
+        "*.rdl",
     ]),
 )
