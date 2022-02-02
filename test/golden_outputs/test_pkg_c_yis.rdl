@@ -1,0 +1,285 @@
+// Copyright (c) 2022 Lightelligence
+//
+// Description: RDL Pkg generated from test_pkg_c.yis by YIS
+
+
+
+
+// This is an assumption that we will have 40 bits of addressing over
+  // PCIE. Even if not using PCIE, this might be a good assumption to
+  // make for future proofing.
+  `define ADDR_WIDTH 27 // The default address width
+
+`define ADDR_WIDTH_WIDTH /* clog2(ADDR_WIDTH.value) */ 5 // Width of ADDR_WIDTH
+
+`define ADDR_WIDTH_COUNT_WIDTH /* clog2(ADDR_WIDTH.value + 1) */ 5 // Width to count ADDR_WIDTH items
+
+`define ADDR_WIDTH_WIDTH_ONE 1 // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+
+enum RACK_ZAP_ID_E {
+    RACK_ZAP_ID_ZAP0 = 0; // Zap 0 within RACK
+    RACK_ZAP_ID_ZAP1 = 1; // Zap 1 within RACK
+    RACK_ZAP_ID_ZAP2 = 2; // Zap 2 within RACK
+    RACK_ZAP_ID_ZAP3 = 3; // Zap 3 within RACK
+    RACK_ZAP_ID_ZAP4 = 4; // Zap 4 within RACK
+    RACK_ZAP_ID_ZAP5 = 5; // Zap 5 within RACK
+    RACK_ZAP_ID_ZAP6 = 6; // Zap 6 within RACK
+    RACK_ZAP_ID_ZAP7 = 7; // Zap 7 within RACK
+  }; // The zap id within a rack.
+
+`define RACK_ZAP_ID_E_WIDTH /* RACK_ZAP_ID_E.width */ 3 // Width of RACK_ZAP_ID_E
+
+enum ADDR_TYPE_E {
+    ADDR_TYPE_MEM = 0; // This is a memory address.
+    ADDR_TYPE_CSR = 1; // This is an CSR address.
+  }; // Indicates top-level address type.
+
+`define ADDR_TYPE_E_WIDTH /* ADDR_TYPE_E.width */ 1 // Width of ADDR_TYPE_E
+
+enum IS_ZAP_E {
+    IS_ZAP_NON_ZAP = 0; // This address targets something outside a zap.
+    IS_ZAP_ZAP = 1; // This address targets something inside a zap.
+  }; // Indicates a zap address or a non-zap address.
+
+`define IS_ZAP_E_WIDTH /* IS_ZAP_E.width */ 1 // Width of IS_ZAP_E
+
+enum NON_ZAP_BLOCK_ID_E {
+    NON_ZAP_BLOCK_ID_LEG_ID = 0; // LEG
+    NON_ZAP_BLOCK_ID_TAX_ID = 1; // LEG controller
+    NON_ZAP_BLOCK_ID_EGO_ID = 2; // EGO controller
+    NON_ZAP_BLOCK_ID_ASH_ID = 4; // Interrupt Controller
+    NON_ZAP_BLOCK_ID_SIN_ID = 5; // Lorem ipsum dolor
+    NON_ZAP_BLOCK_ID_RACK_ID = 6; // One of the non-zap blocks within the RACK
+    NON_ZAP_BLOCK_ID_FOX_ID = 7; // Sit amet
+  }; // The ID of an individual block in the bag that does not live inside ZAP.
+
+`define NON_ZAP_BLOCK_ID_E_WIDTH /* NON_ZAP_BLOCK_ID_E.width */ 3 // Width of NON_ZAP_BLOCK_ID_E
+
+enum ZAP_BLOCK_ID_E {
+    ZAP_BLOCK_ID_TRY = 1; // Consectetur adipiscing
+    ZAP_BLOCK_ID_HORN = 2; // Zap Miscellaneous Bus Controller
+    ZAP_BLOCK_ID_EYE = 3; // Eye beams
+    ZAP_BLOCK_ID_PIE_SLICE0 = 4; // PIE slice 0
+    ZAP_BLOCK_ID_PIE_SLICE1 = 5; // PIE slice 1
+    ZAP_BLOCK_ID_PIE_SLICE2 = 6; // PIE slice 2
+    ZAP_BLOCK_ID_PIE_SLICE3 = 7; // PIE slice 2
+    ZAP_BLOCK_ID_KID = 8; // Pellentesque eget
+    ZAP_BLOCK_ID_JOB = 9; // Aliquet lorem
+    ZAP_BLOCK_ID_TIP = 10; // JOB Bridge
+    ZAP_BLOCK_ID_GET = 11; // Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Receive
+    ZAP_BLOCK_ID_GRE = 12; // Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Transmit
+  }; // A subblock ID inside a ZAP.
+
+`define ZAP_BLOCK_ID_E_WIDTH /* ZAP_BLOCK_ID_E.width */ 4 // Width of ZAP_BLOCK_ID_E
+
+enum RACK_BLOCK_ID_E {
+    RACK_BLOCK_ID_ICE = 0; // Sed eget
+    RACK_BLOCK_ID_CRY = 1; // Sed lobortis congue Receive
+    RACK_BLOCK_ID_CUP = 2; // Sed lobortis congue Transmit
+  }; // A block instantiated at RACK-level that is not a zap
+
+`define RACK_BLOCK_ID_E_WIDTH /* RACK_BLOCK_ID_E.width */ 2 // Width of RACK_BLOCK_ID_E
+
+enum CUP_ID_E {
+    CUP_ID_CUP0 = 0; // CUPn
+    CUP_ID_CUP1 = 1; // CUPn
+    CUP_ID_CUP2 = 2; // CUPn
+    CUP_ID_CUP3 = 3; // CUPn
+    CUP_ID_CUP4 = 4; // CUPn
+    CUP_ID_CUP5 = 5; // CUPn
+    CUP_ID_CUP6 = 6; // CUPn
+    CUP_ID_CUP7 = 7; // CUPn
+  }; // CUP numbering for address generation
+
+`define CUP_ID_E_WIDTH /* CUP_ID_E.width */ 3 // Width of CUP_ID_E
+
+enum CRY_ID_E {
+    CRY_ID_CRY0 = 0; // CRYn
+    CRY_ID_CRY1 = 1; // CRYn
+    CRY_ID_CRY2 = 2; // CRYn
+    CRY_ID_CRY3 = 3; // CRYn
+    CRY_ID_CRY4 = 4; // CRYn
+    CRY_ID_CRY5 = 5; // CRYn
+    CRY_ID_CRY6 = 6; // CRYn
+    CRY_ID_CRY7 = 7; // CRYn
+    CRY_ID_CRY8 = 8; // CRYn
+    CRY_ID_CRY9 = 9; // CRYn
+    CRY_ID_CRY10 = 10; // CRYn
+    CRY_ID_CRY11 = 11; // CRYn
+    CRY_ID_CRY12 = 12; // CRYn
+    CRY_ID_CRY13 = 13; // CRYn
+    CRY_ID_CRY14 = 14; // CRYn
+    CRY_ID_CRY15 = 15; // CRYn
+    CRY_ID_CRY16 = 16; // CRYn
+    CRY_ID_CRY17 = 17; // CRYn
+    CRY_ID_CRY18 = 18; // CRYn
+    CRY_ID_CRY19 = 19; // CRYn
+    CRY_ID_CRY20 = 20; // CRYn
+    CRY_ID_CRY21 = 21; // CRYn
+    CRY_ID_CRY22 = 22; // CRYn
+    CRY_ID_CRY23 = 23; // CRYn
+    CRY_ID_CRY24 = 24; // CRYn
+    CRY_ID_CRY25 = 25; // CRYn
+    CRY_ID_CRY26 = 26; // CRYn
+    CRY_ID_CRY27 = 27; // CRYn
+    CRY_ID_CRY28 = 28; // CRYn
+    CRY_ID_CRY29 = 29; // CRYn
+    CRY_ID_CRY30 = 30; // CRYn
+    CRY_ID_CRY31 = 31; // CRYn
+    CRY_ID_CRY32 = 32; // CRYn
+    CRY_ID_CRY33 = 33; // CRYn
+    CRY_ID_CRY34 = 34; // CRYn
+    CRY_ID_CRY35 = 35; // CRYn
+    CRY_ID_CRY36 = 36; // CRYn
+    CRY_ID_CRY37 = 37; // CRYn
+    CRY_ID_CRY38 = 38; // CRYn
+    CRY_ID_CRY39 = 39; // CRYn
+    CRY_ID_CRY40 = 40; // CRYn
+    CRY_ID_CRY41 = 41; // CRYn
+    CRY_ID_CRY42 = 42; // CRYn
+    CRY_ID_CRY43 = 43; // CRYn
+    CRY_ID_CRY44 = 44; // CRYn
+    CRY_ID_CRY45 = 45; // CRYn
+    CRY_ID_CRY46 = 46; // CRYn
+    CRY_ID_CRY47 = 47; // CRYn
+    CRY_ID_CRY48 = 48; // CRYn
+    CRY_ID_CRY49 = 49; // CRYn
+    CRY_ID_CRY50 = 50; // CRYn
+    CRY_ID_CRY51 = 51; // CRYn
+    CRY_ID_CRY52 = 52; // CRYn
+    CRY_ID_CRY53 = 53; // CRYn
+    CRY_ID_CRY54 = 54; // CRYn
+    CRY_ID_CRY55 = 55; // CRYn
+    CRY_ID_CRY56 = 56; // CRYn
+    CRY_ID_CRY57 = 57; // CRYn
+    CRY_ID_CRY58 = 58; // CRYn
+    CRY_ID_CRY59 = 59; // CRYn
+    CRY_ID_CRY60 = 60; // CRYn
+    CRY_ID_CRY61 = 61; // CRYn
+    CRY_ID_CRY62 = 62; // CRYn
+    CRY_ID_CRY63 = 63; // CRYn
+    CRY_ID_CRY64 = 64; // CRYn
+    CRY_ID_CRY65 = 65; // CRYn
+    CRY_ID_CRY66 = 66; // CRYn
+    CRY_ID_CRY67 = 67; // CRYn
+    CRY_ID_CRY68 = 68; // CRYn
+    CRY_ID_CRY69 = 69; // CRYn
+    CRY_ID_CRY70 = 70; // CRYn
+    CRY_ID_CRY71 = 71; // CRYn
+    CRY_ID_CRY72 = 72; // CRYn
+    CRY_ID_CRY73 = 73; // CRYn
+    CRY_ID_CRY74 = 74; // CRYn
+    CRY_ID_CRY75 = 75; // CRYn
+    CRY_ID_CRY76 = 76; // CRYn
+    CRY_ID_CRY77 = 77; // CRYn
+    CRY_ID_CRY78 = 78; // CRYn
+    CRY_ID_CRY79 = 79; // CRYn
+    CRY_ID_CRY80 = 80; // CRYn
+    CRY_ID_CRY81 = 81; // CRYn
+    CRY_ID_CRY82 = 82; // CRYn
+    CRY_ID_CRY83 = 83; // CRYn
+    CRY_ID_CRY84 = 84; // CRYn
+    CRY_ID_CRY85 = 85; // CRYn
+    CRY_ID_CRY86 = 86; // CRYn
+    CRY_ID_CRY87 = 87; // CRYn
+    CRY_ID_CRY88 = 88; // CRYn
+    CRY_ID_CRY89 = 89; // CRYn
+    CRY_ID_CRY90 = 90; // CRYn
+    CRY_ID_CRY91 = 91; // CRYn
+    CRY_ID_CRY92 = 92; // CRYn
+    CRY_ID_CRY93 = 93; // CRYn
+    CRY_ID_CRY94 = 94; // CRYn
+    CRY_ID_CRY95 = 95; // CRYn
+    CRY_ID_CRY96 = 96; // CRYn
+    CRY_ID_CRY97 = 97; // CRYn
+    CRY_ID_CRY98 = 98; // CRYn
+    CRY_ID_CRY99 = 99; // CRYn
+    CRY_ID_CRY100 = 100; // CRYn
+    CRY_ID_CRY101 = 101; // CRYn
+    CRY_ID_CRY102 = 102; // CRYn
+    CRY_ID_CRY103 = 103; // CRYn
+    CRY_ID_CRY104 = 104; // CRYn
+    CRY_ID_CRY105 = 105; // CRYn
+    CRY_ID_CRY106 = 106; // CRYn
+    CRY_ID_CRY107 = 107; // CRYn
+    CRY_ID_CRY108 = 108; // CRYn
+    CRY_ID_CRY109 = 109; // CRYn
+    CRY_ID_CRY110 = 110; // CRYn
+    CRY_ID_CRY111 = 111; // CRYn
+    CRY_ID_CRY112 = 112; // CRYn
+    CRY_ID_CRY113 = 113; // CRYn
+    CRY_ID_CRY114 = 114; // CRYn
+    CRY_ID_CRY115 = 115; // CRYn
+    CRY_ID_CRY116 = 116; // CRYn
+    CRY_ID_CRY117 = 117; // CRYn
+    CRY_ID_CRY118 = 118; // CRYn
+    CRY_ID_CRY119 = 119; // CRYn
+    CRY_ID_CRY120 = 120; // CRYn
+    CRY_ID_CRY121 = 121; // CRYn
+    CRY_ID_CRY122 = 122; // CRYn
+    CRY_ID_CRY123 = 123; // CRYn
+    CRY_ID_CRY124 = 124; // CRYn
+    CRY_ID_CRY125 = 125; // CRYn
+    CRY_ID_CRY126 = 126; // CRYn
+    CRY_ID_CRY127 = 127; // CRYn
+  }; // CRY numbering for address generation
+
+`define CRY_ID_E_WIDTH /* CRY_ID_E.width */ 7 // Width of CRY_ID_E
+
+enum ICE_ID_E {
+    ICE_ID_ICE0 = 0; // ICE 0
+  }; // ICE Numbering
+
+`define ICE_ID_E_WIDTH /* ICE_ID_E.width */ 1 // Width of ICE_ID_E
+
+
+
+reg zap_id_t {
+  desc = "The ID for a given ZAP";
+  default reset = 0;
+  field {desc = "ID of a rack";} rack_id[5:3];
+  field {desc = "Zap ID (Within a rack)";} zap_id[2:0];
+};
+
+`define ZAP_ID_T_WIDTH /* zap_id_t.width */ 6 // Width of zap_id_t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+`define ADDR_T_WIDTH /* addr_t.width */ 27 // Width of addr_t
+
+`define JOB_ADDR_T_WIDTH /* umem_addr_t.width */ 19 // Width of umem_addr_t
+
+`define ZAP_CSR_ADDR_T_WIDTH /* zap_csr_addr_t.width */ 19 // Width of zap_csr_addr_t
+
+`define ZAP_ADDR_T_WIDTH /* zap_addr_t.width */ 26 // Width of zap_addr_t
+
+`define NON_ZAP_ADDR_T_WIDTH /* non_zap_addr_t.width */ 26 // Width of non_zap_addr_t
+
+`define RACK_ADDR_T_WIDTH /* rack_addr_t.width */ 23 // Width of rack_addr_t
+
+`define RACK_ID_T_WIDTH /* rack_id_t.width */ 3 // Width of rack_id_t
+
+`define RACK_BLOCK_INST_ID_T_WIDTH /* rack_block_inst_id_t.width */ 3 // Width of rack_block_inst_id_t
+
+
+
+`define QUAD_ID_T_WIDTH /* quad_id_t.width */ 2 // Width of quad_id_t
+
