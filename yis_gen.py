@@ -1789,6 +1789,7 @@ class PkgStructField(PkgItemBase):
         if is_verilog_primitive(self.sv_type) and self.width is None:
             self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
         self._check_vld_bit()
+        self._check_data_vs_dat()
 
     def _check_vld_bit(self):
         """Check if there is valid (vld) bit present in the struct, and if there is, 
@@ -1803,6 +1804,12 @@ class PkgStructField(PkgItemBase):
 
             if self.sv_type != 'logic':
                 self.log.error(F"{self.name} bit in struct {self.parent.name} should have sv_type = 'logic'")
+
+    def _check_data_vs_dat(self):
+        """Verify that there are no struct fields named 'data' instead of 'dat'."""
+        if 'data' in self.name:
+            self.log.error("%s field in struct %s is named 'data', but our methodology requires 'dat' instead",
+                           self.name, self.parent.name)
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
