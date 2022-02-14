@@ -12,13 +12,13 @@ package test_pkg_c_rypkg; // Define the addressing schema
   // This is an assumption that we will have 40 bits of addressing over
   // PCIE. Even if not using PCIE, this might be a good assumption to
   // make for future proofing.
-  localparam [32 - 1:0] ADDR_WIDTH = 27; // The default address width
+  localparam [32 - 1:0] ADDR_WIDTH = 32'd27; // The default address width
   
-  localparam [32 - 1:0] ADDR_WIDTH_WIDTH = /* clog2(ADDR_WIDTH.value) */ 5; // Width of ADDR_WIDTH
+  localparam [32 - 1:0] ADDR_WIDTH_WIDTH = /* clog2(ADDR_WIDTH.value) */ 32'd5; // Width of ADDR_WIDTH
   
-  localparam [32 - 1:0] ADDR_WIDTH_COUNT_WIDTH = /* clog2(ADDR_WIDTH.value + 1) */ 5; // Width to count ADDR_WIDTH items
+  localparam [32 - 1:0] ADDR_WIDTH_COUNT_WIDTH = /* clog2(ADDR_WIDTH.value + 1) */ 32'd5; // Width to count ADDR_WIDTH items
   
-  localparam [/* clog2(ADDR_WIDTH.value) */ 5 - 1:0] ADDR_WIDTH_WIDTH_ONE = 1; // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+  localparam [/* clog2(ADDR_WIDTH.value) */ 5 - 1:0] ADDR_WIDTH_WIDTH_ONE = 5'd1; // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
   typedef enum logic [3 - 1:0] {
     RACK_ZAP_ID_ZAP0 = 3'd0, // Zap 0 within RACK
@@ -31,21 +31,21 @@ package test_pkg_c_rypkg; // Define the addressing schema
     RACK_ZAP_ID_ZAP7 = 3'd7 // Zap 7 within RACK
   } RACK_ZAP_ID_E; // The zap id within a rack.
   
-  localparam [32 - 1:0] RACK_ZAP_ID_E_WIDTH = /* RACK_ZAP_ID_E.width */ 3; // Width of RACK_ZAP_ID_E
+  localparam [32 - 1:0] RACK_ZAP_ID_E_WIDTH = /* RACK_ZAP_ID_E.width */ 32'd3; // Width of RACK_ZAP_ID_E
   
   typedef enum logic {
     ADDR_TYPE_MEM = 1'd0, // This is a memory address.
     ADDR_TYPE_CSR = 1'd1 // This is an CSR address.
   } ADDR_TYPE_E; // Indicates top-level address type.
   
-  localparam [32 - 1:0] ADDR_TYPE_E_WIDTH = /* ADDR_TYPE_E.width */ 1; // Width of ADDR_TYPE_E
+  localparam [32 - 1:0] ADDR_TYPE_E_WIDTH = /* ADDR_TYPE_E.width */ 32'd1; // Width of ADDR_TYPE_E
   
   typedef enum logic {
     IS_ZAP_NON_ZAP = 1'd0, // This address targets something outside a zap.
     IS_ZAP_ZAP = 1'd1 // This address targets something inside a zap.
   } IS_ZAP_E; // Indicates a zap address or a non-zap address.
   
-  localparam [32 - 1:0] IS_ZAP_E_WIDTH = /* IS_ZAP_E.width */ 1; // Width of IS_ZAP_E
+  localparam [32 - 1:0] IS_ZAP_E_WIDTH = /* IS_ZAP_E.width */ 32'd1; // Width of IS_ZAP_E
   
   typedef enum logic [3 - 1:0] {
     NON_ZAP_BLOCK_ID_LEG_ID = 3'd0, // LEG
@@ -57,7 +57,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     NON_ZAP_BLOCK_ID_FOX_ID = 3'd7 // Sit amet
   } NON_ZAP_BLOCK_ID_E; // The ID of an individual block in the bag that does not live inside ZAP.
   
-  localparam [32 - 1:0] NON_ZAP_BLOCK_ID_E_WIDTH = /* NON_ZAP_BLOCK_ID_E.width */ 3; // Width of NON_ZAP_BLOCK_ID_E
+  localparam [32 - 1:0] NON_ZAP_BLOCK_ID_E_WIDTH = /* NON_ZAP_BLOCK_ID_E.width */ 32'd3; // Width of NON_ZAP_BLOCK_ID_E
   
   typedef enum logic [4 - 1:0] {
     ZAP_BLOCK_ID_TRY = 4'd1, // Consectetur adipiscing
@@ -74,7 +74,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     ZAP_BLOCK_ID_GRE = 4'd12 // Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Transmit
   } ZAP_BLOCK_ID_E; // A subblock ID inside a ZAP.
   
-  localparam [32 - 1:0] ZAP_BLOCK_ID_E_WIDTH = /* ZAP_BLOCK_ID_E.width */ 4; // Width of ZAP_BLOCK_ID_E
+  localparam [32 - 1:0] ZAP_BLOCK_ID_E_WIDTH = /* ZAP_BLOCK_ID_E.width */ 32'd4; // Width of ZAP_BLOCK_ID_E
   
   typedef enum logic [2 - 1:0] {
     RACK_BLOCK_ID_ICE = 2'd0, // Sed eget
@@ -82,7 +82,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     RACK_BLOCK_ID_CUP = 2'd2 // Sed lobortis congue Transmit
   } RACK_BLOCK_ID_E; // A block instantiated at RACK-level that is not a zap
   
-  localparam [32 - 1:0] RACK_BLOCK_ID_E_WIDTH = /* RACK_BLOCK_ID_E.width */ 2; // Width of RACK_BLOCK_ID_E
+  localparam [32 - 1:0] RACK_BLOCK_ID_E_WIDTH = /* RACK_BLOCK_ID_E.width */ 32'd2; // Width of RACK_BLOCK_ID_E
   
   typedef enum logic [3 - 1:0] {
     CUP_ID_CUP0 = 3'd0, // CUPn
@@ -95,7 +95,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     CUP_ID_CUP7 = 3'd7 // CUPn
   } CUP_ID_E; // CUP numbering for address generation
   
-  localparam [32 - 1:0] CUP_ID_E_WIDTH = /* CUP_ID_E.width */ 3; // Width of CUP_ID_E
+  localparam [32 - 1:0] CUP_ID_E_WIDTH = /* CUP_ID_E.width */ 32'd3; // Width of CUP_ID_E
   
   typedef enum logic [7 - 1:0] {
     CRY_ID_CRY0 = 7'd0, // CRYn
@@ -228,13 +228,13 @@ package test_pkg_c_rypkg; // Define the addressing schema
     CRY_ID_CRY127 = 7'd127 // CRYn
   } CRY_ID_E; // CRY numbering for address generation
   
-  localparam [32 - 1:0] CRY_ID_E_WIDTH = /* CRY_ID_E.width */ 7; // Width of CRY_ID_E
+  localparam [32 - 1:0] CRY_ID_E_WIDTH = /* CRY_ID_E.width */ 32'd7; // Width of CRY_ID_E
   
   typedef enum logic {
     ICE_ID_ICE0 = 1'd0 // ICE 0
   } ICE_ID_E; // ICE Numbering
   
-  localparam [32 - 1:0] ICE_ID_E_WIDTH = /* ICE_ID_E.width */ 1; // Width of ICE_ID_E
+  localparam [32 - 1:0] ICE_ID_E_WIDTH = /* ICE_ID_E.width */ 32'd1; // Width of ICE_ID_E
   
   typedef logic [/* clog2(8) */ 3 - 1:0] rack_id_t; // ID of a rack
   
@@ -243,7 +243,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     RACK_ZAP_ID_E zap_id; // Zap ID (Within a rack)
   } zap_id_t; // The ID for a given ZAP
   
-  localparam [32 - 1:0] ZAP_ID_T_WIDTH = /* zap_id_t.width */ 6; // Width of zap_id_t
+  localparam [32 - 1:0] ZAP_ID_T_WIDTH = /* zap_id_t.width */ 32'd6; // Width of zap_id_t
   
   typedef struct packed {
     logic [/* ADDR_WIDTH.value - IS_ZAP_E.width - ADDR_TYPE_E.width - zap_id_t.width */ 19 - 1:0] offset; // JOB Address Offset
@@ -299,25 +299,25 @@ package test_pkg_c_rypkg; // Define the addressing schema
     addr_sub_addr_t sub_addr; // Union for sub_addr field in addr_t
   } addr_t; // A generic address
   
-  localparam [32 - 1:0] ADDR_T_WIDTH = /* addr_t.width */ 27; // Width of addr_t
+  localparam [32 - 1:0] ADDR_T_WIDTH = /* addr_t.width */ 32'd27; // Width of addr_t
   
-  localparam [32 - 1:0] JOB_ADDR_T_WIDTH = /* umem_addr_t.width */ 19; // Width of umem_addr_t
+  localparam [32 - 1:0] JOB_ADDR_T_WIDTH = /* umem_addr_t.width */ 32'd19; // Width of umem_addr_t
   
-  localparam [32 - 1:0] ZAP_CSR_ADDR_T_WIDTH = /* zap_csr_addr_t.width */ 19; // Width of zap_csr_addr_t
+  localparam [32 - 1:0] ZAP_CSR_ADDR_T_WIDTH = /* zap_csr_addr_t.width */ 32'd19; // Width of zap_csr_addr_t
   
-  localparam [32 - 1:0] ZAP_ADDR_T_WIDTH = /* zap_addr_t.width */ 26; // Width of zap_addr_t
+  localparam [32 - 1:0] ZAP_ADDR_T_WIDTH = /* zap_addr_t.width */ 32'd26; // Width of zap_addr_t
   
-  localparam [32 - 1:0] NON_ZAP_ADDR_T_WIDTH = /* non_zap_addr_t.width */ 26; // Width of non_zap_addr_t
+  localparam [32 - 1:0] NON_ZAP_ADDR_T_WIDTH = /* non_zap_addr_t.width */ 32'd26; // Width of non_zap_addr_t
   
-  localparam [32 - 1:0] RACK_ADDR_T_WIDTH = /* rack_addr_t.width */ 23; // Width of rack_addr_t
+  localparam [32 - 1:0] RACK_ADDR_T_WIDTH = /* rack_addr_t.width */ 32'd23; // Width of rack_addr_t
   
-  localparam [32 - 1:0] RACK_ID_T_WIDTH = /* rack_id_t.width */ 3; // Width of rack_id_t
+  localparam [32 - 1:0] RACK_ID_T_WIDTH = /* rack_id_t.width */ 32'd3; // Width of rack_id_t
   
-  localparam [32 - 1:0] RACK_BLOCK_INST_ID_T_WIDTH = /* rack_block_inst_id_t.width */ 3; // Width of rack_block_inst_id_t
+  localparam [32 - 1:0] RACK_BLOCK_INST_ID_T_WIDTH = /* rack_block_inst_id_t.width */ 32'd3; // Width of rack_block_inst_id_t
   
   typedef logic [/* clog2(4) */ 2 - 1:0] quad_id_t; // ID of a quad
   
-  localparam [32 - 1:0] QUAD_ID_T_WIDTH = /* quad_id_t.width */ 2; // Width of quad_id_t
+  localparam [32 - 1:0] QUAD_ID_T_WIDTH = /* quad_id_t.width */ 32'd2; // Width of quad_id_t
   
 
 endpackage : test_pkg_c_rypkg
