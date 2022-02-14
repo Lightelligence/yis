@@ -250,7 +250,7 @@ class Equation(ast.NodeTransformer):
 
         return astor.to_source(self.tree_root, source_generator_class=LocalHtmlSourceGenerator)
 
-    def render_rtl(self):
+    def render_rtl(self, gen_width=False):
         """Render the value of the eqaution for generated rtl.
         Adds the raw equation if the equation is not simple.
         """
@@ -267,6 +267,8 @@ class Equation(ast.NodeTransformer):
                 f"consider using math.ceil() and math.floor() to round up or round down. "
                 f"The equation is: {self.equation}")
         # Automatically do int() cast to avoid needing to explicitly wrap equations in .yis files with int()
+        if gen_width:
+            return f"{comment}{self.yisnode.computed_width}'d{int(self.computed_value)}"
         return f"{comment}{int(self.computed_value)}"
 
 
@@ -1269,7 +1271,7 @@ class PkgLocalparam(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
         render_width = self.width.render_rtl()
-        render_value = self.value.render_rtl()
+        render_value = self.value.render_rtl(gen_width=True)
         if self._sv_render_no_width:
             ret_arr.append(F"localparam {self.name} = {render_value}; // {self.doc_summary}")
         else:
