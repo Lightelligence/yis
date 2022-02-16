@@ -747,12 +747,13 @@ class YisNode: # pylint: disable=too-few-public-methods
         self._naming_convention_callback()
         self._check_triple_under()
         self._check_data_vs_dat()
-        
+
     def _check_data_vs_dat(self):
         """Verify that 'data' instead of 'dat'."""
         if 'data' in self.name.lower() and not getattr(self, 'implicit', False):
             self.log.error("%s %s in %s has 'data' in the name, but our methodology requires 'dat' instead",
-                           self.__class__.__name__, self.name, self.get_nonyis_root().name)
+                           self.__class__.__name__, self.name,
+                           self.get_nonyis_root().name)
 
     def _check_link_instance_naming(self, attr_name):
         attr = getattr(self, attr_name)
