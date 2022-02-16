@@ -746,6 +746,13 @@ class YisNode: # pylint: disable=too-few-public-methods
                            self.__class__.__name__, self.TYPE_NAME_SUFFIX)
         self._naming_convention_callback()
         self._check_triple_under()
+        self._check_data_vs_dat()
+        
+    def _check_data_vs_dat(self):
+        """Verify that 'data' instead of 'dat'."""
+        if 'data' in self.name.lower() and not getattr(self, 'implicit', False):
+            self.log.error("%s %s in %s has 'data' in the name, but our methodology requires 'dat' instead",
+                           self.__class__.__name__, self.name, self.get_nonyis_root().name)
 
     def _check_link_instance_naming(self, attr_name):
         attr = getattr(self, attr_name)
@@ -1090,11 +1097,12 @@ class PkgItemBase(YisNode):
     allowed_symbols_for_linking = []
 
     def __init__(self, **kwargs):
+        # Move implicit before super __init__ to cut down on naming convention reporting noise
+        self.implicit = kwargs.pop('implicit', False)
         super().__init__(**kwargs)
 
         # this field was added for address macro generation
         self.selectors = kwargs.pop('selectors', None)
-        self.implicit = kwargs.pop('implicit', False)
 
     def _extract_link_pieces(self, link_name):
         parent_pkg = self.get_parent_pkg()
@@ -1789,7 +1797,6 @@ class PkgStructField(PkgItemBase):
         if is_verilog_primitive(self.sv_type) and self.width is None:
             self.log.critical("%s has a verilog primitive type but did not specify a width", self.get_full_name())
         self._check_vld_bit()
-        self._check_data_vs_dat()
 
     def _check_vld_bit(self):
         """Check if there is valid (vld) bit present in the struct, and if there is, 
@@ -1804,12 +1811,6 @@ class PkgStructField(PkgItemBase):
 
             if self.sv_type != 'logic':
                 self.log.error(F"{self.name} bit in struct {self.parent.name} should have sv_type = 'logic'")
-
-    def _check_data_vs_dat(self):
-        """Verify that there are no struct fields named 'data' instead of 'dat'."""
-        if 'data' in self.name:
-            self.log.error("%s field in struct %s is named 'data', but our methodology requires 'dat' instead",
-                           self.name, self.parent.name)
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
