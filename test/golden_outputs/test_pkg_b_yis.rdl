@@ -75,14 +75,14 @@ reg write_cmd_t {
 
 `define WRITE_CMD_T_WIDTH /* write_cmd_t.width */ 10 // Width of write_cmd_t
 
-reg write_data_t {
+reg write_dat_t {
   desc = "Data cycle of a pipelined write";
   default reset = 0;
   field {desc = "Indicates a command type of IDLE, VALID, or DONE.";} cycle_type[9:8];
   field {desc = "One data cycle";} dat[7:0];
 };
 
-`define WRITE_DATA_T_WIDTH /* write_data_t.width */ 10 // Width of write_data_t
+`define WRITE_DAT_T_WIDTH /* write_dat_t.width */ 10 // Width of write_dat_t
 
 reg one_bit_field_t {
   desc = "Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct";

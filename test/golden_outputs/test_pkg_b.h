@@ -35,7 +35,7 @@
 #define SEVERAL_THINGS_T_WIDTH 87           // Width of several_things_t
 #define TYPE_LINKS_T_WIDTH 100           // Width of type_links_t
 #define WRITE_CMD_T_WIDTH 10           // Width of write_cmd_t
-#define WRITE_DATA_T_WIDTH 10           // Width of write_data_t
+#define WRITE_DAT_T_WIDTH 10           // Width of write_dat_t
 #define ONE_BIT_FIELD_T_WIDTH 3           // Width of one_bit_field_t
 #define FITAX_DEFINED_TYPE_T_WIDTH 6           // Width of first_defined_type_t
 #define SECOND_DEFINED_TYPE_T_WIDTH 92           // Width of second_defined_type_t
@@ -96,10 +96,10 @@ typedef struct _write_cmd_t {
 } write_cmd_t;
 
 // Data cycle of a pipelined write
-typedef struct _write_data_t {
+typedef struct _write_dat_t {
     CYCLE_TYPE_E cycle_type;    // 2 bits : Indicates a command type of IDLE, VALID, or DONE.
     uint8_t dat;    // 8 bits : One data cycle
-} write_data_t;
+} write_dat_t;
 
 // Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct
 typedef struct _one_bit_field_t {
@@ -111,10 +111,10 @@ typedef struct _one_bit_field_t {
 // Defines a pipelined write transaction
 typedef struct _pipelined_write_t {
     write_cmd_t cmd_cycle;    // 10 bits : The command cycle of a pipelined write
-    write_data_t dat0;    // 10 bits : Data cycle of a pipelined write
-    write_data_t dat1;    // 10 bits : Data cycle of a pipelined write
-    write_data_t dat2;    // 10 bits : Data cycle of a pipelined write
-    write_data_t dat3;    // 10 bits : Data cycle of a pipelined write
+    write_dat_t dat0;    // 10 bits : Data cycle of a pipelined write
+    write_dat_t dat1;    // 10 bits : Data cycle of a pipelined write
+    write_dat_t dat2;    // 10 bits : Data cycle of a pipelined write
+    write_dat_t dat3;    // 10 bits : Data cycle of a pipelined write
 } pipelined_write_t;
 
 
