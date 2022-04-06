@@ -30,104 +30,6 @@ def yis_c_hdr(name, pkg_deps, pkg):
         tools = ["@yis//:yis_gen"],
     )
 
-def yis_rtl_mem(name, pkg_deps, sram_deps, mem):
-    expected_name = mem.rsplit(":")[1][:-4]
-    if name != expected_name:
-        fail("Expect yis target name to be: {}".format(expected_name))
-
-    native.genrule(
-        name = "{}_mem_gen".format(name),
-        srcs = pkg_deps + [mem],
-        outs = ["{}_mem.sv".format(name)],
-        cmd = "$(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl",
-        tools = ["@yis//:yis_gen"],
-        output_to_bindir = True,
-        visibility = ["//visibility:public"],
-        tags = ["doc_export"],
-    )
-    native.genrule(
-        name = "{}_prot_gen".format(name),
-        srcs = pkg_deps + [mem],
-        outs = ["{}_prot.sv".format(name)],
-        cmd = "$(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --block-memory --gen-rtl --gen-deps",
-        tools = ["@yis//:yis_gen"],
-        output_to_bindir = True,
-        visibility = ["//visibility:public"],
-        tags = ["doc_export"],
-    )
-    # FIXME more external deps that shouldn't have been added
-    native.genrule(
-        name = "{}_pipe_gen".format(name),
-        outs = ["{name}_pipe.sv".format(name = name)],
-        cmd = "$(location //digital/rtl/scripts:gen_pipeline) --universal --name {} -out-file $@".format(name),
-        tools = ["//digital/rtl/scripts:gen_pipeline"],
-        output_to_bindir = True,
-        visibility = ["//visibility:public"],
-        tags = ["doc_export"],
-    )
-    # FIXME more external deps that shouldn't have been added
-    verilog_rtl_library(
-        name = "{}_mem".format(name),
-        lib_files = [":{}_mem_gen".format(name)],
-        deps = [pkg_dep[:-4] + "_rypkg" for pkg_dep in pkg_deps] +
-               ["{}_prot".format(name), "{}_pipe".format(name), "//digital/rtl/common:flop_array"] +
-               sram_deps,
-        visibility = ["//visibility:public"],
-    )
-    verilog_rtl_library(
-        name = "{}_prot".format(name),
-        lib_files = [":{}_prot_gen".format(name)],
-    )
-    verilog_rtl_library(
-        name = "{}_pipe".format(name),
-        lib_files = [":{}_pipe_gen".format(name)],
-    )
-    verilog_rtl_unit_test(
-        name = "{}_mem_test".format(name),
-        tags = [
-            "lic_xcelium",
-            "no_ci_gate",
-            "requires_license",
-        ],
-        deps = ["{}_mem".format(name)],
-    )
-
-def yis_rtl_fifo(name, pkg_deps, sram_deps, yis):
-    expected_name = yis.rsplit(":")[1][:-4]
-    if name != expected_name:
-        fail("Expect yis target name to be: {}".format(expected_name))
-
-    yis_rtl_mem(name, pkg_deps, sram_deps, yis)
-
-    native.genrule(
-        name = "{}_fifo_gen".format(name),
-        srcs = pkg_deps + [yis],
-        outs = ["{}_fifo.sv".format(name)],
-        cmd = "echo $(location @yis//:yis_gen) && $(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --block-generic fifo --gen-rtl",
-        tools = ["@yis//:yis_gen"],
-        output_to_bindir = True,
-        visibility = ["//visibility:public"],
-        tags = ["doc_export"],
-    )
-
-    # FIXME more external deps that shouldn't have been added
-    verilog_rtl_library(
-        name = "{}_fifo".format(name),
-        lib_files = [":{}_fifo_gen".format(name)],
-        deps = ["{}_mem".format(name), "@bagware//:bagware"],
-        visibility = ["//visibility:public"],
-    )
-
-    verilog_rtl_unit_test(
-        name = "{}_fifo_test".format(name),
-        tags = [
-            "lic_xcelium",
-            "no_ci_gate",
-            "requires_license",
-        ],
-        deps = ["{}_fifo".format(name)],
-    )
-
 def yis_instruction(name, pkg_deps, pkg):
     """Create a single yis-generate instruction proto."""
     native.genrule(
@@ -229,9 +131,6 @@ def yis_intf(name, pkg_deps, intf):
     dst_block = dst_block.split(".")[0]
     current_block = native.package_name().rsplit("/")[-1]
 
-    # print(src_block)
-    # print(dst_block)
-    # print(current_block)
     if src_block != current_block:
         fail("yis_intf files must be named <src>__<dst>.intf.\n" +
              "The file should live in the rtl/<src> directory.\n" +
@@ -240,3 +139,36 @@ def yis_intf(name, pkg_deps, intf):
              "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, src_block))
     yis_html_intf(name[:-4], pkg_deps, intf)
     yis_dv_intf(name[:-4], pkg_deps, intf)
+
+def _rst_html_wrapper_impl(ctx):
+
+    if not ctx.attr.name.endswith("_rst"):
+        fail("Expect yis_rst_html_wrapper name to end in _rst")
+    name = ctx.attr.name[:-4] + ".rst"
+    out = ctx.actions.declare_file(name)
+
+    ctx.actions.expand_template(
+        template = ctx.file.template,
+        output = out,
+        substitutions = {
+            "{TITLE}": ctx.attr.title,
+            "{TITLE_UNDERSZAP}" : "="*len(ctx.attr.title),
+            "{HTML_FILE}": ctx.attr.html_file,
+        },
+    )
+    return [
+        DefaultInfo(files=depset([out])),
+    ]
+
+yis_rst_html_wrapper = rule(
+    doc = "Create a wrapping .rst file for HTML documentation.",
+    implementation = _rst_html_wrapper_impl,
+    attrs = {
+        "title" : attr.string(doc="String to insert as title of page"),
+        "html_file" : attr.string(doc="html file name"),
+        "template" : attr.label(
+            default = Label("@yis//:rst_html_wrapper.template"),
+            allow_single_file = True,
+        ),
+    },
+)
