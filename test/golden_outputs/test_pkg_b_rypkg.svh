@@ -2,11 +2,11 @@
 //
 // Description: SV Pkg generated from test_pkg_b.yis by YIS
 
-`ifndef __TEST_PKG_B_PKG_SVH__
-  `define __TEST_PKG_B_PKG_SVH__
+`ifndef __TEST_PKG_B_RYPKG_SVH__
+  `define __TEST_PKG_B_RYPKG_SVH__
 
 
-package test_pkg_b; // Example of what a dependent package looks like
+package test_pkg_b_rypkg; // Example of what a dependent package looks like
 
   
   localparam [/* test_pkg_a::ANOTHER_PARAM.value */ 2 - 1:0] NEW_PARAM = 2'd3; // This should link up to [test_pkg_a::ANOTHER_PARAM]

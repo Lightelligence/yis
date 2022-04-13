@@ -2,11 +2,11 @@
 //
 // Description: SV Pkg generated from test_pkg_a.yis by YIS
 
-`ifndef __TEST_PKG_A_PKG_SVH__
-  `define __TEST_PKG_A_PKG_SVH__
+`ifndef __TEST_PKG_A_RYPKG_SVH__
+  `define __TEST_PKG_A_RYPKG_SVH__
 
 
-package test_pkg_a; // This is an example of what a package file could look like.
+package test_pkg_a_rypkg; // This is an example of what a package file could look like.
 
   
   localparam HERO_WIDTH = 32'd36; // Width of hero bus around the bag.
@@ -109,5 +109,5 @@ package test_pkg_a; // This is an example of what a package file could look like
   localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = /* nested_type_t.width */ 32'd12; // Width of nested_type_t
   
 
-endpackage : test_pkg_a
+endpackage : test_pkg_a_rypkg
 `endif // guard
