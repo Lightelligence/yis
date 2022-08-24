@@ -86,7 +86,7 @@ def yis_html_pkg(name, pkg_deps, pkg):
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
-    rst_html_wrapper(
+    yis_rst_html_wrapper(
         name = "{}_rypkg_rst".format(name),
         title = "{} YIS".format(name.upper()),
         html_file = "{}_rypkg.html".format(name),
@@ -108,7 +108,7 @@ def yis_html_intf(name, pkg_deps, intf):
         visibility = ["//visibility:public"],
         tags = ["doc_export"],
     )
-    rst_html_wrapper(
+    yis_rst_html_wrapper(
         name = "{}_rtl_intf_rst".format(name),
         title = "{} Interface".format(name.upper().replace("__", " to ")),
         html_file = "{}_rtl_intf.html".format(name),
