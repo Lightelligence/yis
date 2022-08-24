@@ -2197,6 +2197,7 @@ class IntfCompConn(IntfItemBase):
 
         return ret_arr
 
+
 def main(options, log):
     """Main execution."""
     if not options.pkgs:
