@@ -1,3 +1,5 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
 package(default_visibility = ["//visibility:public"])
 
 all_jinja_templates = glob(["templates/**"])
@@ -10,6 +12,10 @@ py_binary(
     data = all_jinja_templates + all_yamale_schemas,
     deps = [
         ":cmn_logging",
+        requirement("astor"),
+        requirement("jinja2"),
+        requirement("pyyaml"),
+        requirement("yamale"),
     ],
 )
 

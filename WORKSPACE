@@ -39,9 +39,10 @@ http_archive(
     url = "https://github.com/bazelbuild/buildtools/archive/refs/tags/5.1.0.tar.gz",
 )
 
-http_archive(
-    name = "rules_verilog",
-    urls = ["https://github.com/Lightelligence/rules_verilog/archive/v0.0.0.tar.gz"],
-    sha256 = "ab64a872410d22accb383c7ffc6d42e90f4de40a7cd92f43f4c26471c4f14908",
-    strip_prefix = "rules_verilog-0.0.0",
-)
+load("@yis//env:yis_repos.bzl", "yis_repos")
+
+yis_repos()
+
+load("@yis//env:yis_deps.bzl", "yis_dependencies")
+
+yis_dependencies()

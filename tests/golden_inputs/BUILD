@@ -1,6 +1,6 @@
-package(default_visibility = ["//visibility:public"])
-
 load("@yis//tests/golden_inputs:test.bzl", "golden_intf_tests", "golden_pkg_tests")
+
+package(default_visibility = ["//visibility:public"])
 
 golden_pkg_tests(
     deps = {
@@ -23,6 +23,7 @@ golden_intf_tests(
         ],
     },
 )
+
 exports_files([
     "test_pkg_a.yis",
     "test.bzl",

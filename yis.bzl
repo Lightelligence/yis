@@ -1,6 +1,6 @@
 """Macros for generating yis output files."""
 
-load("@rules_verilog//verilog:defs.bzl", "verilog_dv_library", "verilog_rtl_library", "verilog_rtl_pkg", "verilog_rtl_unit_test")
+load("@rules_verilog//verilog:defs.bzl", "verilog_dv_library", "verilog_rtl_pkg")
 
 def yis_rtl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RTL pkg."""
@@ -140,7 +140,6 @@ def yis_intf(name, pkg_deps, intf):
     yis_dv_intf(name[:-4], pkg_deps, intf)
 
 def _rst_html_wrapper_impl(ctx):
-
     if not ctx.attr.name.endswith("_rst"):
         fail("Expect yis_rst_html_wrapper name to end in _rst")
     name = ctx.attr.name[:-4] + ".rst"
@@ -151,21 +150,21 @@ def _rst_html_wrapper_impl(ctx):
         output = out,
         substitutions = {
             "{TITLE}": ctx.attr.title,
-            "{TITLE_UNDERSZAP}" : "="*len(ctx.attr.title),
+            "{TITLE_UNDERSZAP}": "=" * len(ctx.attr.title),
             "{HTML_FILE}": ctx.attr.html_file,
         },
     )
     return [
-        DefaultInfo(files=depset([out])),
+        DefaultInfo(files = depset([out])),
     ]
 
 yis_rst_html_wrapper = rule(
     doc = "Create a wrapping .rst file for HTML documentation.",
     implementation = _rst_html_wrapper_impl,
     attrs = {
-        "title" : attr.string(doc="String to insert as title of page"),
-        "html_file" : attr.string(doc="html file name"),
-        "template" : attr.label(
+        "title": attr.string(doc = "String to insert as title of page"),
+        "html_file": attr.string(doc = "html file name"),
+        "template": attr.label(
             default = Label("@yis//:rst_html_wrapper.template"),
             allow_single_file = True,
         ),
