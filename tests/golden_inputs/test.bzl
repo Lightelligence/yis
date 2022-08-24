@@ -2,7 +2,7 @@
 
 load("@yis//:yis.bzl", "yis_html_intf", "yis_html_pkg", "yis_rtl_pkg", "yis_c_hdr", "yis_rdl_pkg")
 
-golden_out_location = "@yis//test/golden_outputs:"
+golden_out_location = "@yis//tests/golden_outputs:"
 
 def golden_rtl_pkg_test(name, pkg_deps):
     """Compares a generated file to a statically checked in file."""
@@ -16,7 +16,7 @@ def golden_rtl_pkg_test(name, pkg_deps):
     native.sh_test(
         name = "{}_rtl_pkg_gold_test".format(name),
         size = "small",
-        srcs = ["@yis//test:passthrough.sh"],
+        srcs = ["@yis//tests:passthrough.sh"],
         data = [
             ":{}_rypkg_svh".format(name),
             "{}{}_rypkg.svh".format(golden_out_location, name),
@@ -37,7 +37,7 @@ def golden_hdr_test(name, pkg_deps):
     native.sh_test(
         name = "{}_hdr_gold_test".format(name),
         size = "small",
-        srcs = ["@yis//test:passthrough.sh"],
+        srcs = ["@yis//tests:passthrough.sh"],
         data = [
             ":{}_h".format(name),
             "{}{}.h".format(golden_out_location, name),
@@ -58,7 +58,7 @@ def golden_rdl_test(name, pkg_deps):
     native.sh_test(
         name = "{}_rdl_pkg_gold_test".format(name),
         size = "small",
-        srcs = ["@yis//test:passthrough.sh"],
+        srcs = ["@yis//tests:passthrough.sh"],
         data = [
             ":{}_yis_rdl".format(name),
             "{}{}_yis.rdl".format(golden_out_location, name),
@@ -79,7 +79,7 @@ def golden_html_pkg_test(name, pkg_deps):
     native.sh_test(
         name = "{}_html_pkg_gold_test".format(name),
         size = "small",
-        srcs = ["@yis//test:passthrough.sh"],
+        srcs = ["@yis//tests:passthrough.sh"],
         data = [
             ":{}_rypkg_html".format(name),
             ":{}_rypkg.html".format(name),
@@ -100,7 +100,7 @@ def golden_html_intf_test(name, pkg_deps):
     native.sh_test(
         name = "{}_html_intf_gold_test".format(name),
         size = "small",
-        srcs = ["@yis//test:passthrough.sh"],
+        srcs = ["@yis//tests:passthrough.sh"],
         data = [
             ":{}_rtl_intf_html".format(name),
             ":{}_rtl_intf.html".format(name),
