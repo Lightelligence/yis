@@ -15,8 +15,5 @@ jobs:
           bazel-install-path: './.local/bin'
           os: 'linux'
 
-      - name: run-buildifier-diff
-        run: bazel run //tests:buildifier_format_diff
-
       - name: run-bazel-tests
         run: bazel test --cache_test_results=no --test_output=all ...

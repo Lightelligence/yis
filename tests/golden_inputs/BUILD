@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@yis//test/golden_inputs:test.bzl", "golden_intf_tests", "golden_pkg_tests")
+load("@yis//tests/golden_inputs:test.bzl", "golden_intf_tests", "golden_pkg_tests")
 
 golden_pkg_tests(
     deps = {
