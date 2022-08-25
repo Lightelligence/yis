@@ -1,0 +1,2 @@
+build --host_linkopt=-lstdc++
+build --spawn_strategy=standalone

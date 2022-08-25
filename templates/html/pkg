@@ -1,0 +1,229 @@
+{% extends "html/base" %}
+{% block title -%}
+{{ target_pkg.name }}
+{{ target_pkg.source_file }}
+{%- endblock title %}
+
+{% block content %}
+<h2>{{ target_pkg.name }}</h2>
+{% if target_pkg.localparams|length %}
+<h5>{{ target_pkg.html_render_doc("doc_summary") }}</h5>
+{% if target_pkg.doc_verbose %}
+<pre>{{ target_pkg.html_render_doc("doc_verbose") }}</pre>
+{% endif %}
+<br/>
+<h3> Localparams </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Calculated Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for lp in target_pkg.localparams.values() %}
+  <tr>
+      <td id="{{ lp.html_anchor() }}"><a href="#{{ lp.html_anchor() }}">{{ lp.name }}</a></td>
+      <td>{{ lp.render_equation_as_html('width') }}</td>
+      <td>{{ lp.html_link_attribute('computed_width') }}</td>
+      <td>{{ lp.render_equation_as_html('value') }}</td>
+      <td>{{ lp.html_link_attribute('computed_value') }}</td>
+      <td>{{ lp.html_render_doc("doc_summary") }}</td>
+      <td>{% if lp.doc_verbose %}<pre>{{ lp.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if target_pkg.enums|length %}
+<h3>Enums</h3>
+{% for enum in target_pkg.enums.values() %}
+<h4 id="{{ enum.html_anchor() }}"><a href="#{{ enum.html_anchor() }}">{{enum.name}}</a></h4>
+<p>{{ enum.html_render_doc("doc_summary") }}</p>
+{% if enum.doc_verbose %}
+<pre>{{ enum.html_render_doc("doc_verbose") }}</pre>
+{% endif %}
+<p> Width ={{ enum.render_equation_as_html('width') }}</p>
+<p> Calculated Width = {{ enum.computed_width }}</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for ev in enum.children.values() %}
+  <tr>
+      <td id="{{ ev.html_anchor() }}"><a href="#{{ ev.html_anchor() }}">{{ ev.name }}</a></td>
+      <td>{{ ev.render_html_value() }}</td>
+      <td>{{ ev.html_render_doc("doc_summary") }}</td>
+      <td>{% if ev.doc_verbose %}<pre>{{ ev.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
+{% if target_pkg.typedefs|length %}
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for lp in target_pkg.typedefs.values() %}
+  <tr>
+      <td id="{{ lp.html_anchor() }}"><a href="#{{ lp.html_anchor() }}">{{ lp.name }}</a></td>
+      <td>{{ lp.html_link_attribute('base_sv_type') }}</td>
+      <td>{{ lp.render_equation_as_html('width') }}</td>
+      <td>{{ lp.html_link_attribute('computed_width') }}</td>
+      <td>{{ lp.html_render_doc("doc_summary") }}</td>
+      <td>{% if lp.doc_verbose %}<pre>{{ lp.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if target_pkg.structs|length %}
+<h3>Structs</h3>
+{% for struct in target_pkg.structs.values() %}
+<h4 id="{{ struct.html_anchor() }}"><a href="#{{ struct.html_anchor() }}">{{struct.name}}</a></h4>
+<p>{{ struct.html_render_doc("doc_summary") }}</p>
+{% if struct.doc_verbose %}
+<pre>{{ struct.html_render_doc("doc_verbose") }}</pre>
+{% endif %}
+<p> Calculated Width ={{ struct.computed_width }}</p>
+
+<canvas id="{{ struct.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ struct.name }}_canvas");
+  var data = [{{ struct.html_canvas_data() }}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for sf in struct.children.values() %}
+  <tr>
+      <td id="{{ sf.html_anchor() }}"><a href="#{{ sf.html_anchor() }}">{{ sf.name }}</a></td>
+      <td>{{ sf.html_link_attribute('sv_type') }}</td>
+      <td>{{ sf.render_equation_as_html('width') }}</td>
+      <td>{{ sf.computed_width }}</td>
+      <td>{{ sf.html_render_doc("doc_summary") }}</td>
+      <td>{% if sf.doc_verbose %}<pre>{{ sf.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
+{% if target_pkg.unions|length %}
+<h3>Unions</h3>
+{% for union in target_pkg.unions.values() %}
+<h4 id="{{ union.html_anchor() }}"><a href="#{{ union.html_anchor() }}">{{union.name}}</a></h4>
+<p>{{ union.html_render_doc("doc_summary") }}</p>
+{% if union.doc_verbose %}
+<pre>{{ union.html_render_doc("doc_verbose") }}</pre>
+{% endif %}
+<p> Calculated Width ={{ union.computed_width }}</p>
+
+<canvas id="{{ union.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ union.name }}_canvas");
+  var data = {{ union.html_canvas_data() }};
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for uf in union.children.values() %}
+  <tr>
+      <td id="{{ uf.html_anchor() }}"><a href="#{{ uf.html_anchor() }}">{{ uf.name }}</a></td>
+      <td>{{ uf.html_link_attribute('sv_type') }}</td>
+      <td>{{ uf.render_equation_as_html('width') }}</td>
+      <td>{{ uf.computed_width }}</td>
+      <td>{{ uf.html_render_doc("doc_summary") }}</td>
+      <td>{% if uf.doc_verbose %}<pre>{{ uf.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
+{% if target_pkg.xactions|length %}
+<h3>Xactions</h3>
+{% for xaction in target_pkg.xactions.values() %}
+<h4 id="{{ xaction.html_anchor() }}"><a href="#{{ xaction.html_anchor() }}">{{xaction.name}}</a></h4>
+<p>{{ xaction.html_render_doc("doc_summary") }}</p>
+{% if xaction.doc_verbose %}
+<pre>{{ xaction.html_render_doc("doc_verbose") }}</pre>
+{% endif %}
+<p> Calculated Width ={{ xaction.computed_width }}</p>
+
+<canvas id="{{ xaction.name}}_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("{{ xaction.name }}_canvas");
+  var data = {{ xaction.html_canvas_data() }};
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+{% for xc in xaction.children.values() %}
+  <tr>
+      <td id="{{ xc.html_anchor() }}"><a href="#{{ xc.html_anchor() }}">{{ xc.name }}</a></td>
+      <td>{{ xc.html_link_attribute('sv_type') }}</td>
+      <td>{{ xc.render_equation_as_html('width') }}</td>
+      <td>{{ xc.computed_width }}</td>
+      <td>{{ xc.html_render_doc("doc_summary") }}</td>
+      <td>{% if xc.doc_verbose %}<pre>{{ xc.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+
+
+{% endblock content %}

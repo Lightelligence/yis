@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF"></script> -->
+  <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.4/struct_canvas.js"></script>
+
+  <title>{% block title %}{% endblock %} - YIS</title>
+  {% block html_head %}{% endblock %}
+</head>
+<body>
+  <div class="container-fluid">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+{% block footer %}
+{% endblock %}

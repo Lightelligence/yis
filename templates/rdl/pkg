@@ -1,0 +1,10 @@
+// Copyright (c) {{ year }} Lightelligence
+//{% set pkg=target_pkg %}
+// Description: RDL Pkg generated from {{ pkg.name }}.yis by YIS
+
+{{ pkg.render_doc_verbose(0) }}
+
+{% for item in pkg.post_order_traversal_for_rtl_render() %}
+{{ item.render_rdl_pkg() }}
+{% endfor %}
+

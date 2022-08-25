@@ -1,0 +1,650 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF"></script> -->
+  <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.4/struct_canvas.js"></script>
+
+  <title>test_pkg_a
+tests/golden_inputs/test_pkg_a.yis - YIS</title>
+  
+</head>
+<body>
+  <div class="container-fluid">
+    
+<h2>test_pkg_a</h2>
+
+<h5>This is an example of what a package file could look like.</h5>
+
+<br/>
+<h3> Localparams </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Calculated Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td>This parameter has a paramterized width and a parameterized type.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH">TRIPLE_NESTED_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>Width of TRIPLE_NESTED_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_COUNT_WIDTH">TRIPLE_NESTED_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count TRIPLE_NESTED_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE"><a href="#test_pkg_a__TRIPLE_NESTED_PARAM_WIDTH_ONE">TRIPLE_NESTED_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM"><a href="#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.width</a>
+</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td>This parameter has a paramterized width and a parameterized type.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH">DOUBLE_LINK_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>Width of DOUBLE_LINK_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_COUNT_WIDTH">DOUBLE_LINK_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count DOUBLE_LINK_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE"><a href="#test_pkg_a__DOUBLE_LINK_PARAM_WIDTH_ONE">DOUBLE_LINK_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">DOUBLE_LINK_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH"><a href="#test_pkg_a__HERO_WIDTH">HERO_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>36</td>
+      <td>36</td>
+      <td>Width of hero bus around the bag.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_WIDTH">HERO_WIDTH_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+    )
+</td>
+      <td>6</td>
+      <td>Width of HERO_WIDTH</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_COUNT_WIDTH"><a href="#test_pkg_a__HERO_WIDTH_COUNT_WIDTH">HERO_WIDTH_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+     + 1)
+</td>
+      <td>6</td>
+      <td>Width to count HERO_WIDTH items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WIDTH_WIDTH_ONE"><a href="#test_pkg_a__HERO_WIDTH_WIDTH_ONE">HERO_WIDTH_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+    )
+</td>
+      <td>6</td>
+      <td>1</td>
+      <td>1</td>
+      <td>HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__ANOTHER_PARAM"><a href="#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM</a></td>
+      <td>6</td>
+      <td>6</td>
+      <td>2</td>
+      <td>2</td>
+      <td>This is a different parameter than the first.</td>
+      <td><pre>This field has extra verbose documentation surrounding it
+for reasons that might be clear later. The intent of these different fields
+is so that when a block interface uses a struct or enum in an interface
+definition, we can copy over the doc_summary and keep it inline, but for
+more information point to the package definition for the whole long-form
+documentation.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__ANOTHER_PARAM_WIDTH"><a href="#test_pkg_a__ANOTHER_PARAM_WIDTH">ANOTHER_PARAM_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>Width of ANOTHER_PARAM</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__ANOTHER_PARAM_COUNT_WIDTH"><a href="#test_pkg_a__ANOTHER_PARAM_COUNT_WIDTH">ANOTHER_PARAM_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+     + 1)
+</td>
+      <td>2</td>
+      <td>Width to count ANOTHER_PARAM items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__ANOTHER_PARAM_WIDTH_ONE"><a href="#test_pkg_a__ANOTHER_PARAM_WIDTH_ONE">ANOTHER_PARAM_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+    )
+</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CYCLE_TYPE_E_WIDTH"><a href="#test_pkg_a__CYCLE_TYPE_E_WIDTH">CYCLE_TYPE_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E.width</a>
+</td>
+      <td>2</td>
+      <td>Width of CYCLE_TYPE_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__BOOL_E_WIDTH"><a href="#test_pkg_a__BOOL_E_WIDTH">BOOL_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__BOOL_E">BOOL_E.width</a>
+</td>
+      <td>1</td>
+      <td>Width of BOOL_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E_WIDTH"><a href="#test_pkg_a__CONCISE_E_WIDTH">CONCISE_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CONCISE_E">CONCISE_E.width</a>
+</td>
+      <td>4</td>
+      <td>Width of CONCISE_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__HERO_WRITE_T_WIDTH"><a href="#test_pkg_a__HERO_WRITE_T_WIDTH">HERO_WRITE_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__hero_write_t">hero_write_t.width</a>
+</td>
+      <td>46</td>
+      <td>Width of hero_write_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__SUB_DEF_T_WIDTH"><a href="#test_pkg_a__SUB_DEF_T_WIDTH">SUB_DEF_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def_t">sub_def_t.width</a>
+</td>
+      <td>7</td>
+      <td>Width of sub_def_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__VANILLA_TYPE_T_WIDTH"><a href="#test_pkg_a__VANILLA_TYPE_T_WIDTH">VANILLA_TYPE_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__vanilla_type_t">vanilla_type_t.width</a>
+</td>
+      <td>6</td>
+      <td>Width of vanilla_type_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__NESTED_TYPE_T_WIDTH"><a href="#test_pkg_a__NESTED_TYPE_T_WIDTH">NESTED_TYPE_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__nested_type_t">nested_type_t.width</a>
+</td>
+      <td>12</td>
+      <td>Width of nested_type_t</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+<h3>Enums</h3>
+
+<h4 id="test_pkg_a__CYCLE_TYPE_E"><a href="#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E</a></h4>
+<p>Indicates a command type of IDLE, VALID, or DONE.</p>
+
+<pre>I'm writing this verbose documentation so that we have something to attempt to link in
+for cycle_type.
+</pre>
+
+<p> Width =<a href="./test_pkg_a_rypkg.html#test_pkg_a__TRIPLE_NESTED_PARAM">TRIPLE_NESTED_PARAM.value</a>
+</p>
+<p> Calculated Width = 2</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__CYCLE_TYPE_E__IDLE"><a href="#test_pkg_a__CYCLE_TYPE_E__IDLE">IDLE</a></td>
+      <td></td>
+      <td>The bus is idle this cycle.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CYCLE_TYPE_E__VALID"><a href="#test_pkg_a__CYCLE_TYPE_E__VALID">VALID</a></td>
+      <td></td>
+      <td>The command on the bus this is valid and there will be future VALID cycles for this transaction.</td>
+      <td><pre>The enum value is so complicated it needs its own
+verbose documentation that none of the other values in this enum need.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CYCLE_TYPE_E__DONE"><a href="#test_pkg_a__CYCLE_TYPE_E__DONE">DONE</a></td>
+      <td></td>
+      <td>The command on the bus this is valid and this is the last cycle of data.</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_a__BOOL_E"><a href="#test_pkg_a__BOOL_E">BOOL_E</a></h4>
+<p>Test for an enum that is width 1</p>
+
+<p> Width =1</p>
+<p> Calculated Width = 1</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__BOOL_E__TRUE"><a href="#test_pkg_a__BOOL_E__TRUE">TRUE</a></td>
+      <td>1</td>
+      <td>This is true</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__BOOL_E__FALSE"><a href="#test_pkg_a__BOOL_E__FALSE">FALSE</a></td>
+      <td>0</td>
+      <td>This is false</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_a__CONCISE_E"><a href="#test_pkg_a__CONCISE_E">CONCISE_E</a></h4>
+<p>Write a lot of enums without much YIS</p>
+
+<p> Width =4</p>
+<p> Calculated Width = 4</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS0"><a href="#test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS0">SEQUENTIAL_THINGS0</a></td>
+      <td>0</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS2"><a href="#test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS2">SEQUENTIAL_THINGS2</a></td>
+      <td>2</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS4"><a href="#test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS4">SEQUENTIAL_THINGS4</a></td>
+      <td>4</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS6"><a href="#test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS6">SEQUENTIAL_THINGS6</a></td>
+      <td>6</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS8"><a href="#test_pkg_a__CONCISE_E__SEQUENTIAL_THINGS8">SEQUENTIAL_THINGS8</a></td>
+      <td>8</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__CONCISE_E__BEE"><a href="#test_pkg_a__CONCISE_E__BEE">BEE</a></td>
+      <td>3</td>
+      <td>ThingX</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__vanilla_type_t"><a href="#test_pkg_a__vanilla_type_t">vanilla_type_t</a></td>
+      <td>logic</td>
+      <td>6</td>
+      <td>6</td>
+      <td>This is a basic logic type and width</td>
+      <td><pre>And it has a doc_verbose for good measure</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__nested_type_t"><a href="#test_pkg_a__nested_type_t">nested_type_t</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__vanilla_type_t">vanilla_type_t</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>12</td>
+      <td>Use another typedef as the base type, a localparam as the width</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+<h3>Structs</h3>
+
+<h4 id="test_pkg_a__hero_write_t"><a href="#test_pkg_a__hero_write_t">hero_write_t</a></h4>
+<p>A struct that wraps all fields needed for a single hero write.</p>
+
+<pre>This is a verbose doc. I'm writing it to provide that my verbose
+doc links are working correctly.
+</pre>
+
+<p> Calculated Width =46</p>
+
+<canvas id="hero_write_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("hero_write_t_canvas");
+  var data = [{'field_names': ['cycle_type', 'wdat', 'another_type_reference', 'clk_en'], 'msbs': [45, 43, 7, 0], 'lsbs': [44, 8, 1, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__hero_write_t__cycle_type"><a href="#test_pkg_a__hero_write_t__cycle_type">cycle_type</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E</a></td>
+      <td></td>
+      <td>2</td>
+      <td>Indicates a command type of IDLE, VALID, or DONE.</td>
+      <td><pre>I'm writing this verbose documentation so that we have something to attempt to link in
+for cycle_type.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__hero_write_t__wdat"><a href="#test_pkg_a__hero_write_t__wdat">wdat</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__HERO_WIDTH">HERO_WIDTH.value</a>
+</td>
+      <td>36</td>
+      <td>Width of hero bus around the bag.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__hero_write_t__another_type_reference"><a href="#test_pkg_a__hero_write_t__another_type_reference">another_type_reference</a></td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def_t">sub_def_t</a></td>
+      <td></td>
+      <td>7</td>
+      <td>Test a struct of a struct</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__hero_write_t__clk_en"><a href="#test_pkg_a__hero_write_t__clk_en">clk_en</a></td>
+      <td>logic</td>
+      <td>1</td>
+      <td>1</td>
+      <td>Clock enable for the bus</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_a__sub_def_t"><a href="#test_pkg_a__sub_def_t">sub_def_t</a></h4>
+<p>A sub-struct of hero_write_t that is declared afterwards.</p>
+
+<p> Calculated Width =7</p>
+
+<canvas id="sub_def_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("sub_def_t_canvas");
+  var data = [{'field_names': ['subfield_a', 'subfield_b', 'subfield_c', 'subfield_d'], 'msbs': [6, 5, 3, 1], 'lsbs': [6, 4, 2, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_a__sub_def_t__subfield_a"><a href="#test_pkg_a__sub_def_t__subfield_a">subfield_a</a></td>
+      <td>logic</td>
+      <td>1</td>
+      <td>1</td>
+      <td>Test that a width-1 logic field generates correctly</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__sub_def_t__subfield_b"><a href="#test_pkg_a__sub_def_t__subfield_b">subfield_b</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td>This is a different parameter than the first.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__sub_def_t__subfield_c"><a href="#test_pkg_a__sub_def_t__subfield_c">subfield_c</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td>This is a different parameter than the first.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_a__sub_def_t__subfield_d"><a href="#test_pkg_a__sub_def_t__subfield_d">subfield_d</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__ANOTHER_PARAM">ANOTHER_PARAM.value</a>
+</td>
+      <td>2</td>
+      <td>This is a different parameter than the first.</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+
+
+
+
+
+
+  </div>
+</body>
+

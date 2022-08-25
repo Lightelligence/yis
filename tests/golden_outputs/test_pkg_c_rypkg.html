@@ -1,0 +1,2198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF" crossorigin="anonymous"></script> -->
+  <!-- <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.2/struct_canvas.js" integrity="sha384-afHLTgi3w8yA0+VIeawVUhat2GFr3t4GtfqySsdYFynHRCGyLc2OEvWDGgiDOnwF"></script> -->
+  <script src="https://github.com/wstucker/struct-canvas/releases/download/0.0.4/struct_canvas.js"></script>
+
+  <title>test_pkg_c
+tests/golden_inputs/test_pkg_c.yis - YIS</title>
+  
+</head>
+<body>
+  <div class="container-fluid">
+    
+<h2>test_pkg_c</h2>
+
+<h5>Define the addressing schema</h5>
+
+<br/>
+<h3> Localparams </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Calculated Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_WIDTH"><a href="#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>27</td>
+      <td>27</td>
+      <td>The default address width</td>
+      <td><pre>This is an assumption that we will have 40 bits of addressing over PCIE.
+Even if not using PCIE, this might be a good assumption to make for future proofing.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_WIDTH_WIDTH"><a href="#test_pkg_c__ADDR_WIDTH_WIDTH">ADDR_WIDTH_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a>
+    )
+</td>
+      <td>5</td>
+      <td>Width of ADDR_WIDTH</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_WIDTH_COUNT_WIDTH"><a href="#test_pkg_c__ADDR_WIDTH_COUNT_WIDTH">ADDR_WIDTH_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a>
+     + 1)
+</td>
+      <td>5</td>
+      <td>Width to count ADDR_WIDTH items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_WIDTH_WIDTH_ONE"><a href="#test_pkg_c__ADDR_WIDTH_WIDTH_ONE">ADDR_WIDTH_WIDTH_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a>
+    )
+</td>
+      <td>5</td>
+      <td>1</td>
+      <td>1</td>
+      <td>ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E_WIDTH"><a href="#test_pkg_c__RACK_ZAP_ID_E_WIDTH">RACK_ZAP_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__RACK_ZAP_ID_E">RACK_ZAP_ID_E.width</a>
+</td>
+      <td>3</td>
+      <td>Width of RACK_ZAP_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_TYPE_E_WIDTH"><a href="#test_pkg_c__ADDR_TYPE_E_WIDTH">ADDR_TYPE_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E.width</a>
+</td>
+      <td>1</td>
+      <td>Width of ADDR_TYPE_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__IS_ZAP_E_WIDTH"><a href="#test_pkg_c__IS_ZAP_E_WIDTH">IS_ZAP_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a>
+</td>
+      <td>1</td>
+      <td>Width of IS_ZAP_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E_WIDTH"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E_WIDTH">NON_ZAP_BLOCK_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E.width</a>
+</td>
+      <td>3</td>
+      <td>Width of NON_ZAP_BLOCK_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E_WIDTH"><a href="#test_pkg_c__ZAP_BLOCK_ID_E_WIDTH">ZAP_BLOCK_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ZAP_BLOCK_ID_E">ZAP_BLOCK_ID_E.width</a>
+</td>
+      <td>4</td>
+      <td>Width of ZAP_BLOCK_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_BLOCK_ID_E_WIDTH"><a href="#test_pkg_c__RACK_BLOCK_ID_E_WIDTH">RACK_BLOCK_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__RACK_BLOCK_ID_E">RACK_BLOCK_ID_E.width</a>
+</td>
+      <td>2</td>
+      <td>Width of RACK_BLOCK_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E_WIDTH"><a href="#test_pkg_c__CUP_ID_E_WIDTH">CUP_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__CUP_ID_E">CUP_ID_E.width</a>
+</td>
+      <td>3</td>
+      <td>Width of CUP_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E_WIDTH"><a href="#test_pkg_c__CRY_ID_E_WIDTH">CRY_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__CRY_ID_E">CRY_ID_E.width</a>
+</td>
+      <td>7</td>
+      <td>Width of CRY_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ICE_ID_E_WIDTH"><a href="#test_pkg_c__ICE_ID_E_WIDTH">ICE_ID_E_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ICE_ID_E">ICE_ID_E.width</a>
+</td>
+      <td>1</td>
+      <td>Width of ICE_ID_E</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_ID_T_WIDTH"><a href="#test_pkg_c__ZAP_ID_T_WIDTH">ZAP_ID_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_id_t">zap_id_t.width</a>
+</td>
+      <td>6</td>
+      <td>Width of zap_id_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_T_WIDTH"><a href="#test_pkg_c__ADDR_T_WIDTH">ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__addr_t">addr_t.width</a>
+</td>
+      <td>27</td>
+      <td>Width of addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__JOB_ADDR_T_WIDTH"><a href="#test_pkg_c__JOB_ADDR_T_WIDTH">JOB_ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__umem_addr_t">umem_addr_t.width</a>
+</td>
+      <td>19</td>
+      <td>Width of umem_addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_CSR_ADDR_T_WIDTH"><a href="#test_pkg_c__ZAP_CSR_ADDR_T_WIDTH">ZAP_CSR_ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_csr_addr_t">zap_csr_addr_t.width</a>
+</td>
+      <td>19</td>
+      <td>Width of zap_csr_addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_ADDR_T_WIDTH"><a href="#test_pkg_c__ZAP_ADDR_T_WIDTH">ZAP_ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_addr_t">zap_addr_t.width</a>
+</td>
+      <td>26</td>
+      <td>Width of zap_addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_ADDR_T_WIDTH"><a href="#test_pkg_c__NON_ZAP_ADDR_T_WIDTH">NON_ZAP_ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__non_zap_addr_t">non_zap_addr_t.width</a>
+</td>
+      <td>26</td>
+      <td>Width of non_zap_addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ADDR_T_WIDTH"><a href="#test_pkg_c__RACK_ADDR_T_WIDTH">RACK_ADDR_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_addr_t">rack_addr_t.width</a>
+</td>
+      <td>23</td>
+      <td>Width of rack_addr_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ID_T_WIDTH"><a href="#test_pkg_c__RACK_ID_T_WIDTH">RACK_ID_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_id_t">rack_id_t.width</a>
+</td>
+      <td>3</td>
+      <td>Width of rack_id_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_BLOCK_INST_ID_T_WIDTH"><a href="#test_pkg_c__RACK_BLOCK_INST_ID_T_WIDTH">RACK_BLOCK_INST_ID_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_block_inst_id_t">rack_block_inst_id_t.width</a>
+</td>
+      <td>3</td>
+      <td>Width of rack_block_inst_id_t</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__QUAD_ID_T_WIDTH"><a href="#test_pkg_c__QUAD_ID_T_WIDTH">QUAD_ID_T_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__quad_id_t">quad_id_t.width</a>
+</td>
+      <td>2</td>
+      <td>Width of quad_id_t</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+<h3>Enums</h3>
+
+<h4 id="test_pkg_c__RACK_ZAP_ID_E"><a href="#test_pkg_c__RACK_ZAP_ID_E">RACK_ZAP_ID_E</a></h4>
+<p>The zap id within a rack.</p>
+
+<p> Width =3</p>
+<p> Calculated Width = 3</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP0"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP0">ZAP0</a></td>
+      <td>0</td>
+      <td>Zap 0 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP1"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP1">ZAP1</a></td>
+      <td>1</td>
+      <td>Zap 1 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP2"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP2">ZAP2</a></td>
+      <td>2</td>
+      <td>Zap 2 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP3"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP3">ZAP3</a></td>
+      <td>3</td>
+      <td>Zap 3 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP4"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP4">ZAP4</a></td>
+      <td>4</td>
+      <td>Zap 4 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP5"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP5">ZAP5</a></td>
+      <td>5</td>
+      <td>Zap 5 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP6"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP6">ZAP6</a></td>
+      <td>6</td>
+      <td>Zap 6 within RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP7"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP7">ZAP7</a></td>
+      <td>7</td>
+      <td>Zap 7 within RACK</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__ADDR_TYPE_E"><a href="#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E</a></h4>
+<p>Indicates top-level address type.</p>
+
+<p> Width =1</p>
+<p> Calculated Width = 1</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_TYPE_E__MEM"><a href="#test_pkg_c__ADDR_TYPE_E__MEM">MEM</a></td>
+      <td>0</td>
+      <td>This is a memory address.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ADDR_TYPE_E__CSR"><a href="#test_pkg_c__ADDR_TYPE_E__CSR">CSR</a></td>
+      <td>1</td>
+      <td>This is an CSR address.</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__IS_ZAP_E"><a href="#test_pkg_c__IS_ZAP_E">IS_ZAP_E</a></h4>
+<p>Indicates a zap address or a non-zap address.</p>
+
+<p> Width =1</p>
+<p> Calculated Width = 1</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__IS_ZAP_E__NON_ZAP"><a href="#test_pkg_c__IS_ZAP_E__NON_ZAP">NON_ZAP</a></td>
+      <td>0</td>
+      <td>This address targets something outside a zap.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__IS_ZAP_E__ZAP"><a href="#test_pkg_c__IS_ZAP_E__ZAP">ZAP</a></td>
+      <td>1</td>
+      <td>This address targets something inside a zap.</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__NON_ZAP_BLOCK_ID_E"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E</a></h4>
+<p>The ID of an individual block in the bag that does not live inside ZAP.</p>
+
+<p> Width =3</p>
+<p> Calculated Width = 3</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__LEG_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__LEG_ID">LEG_ID</a></td>
+      <td>0</td>
+      <td>LEG</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__TAX_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__TAX_ID">TAX_ID</a></td>
+      <td>1</td>
+      <td>LEG controller</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__EGO_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__EGO_ID">EGO_ID</a></td>
+      <td>2</td>
+      <td>EGO controller</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__ASH_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__ASH_ID">ASH_ID</a></td>
+      <td>4</td>
+      <td>Interrupt Controller</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__SIN_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__SIN_ID">SIN_ID</a></td>
+      <td>5</td>
+      <td>Lorem ipsum dolor</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__RACK_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__RACK_ID">RACK_ID</a></td>
+      <td>6</td>
+      <td>One of the non-zap blocks within the RACK</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NON_ZAP_BLOCK_ID_E__FOX_ID"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E__FOX_ID">FOX_ID</a></td>
+      <td>7</td>
+      <td>Sit amet</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__ZAP_BLOCK_ID_E"><a href="#test_pkg_c__ZAP_BLOCK_ID_E">ZAP_BLOCK_ID_E</a></h4>
+<p>A subblock ID inside a ZAP.</p>
+
+<p> Width =4</p>
+<p> Calculated Width = 4</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__TRY"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__TRY">TRY</a></td>
+      <td>1</td>
+      <td>Consectetur adipiscing</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__HORN"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__HORN">HORN</a></td>
+      <td>2</td>
+      <td>Zap Miscellaneous Bus Controller</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__EYE"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__EYE">EYE</a></td>
+      <td>3</td>
+      <td>Eye beams</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE0"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE0">PIE_SLICE0</a></td>
+      <td>4</td>
+      <td>PIE slice 0</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE1"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE1">PIE_SLICE1</a></td>
+      <td>5</td>
+      <td>PIE slice 1</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE2"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE2">PIE_SLICE2</a></td>
+      <td>6</td>
+      <td>PIE slice 2</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE3"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__PIE_SLICE3">PIE_SLICE3</a></td>
+      <td>7</td>
+      <td>PIE slice 2</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__KID"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__KID">KID</a></td>
+      <td>8</td>
+      <td>Pellentesque eget</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__JOB"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__JOB">JOB</a></td>
+      <td>9</td>
+      <td>Aliquet lorem</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__TIP"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__TIP">TIP</a></td>
+      <td>10</td>
+      <td>JOB Bridge</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__GET"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__GET">GET</a></td>
+      <td>11</td>
+      <td>Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Receive</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__ZAP_BLOCK_ID_E__GRE"><a href="#test_pkg_c__ZAP_BLOCK_ID_E__GRE">GRE</a></td>
+      <td>12</td>
+      <td>Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Transmit</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__RACK_BLOCK_ID_E"><a href="#test_pkg_c__RACK_BLOCK_ID_E">RACK_BLOCK_ID_E</a></h4>
+<p>A block instantiated at RACK-level that is not a zap</p>
+
+<p> Width =2</p>
+<p> Calculated Width = 2</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__RACK_BLOCK_ID_E__ICE"><a href="#test_pkg_c__RACK_BLOCK_ID_E__ICE">ICE</a></td>
+      <td>0</td>
+      <td>Sed eget</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_BLOCK_ID_E__CRY"><a href="#test_pkg_c__RACK_BLOCK_ID_E__CRY">CRY</a></td>
+      <td>1</td>
+      <td>Sed lobortis congue Receive</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__RACK_BLOCK_ID_E__CUP"><a href="#test_pkg_c__RACK_BLOCK_ID_E__CUP">CUP</a></td>
+      <td>2</td>
+      <td>Sed lobortis congue Transmit</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__CUP_ID_E"><a href="#test_pkg_c__CUP_ID_E">CUP_ID_E</a></h4>
+<p>CUP numbering for address generation</p>
+
+<p> Width =3</p>
+<p> Calculated Width = 3</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP0"><a href="#test_pkg_c__CUP_ID_E__CUP0">CUP0</a></td>
+      <td>0</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP1"><a href="#test_pkg_c__CUP_ID_E__CUP1">CUP1</a></td>
+      <td>1</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP2"><a href="#test_pkg_c__CUP_ID_E__CUP2">CUP2</a></td>
+      <td>2</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP3"><a href="#test_pkg_c__CUP_ID_E__CUP3">CUP3</a></td>
+      <td>3</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP4"><a href="#test_pkg_c__CUP_ID_E__CUP4">CUP4</a></td>
+      <td>4</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP5"><a href="#test_pkg_c__CUP_ID_E__CUP5">CUP5</a></td>
+      <td>5</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP6"><a href="#test_pkg_c__CUP_ID_E__CUP6">CUP6</a></td>
+      <td>6</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CUP_ID_E__CUP7"><a href="#test_pkg_c__CUP_ID_E__CUP7">CUP7</a></td>
+      <td>7</td>
+      <td>CUPn</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__CRY_ID_E"><a href="#test_pkg_c__CRY_ID_E">CRY_ID_E</a></h4>
+<p>CRY numbering for address generation</p>
+
+<p> Width =7</p>
+<p> Calculated Width = 7</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY0"><a href="#test_pkg_c__CRY_ID_E__CRY0">CRY0</a></td>
+      <td>0</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY1"><a href="#test_pkg_c__CRY_ID_E__CRY1">CRY1</a></td>
+      <td>1</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY2"><a href="#test_pkg_c__CRY_ID_E__CRY2">CRY2</a></td>
+      <td>2</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY3"><a href="#test_pkg_c__CRY_ID_E__CRY3">CRY3</a></td>
+      <td>3</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY4"><a href="#test_pkg_c__CRY_ID_E__CRY4">CRY4</a></td>
+      <td>4</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY5"><a href="#test_pkg_c__CRY_ID_E__CRY5">CRY5</a></td>
+      <td>5</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY6"><a href="#test_pkg_c__CRY_ID_E__CRY6">CRY6</a></td>
+      <td>6</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY7"><a href="#test_pkg_c__CRY_ID_E__CRY7">CRY7</a></td>
+      <td>7</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY8"><a href="#test_pkg_c__CRY_ID_E__CRY8">CRY8</a></td>
+      <td>8</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY9"><a href="#test_pkg_c__CRY_ID_E__CRY9">CRY9</a></td>
+      <td>9</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY10"><a href="#test_pkg_c__CRY_ID_E__CRY10">CRY10</a></td>
+      <td>10</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY11"><a href="#test_pkg_c__CRY_ID_E__CRY11">CRY11</a></td>
+      <td>11</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY12"><a href="#test_pkg_c__CRY_ID_E__CRY12">CRY12</a></td>
+      <td>12</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY13"><a href="#test_pkg_c__CRY_ID_E__CRY13">CRY13</a></td>
+      <td>13</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY14"><a href="#test_pkg_c__CRY_ID_E__CRY14">CRY14</a></td>
+      <td>14</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY15"><a href="#test_pkg_c__CRY_ID_E__CRY15">CRY15</a></td>
+      <td>15</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY16"><a href="#test_pkg_c__CRY_ID_E__CRY16">CRY16</a></td>
+      <td>16</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY17"><a href="#test_pkg_c__CRY_ID_E__CRY17">CRY17</a></td>
+      <td>17</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY18"><a href="#test_pkg_c__CRY_ID_E__CRY18">CRY18</a></td>
+      <td>18</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY19"><a href="#test_pkg_c__CRY_ID_E__CRY19">CRY19</a></td>
+      <td>19</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY20"><a href="#test_pkg_c__CRY_ID_E__CRY20">CRY20</a></td>
+      <td>20</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY21"><a href="#test_pkg_c__CRY_ID_E__CRY21">CRY21</a></td>
+      <td>21</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY22"><a href="#test_pkg_c__CRY_ID_E__CRY22">CRY22</a></td>
+      <td>22</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY23"><a href="#test_pkg_c__CRY_ID_E__CRY23">CRY23</a></td>
+      <td>23</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY24"><a href="#test_pkg_c__CRY_ID_E__CRY24">CRY24</a></td>
+      <td>24</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY25"><a href="#test_pkg_c__CRY_ID_E__CRY25">CRY25</a></td>
+      <td>25</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY26"><a href="#test_pkg_c__CRY_ID_E__CRY26">CRY26</a></td>
+      <td>26</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY27"><a href="#test_pkg_c__CRY_ID_E__CRY27">CRY27</a></td>
+      <td>27</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY28"><a href="#test_pkg_c__CRY_ID_E__CRY28">CRY28</a></td>
+      <td>28</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY29"><a href="#test_pkg_c__CRY_ID_E__CRY29">CRY29</a></td>
+      <td>29</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY30"><a href="#test_pkg_c__CRY_ID_E__CRY30">CRY30</a></td>
+      <td>30</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY31"><a href="#test_pkg_c__CRY_ID_E__CRY31">CRY31</a></td>
+      <td>31</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY32"><a href="#test_pkg_c__CRY_ID_E__CRY32">CRY32</a></td>
+      <td>32</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY33"><a href="#test_pkg_c__CRY_ID_E__CRY33">CRY33</a></td>
+      <td>33</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY34"><a href="#test_pkg_c__CRY_ID_E__CRY34">CRY34</a></td>
+      <td>34</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY35"><a href="#test_pkg_c__CRY_ID_E__CRY35">CRY35</a></td>
+      <td>35</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY36"><a href="#test_pkg_c__CRY_ID_E__CRY36">CRY36</a></td>
+      <td>36</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY37"><a href="#test_pkg_c__CRY_ID_E__CRY37">CRY37</a></td>
+      <td>37</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY38"><a href="#test_pkg_c__CRY_ID_E__CRY38">CRY38</a></td>
+      <td>38</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY39"><a href="#test_pkg_c__CRY_ID_E__CRY39">CRY39</a></td>
+      <td>39</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY40"><a href="#test_pkg_c__CRY_ID_E__CRY40">CRY40</a></td>
+      <td>40</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY41"><a href="#test_pkg_c__CRY_ID_E__CRY41">CRY41</a></td>
+      <td>41</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY42"><a href="#test_pkg_c__CRY_ID_E__CRY42">CRY42</a></td>
+      <td>42</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY43"><a href="#test_pkg_c__CRY_ID_E__CRY43">CRY43</a></td>
+      <td>43</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY44"><a href="#test_pkg_c__CRY_ID_E__CRY44">CRY44</a></td>
+      <td>44</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY45"><a href="#test_pkg_c__CRY_ID_E__CRY45">CRY45</a></td>
+      <td>45</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY46"><a href="#test_pkg_c__CRY_ID_E__CRY46">CRY46</a></td>
+      <td>46</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY47"><a href="#test_pkg_c__CRY_ID_E__CRY47">CRY47</a></td>
+      <td>47</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY48"><a href="#test_pkg_c__CRY_ID_E__CRY48">CRY48</a></td>
+      <td>48</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY49"><a href="#test_pkg_c__CRY_ID_E__CRY49">CRY49</a></td>
+      <td>49</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY50"><a href="#test_pkg_c__CRY_ID_E__CRY50">CRY50</a></td>
+      <td>50</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY51"><a href="#test_pkg_c__CRY_ID_E__CRY51">CRY51</a></td>
+      <td>51</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY52"><a href="#test_pkg_c__CRY_ID_E__CRY52">CRY52</a></td>
+      <td>52</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY53"><a href="#test_pkg_c__CRY_ID_E__CRY53">CRY53</a></td>
+      <td>53</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY54"><a href="#test_pkg_c__CRY_ID_E__CRY54">CRY54</a></td>
+      <td>54</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY55"><a href="#test_pkg_c__CRY_ID_E__CRY55">CRY55</a></td>
+      <td>55</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY56"><a href="#test_pkg_c__CRY_ID_E__CRY56">CRY56</a></td>
+      <td>56</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY57"><a href="#test_pkg_c__CRY_ID_E__CRY57">CRY57</a></td>
+      <td>57</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY58"><a href="#test_pkg_c__CRY_ID_E__CRY58">CRY58</a></td>
+      <td>58</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY59"><a href="#test_pkg_c__CRY_ID_E__CRY59">CRY59</a></td>
+      <td>59</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY60"><a href="#test_pkg_c__CRY_ID_E__CRY60">CRY60</a></td>
+      <td>60</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY61"><a href="#test_pkg_c__CRY_ID_E__CRY61">CRY61</a></td>
+      <td>61</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY62"><a href="#test_pkg_c__CRY_ID_E__CRY62">CRY62</a></td>
+      <td>62</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY63"><a href="#test_pkg_c__CRY_ID_E__CRY63">CRY63</a></td>
+      <td>63</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY64"><a href="#test_pkg_c__CRY_ID_E__CRY64">CRY64</a></td>
+      <td>64</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY65"><a href="#test_pkg_c__CRY_ID_E__CRY65">CRY65</a></td>
+      <td>65</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY66"><a href="#test_pkg_c__CRY_ID_E__CRY66">CRY66</a></td>
+      <td>66</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY67"><a href="#test_pkg_c__CRY_ID_E__CRY67">CRY67</a></td>
+      <td>67</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY68"><a href="#test_pkg_c__CRY_ID_E__CRY68">CRY68</a></td>
+      <td>68</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY69"><a href="#test_pkg_c__CRY_ID_E__CRY69">CRY69</a></td>
+      <td>69</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY70"><a href="#test_pkg_c__CRY_ID_E__CRY70">CRY70</a></td>
+      <td>70</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY71"><a href="#test_pkg_c__CRY_ID_E__CRY71">CRY71</a></td>
+      <td>71</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY72"><a href="#test_pkg_c__CRY_ID_E__CRY72">CRY72</a></td>
+      <td>72</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY73"><a href="#test_pkg_c__CRY_ID_E__CRY73">CRY73</a></td>
+      <td>73</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY74"><a href="#test_pkg_c__CRY_ID_E__CRY74">CRY74</a></td>
+      <td>74</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY75"><a href="#test_pkg_c__CRY_ID_E__CRY75">CRY75</a></td>
+      <td>75</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY76"><a href="#test_pkg_c__CRY_ID_E__CRY76">CRY76</a></td>
+      <td>76</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY77"><a href="#test_pkg_c__CRY_ID_E__CRY77">CRY77</a></td>
+      <td>77</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY78"><a href="#test_pkg_c__CRY_ID_E__CRY78">CRY78</a></td>
+      <td>78</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY79"><a href="#test_pkg_c__CRY_ID_E__CRY79">CRY79</a></td>
+      <td>79</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY80"><a href="#test_pkg_c__CRY_ID_E__CRY80">CRY80</a></td>
+      <td>80</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY81"><a href="#test_pkg_c__CRY_ID_E__CRY81">CRY81</a></td>
+      <td>81</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY82"><a href="#test_pkg_c__CRY_ID_E__CRY82">CRY82</a></td>
+      <td>82</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY83"><a href="#test_pkg_c__CRY_ID_E__CRY83">CRY83</a></td>
+      <td>83</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY84"><a href="#test_pkg_c__CRY_ID_E__CRY84">CRY84</a></td>
+      <td>84</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY85"><a href="#test_pkg_c__CRY_ID_E__CRY85">CRY85</a></td>
+      <td>85</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY86"><a href="#test_pkg_c__CRY_ID_E__CRY86">CRY86</a></td>
+      <td>86</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY87"><a href="#test_pkg_c__CRY_ID_E__CRY87">CRY87</a></td>
+      <td>87</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY88"><a href="#test_pkg_c__CRY_ID_E__CRY88">CRY88</a></td>
+      <td>88</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY89"><a href="#test_pkg_c__CRY_ID_E__CRY89">CRY89</a></td>
+      <td>89</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY90"><a href="#test_pkg_c__CRY_ID_E__CRY90">CRY90</a></td>
+      <td>90</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY91"><a href="#test_pkg_c__CRY_ID_E__CRY91">CRY91</a></td>
+      <td>91</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY92"><a href="#test_pkg_c__CRY_ID_E__CRY92">CRY92</a></td>
+      <td>92</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY93"><a href="#test_pkg_c__CRY_ID_E__CRY93">CRY93</a></td>
+      <td>93</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY94"><a href="#test_pkg_c__CRY_ID_E__CRY94">CRY94</a></td>
+      <td>94</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY95"><a href="#test_pkg_c__CRY_ID_E__CRY95">CRY95</a></td>
+      <td>95</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY96"><a href="#test_pkg_c__CRY_ID_E__CRY96">CRY96</a></td>
+      <td>96</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY97"><a href="#test_pkg_c__CRY_ID_E__CRY97">CRY97</a></td>
+      <td>97</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY98"><a href="#test_pkg_c__CRY_ID_E__CRY98">CRY98</a></td>
+      <td>98</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY99"><a href="#test_pkg_c__CRY_ID_E__CRY99">CRY99</a></td>
+      <td>99</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY100"><a href="#test_pkg_c__CRY_ID_E__CRY100">CRY100</a></td>
+      <td>100</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY101"><a href="#test_pkg_c__CRY_ID_E__CRY101">CRY101</a></td>
+      <td>101</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY102"><a href="#test_pkg_c__CRY_ID_E__CRY102">CRY102</a></td>
+      <td>102</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY103"><a href="#test_pkg_c__CRY_ID_E__CRY103">CRY103</a></td>
+      <td>103</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY104"><a href="#test_pkg_c__CRY_ID_E__CRY104">CRY104</a></td>
+      <td>104</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY105"><a href="#test_pkg_c__CRY_ID_E__CRY105">CRY105</a></td>
+      <td>105</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY106"><a href="#test_pkg_c__CRY_ID_E__CRY106">CRY106</a></td>
+      <td>106</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY107"><a href="#test_pkg_c__CRY_ID_E__CRY107">CRY107</a></td>
+      <td>107</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY108"><a href="#test_pkg_c__CRY_ID_E__CRY108">CRY108</a></td>
+      <td>108</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY109"><a href="#test_pkg_c__CRY_ID_E__CRY109">CRY109</a></td>
+      <td>109</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY110"><a href="#test_pkg_c__CRY_ID_E__CRY110">CRY110</a></td>
+      <td>110</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY111"><a href="#test_pkg_c__CRY_ID_E__CRY111">CRY111</a></td>
+      <td>111</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY112"><a href="#test_pkg_c__CRY_ID_E__CRY112">CRY112</a></td>
+      <td>112</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY113"><a href="#test_pkg_c__CRY_ID_E__CRY113">CRY113</a></td>
+      <td>113</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY114"><a href="#test_pkg_c__CRY_ID_E__CRY114">CRY114</a></td>
+      <td>114</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY115"><a href="#test_pkg_c__CRY_ID_E__CRY115">CRY115</a></td>
+      <td>115</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY116"><a href="#test_pkg_c__CRY_ID_E__CRY116">CRY116</a></td>
+      <td>116</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY117"><a href="#test_pkg_c__CRY_ID_E__CRY117">CRY117</a></td>
+      <td>117</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY118"><a href="#test_pkg_c__CRY_ID_E__CRY118">CRY118</a></td>
+      <td>118</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY119"><a href="#test_pkg_c__CRY_ID_E__CRY119">CRY119</a></td>
+      <td>119</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY120"><a href="#test_pkg_c__CRY_ID_E__CRY120">CRY120</a></td>
+      <td>120</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY121"><a href="#test_pkg_c__CRY_ID_E__CRY121">CRY121</a></td>
+      <td>121</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY122"><a href="#test_pkg_c__CRY_ID_E__CRY122">CRY122</a></td>
+      <td>122</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY123"><a href="#test_pkg_c__CRY_ID_E__CRY123">CRY123</a></td>
+      <td>123</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY124"><a href="#test_pkg_c__CRY_ID_E__CRY124">CRY124</a></td>
+      <td>124</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY125"><a href="#test_pkg_c__CRY_ID_E__CRY125">CRY125</a></td>
+      <td>125</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY126"><a href="#test_pkg_c__CRY_ID_E__CRY126">CRY126</a></td>
+      <td>126</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__CRY_ID_E__CRY127"><a href="#test_pkg_c__CRY_ID_E__CRY127">CRY127</a></td>
+      <td>127</td>
+      <td>CRYn</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__ICE_ID_E"><a href="#test_pkg_c__ICE_ID_E">ICE_ID_E</a></h4>
+<p>ICE Numbering</p>
+
+<p> Width =1</p>
+<p> Calculated Width = 1</p>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Value</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__ICE_ID_E__ICE0"><a href="#test_pkg_c__ICE_ID_E__ICE0">ICE0</a></td>
+      <td>0</td>
+      <td>ICE 0</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+
+<h3> Typedefs </h3>
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Base Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__rack_id_t"><a href="#test_pkg_c__rack_id_t">rack_id_t</a></td>
+      <td>logic</td>
+      <td>clog2(8)
+</td>
+      <td>3</td>
+      <td>ID of a rack</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__rack_block_inst_id_t"><a href="#test_pkg_c__rack_block_inst_id_t">rack_block_inst_id_t</a></td>
+      <td>logic</td>
+      <td>clog2(8)
+</td>
+      <td>3</td>
+      <td>ID number for one of the non-zap blocks instantiated at RACK-level</td>
+      <td><pre>clog2(NUM_ZAP) is used here because this field needs to address individual instances of any non-zap block
+instantiated in the RACK (CRY, CUP, ICE). In this case, there are more CRY instances (NUM_ZAP) than CUP or ICE instances
+so NUM_ZAP is used.
+</pre></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__quad_id_t"><a href="#test_pkg_c__quad_id_t">quad_id_t</a></td>
+      <td>logic</td>
+      <td>clog2(4)
+</td>
+      <td>2</td>
+      <td>ID of a quad</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+<h3>Structs</h3>
+
+<h4 id="test_pkg_c__zap_id_t"><a href="#test_pkg_c__zap_id_t">zap_id_t</a></h4>
+<p>The ID for a given ZAP</p>
+
+<p> Calculated Width =6</p>
+
+<canvas id="zap_id_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("zap_id_t_canvas");
+  var data = [{'field_names': ['rack_id', 'zap_id'], 'msbs': [5, 2], 'lsbs': [3, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__zap_id_t__rack_id"><a href="#test_pkg_c__zap_id_t__rack_id">rack_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_id_t">rack_id_t</a></td>
+      <td></td>
+      <td>3</td>
+      <td>ID of a rack</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__zap_id_t__zap_id"><a href="#test_pkg_c__zap_id_t__zap_id">zap_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__RACK_ZAP_ID_E">RACK_ZAP_ID_E</a></td>
+      <td></td>
+      <td>3</td>
+      <td>Zap ID (Within a rack)</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__addr_t"><a href="#test_pkg_c__addr_t">addr_t</a></h4>
+<p>A generic address</p>
+
+<p> Calculated Width =27</p>
+
+<canvas id="addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("addr_t_canvas");
+  var data = [{'field_names': ['is_zap', 'sub_addr'], 'msbs': [26, 25], 'lsbs': [26, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__addr_t__is_zap"><a href="#test_pkg_c__addr_t__is_zap">is_zap</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E</a></td>
+      <td></td>
+      <td>1</td>
+      <td>Indicates a zap address or a non-zap address.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__addr_t__sub_addr"><a href="#test_pkg_c__addr_t__sub_addr">sub_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__addr_sub_addr_t">addr_sub_addr_t</a></td>
+      <td></td>
+      <td>26</td>
+      <td>Union for sub_addr field in addr_t</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__umem_addr_t"><a href="#test_pkg_c__umem_addr_t">umem_addr_t</a></h4>
+<p>JOB Addr struct</p>
+
+<p> Calculated Width =19</p>
+
+<canvas id="umem_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("umem_addr_t_canvas");
+  var data = [{'field_names': ['offset'], 'msbs': [18], 'lsbs': [0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__umem_addr_t__offset"><a href="#test_pkg_c__umem_addr_t__offset">offset</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_id_t">zap_id_t.width</a>
+</td>
+      <td>19</td>
+      <td>JOB Address Offset</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__zap_csr_addr_t"><a href="#test_pkg_c__zap_csr_addr_t">zap_csr_addr_t</a></h4>
+<p>Zap CSR Addr Struct</p>
+
+<p> Calculated Width =19</p>
+
+<canvas id="zap_csr_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("zap_csr_addr_t_canvas");
+  var data = [{'field_names': ['zap_block_id', 'offset'], 'msbs': [18, 14], 'lsbs': [15, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__zap_csr_addr_t__zap_block_id"><a href="#test_pkg_c__zap_csr_addr_t__zap_block_id">zap_block_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ZAP_BLOCK_ID_E">ZAP_BLOCK_ID_E</a></td>
+      <td></td>
+      <td>4</td>
+      <td>A subblock ID inside a ZAP.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__zap_csr_addr_t__offset"><a href="#test_pkg_c__zap_csr_addr_t__offset">offset</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_id_t">zap_id_t.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__ZAP_BLOCK_ID_E">ZAP_BLOCK_ID_E.width</a>
+</td>
+      <td>15</td>
+      <td>offset into the CSR address space</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__zap_addr_t"><a href="#test_pkg_c__zap_addr_t">zap_addr_t</a></h4>
+<p>A memory address</p>
+
+<pre>Only valid when addr_t.addr_type == ADDR_TYPE_E::MEM
+</pre>
+
+<p> Calculated Width =26</p>
+
+<canvas id="zap_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("zap_addr_t_canvas");
+  var data = [{'field_names': ['is_csr', 'zap_id', 'sub_addr'], 'msbs': [25, 24, 18], 'lsbs': [25, 19, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__zap_addr_t__is_csr"><a href="#test_pkg_c__zap_addr_t__is_csr">is_csr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E</a></td>
+      <td></td>
+      <td>1</td>
+      <td>Indicates top-level address type.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__zap_addr_t__zap_id"><a href="#test_pkg_c__zap_addr_t__zap_id">zap_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_id_t">zap_id_t</a></td>
+      <td></td>
+      <td>6</td>
+      <td>The ID for a given ZAP</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__zap_addr_t__sub_addr"><a href="#test_pkg_c__zap_addr_t__sub_addr">sub_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_addr_sub_addr_t">zap_addr_sub_addr_t</a></td>
+      <td></td>
+      <td>19</td>
+      <td>Union of the sub_addr field in zap_addr_t</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__non_zap_addr_t"><a href="#test_pkg_c__non_zap_addr_t">non_zap_addr_t</a></h4>
+<p>Non-Zap Addr Struct</p>
+
+<p> Calculated Width =26</p>
+
+<canvas id="non_zap_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("non_zap_addr_t_canvas");
+  var data = [{'field_names': ['non_zap_block_id', 'sub_addr'], 'msbs': [25, 22], 'lsbs': [23, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__non_zap_addr_t__non_zap_block_id"><a href="#test_pkg_c__non_zap_addr_t__non_zap_block_id">non_zap_block_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E</a></td>
+      <td></td>
+      <td>3</td>
+      <td>The ID of an individual block in the bag that does not live inside ZAP.</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__non_zap_addr_t__sub_addr"><a href="#test_pkg_c__non_zap_addr_t__sub_addr">sub_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__non_zap_subaddr_t">non_zap_subaddr_t</a></td>
+      <td></td>
+      <td>23</td>
+      <td>Union for sub_addr field in addr_t</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__rack_addr_t"><a href="#test_pkg_c__rack_addr_t">rack_addr_t</a></h4>
+<p>Address for blocks within the RACK</p>
+
+<p> Calculated Width =23</p>
+
+<canvas id="rack_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("rack_addr_t_canvas");
+  var data = [{'field_names': ['rack_id', 'rack_block_id', 'rack_block_inst_id', 'offset'], 'msbs': [22, 19, 17, 14], 'lsbs': [20, 18, 15, 0]}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__rack_addr_t__rack_id"><a href="#test_pkg_c__rack_addr_t__rack_id">rack_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_id_t">rack_id_t</a></td>
+      <td></td>
+      <td>3</td>
+      <td>ID of a rack</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__rack_addr_t__rack_block_id"><a href="#test_pkg_c__rack_addr_t__rack_block_id">rack_block_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__RACK_BLOCK_ID_E">RACK_BLOCK_ID_E</a></td>
+      <td></td>
+      <td>2</td>
+      <td>which type of block</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__rack_addr_t__rack_block_inst_id"><a href="#test_pkg_c__rack_addr_t__rack_block_inst_id">rack_block_inst_id</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_block_inst_id_t">rack_block_inst_id_t</a></td>
+      <td></td>
+      <td>3</td>
+      <td>Which instance of this block-type</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__rack_addr_t__offset"><a href="#test_pkg_c__rack_addr_t__offset">offset</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_id_t">rack_id_t.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__RACK_BLOCK_ID_E">RACK_BLOCK_ID_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_block_inst_id_t">rack_block_inst_id_t.width</a>
+</td>
+      <td>15</td>
+      <td>offset within this instance's addr space</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+
+<h3>Unions</h3>
+
+<h4 id="test_pkg_c__non_zap_subaddr_t"><a href="#test_pkg_c__non_zap_subaddr_t">non_zap_subaddr_t</a></h4>
+<p>Union for sub_addr field in addr_t</p>
+
+<p> Calculated Width =23</p>
+
+<canvas id="non_zap_subaddr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("non_zap_subaddr_t_canvas");
+  var data = [{'field_names': ['offset'], 'msbs': [22], 'lsbs': [0], 'label': 'offset'}, {'field_names': ['rack_id', 'rack_block_id', 'rack_block_inst_id', 'offset'], 'msbs': [22, 19, 17, 14], 'lsbs': [20, 18, 15, 0], 'label': 'rack_addr'}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__non_zap_subaddr_t__offset"><a href="#test_pkg_c__non_zap_subaddr_t__offset">offset</a></td>
+      <td>logic</td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E.width</a>
+</td>
+      <td>23</td>
+      <td>offset for cases where this is not a RACK-block</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__non_zap_subaddr_t__rack_addr"><a href="#test_pkg_c__non_zap_subaddr_t__rack_addr">rack_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__rack_addr_t">rack_addr_t</a></td>
+      <td></td>
+      <td>23</td>
+      <td>Address for blocks within the RACK</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__addr_sub_addr_t"><a href="#test_pkg_c__addr_sub_addr_t">addr_sub_addr_t</a></h4>
+<p>Union for sub_addr field in addr_t</p>
+
+<p> Calculated Width =26</p>
+
+<canvas id="addr_sub_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("addr_sub_addr_t_canvas");
+  var data = [{'field_names': ['is_csr', 'zap_id', 'sub_addr'], 'msbs': [25, 24, 18], 'lsbs': [25, 19, 0], 'label': 'zap_addr'}, {'field_names': ['non_zap_block_id', 'sub_addr'], 'msbs': [25, 22], 'lsbs': [23, 0], 'label': 'non_zap_addr'}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__addr_sub_addr_t__zap_addr"><a href="#test_pkg_c__addr_sub_addr_t__zap_addr">zap_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_addr_t">zap_addr_t</a></td>
+      <td></td>
+      <td>26</td>
+      <td>A memory address</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__addr_sub_addr_t__non_zap_addr"><a href="#test_pkg_c__addr_sub_addr_t__non_zap_addr">non_zap_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__non_zap_addr_t">non_zap_addr_t</a></td>
+      <td></td>
+      <td>26</td>
+      <td>Non-Zap Addr Struct</td>
+      <td></td>
+  </tr>
+
+</table>
+
+<h4 id="test_pkg_c__zap_addr_sub_addr_t"><a href="#test_pkg_c__zap_addr_sub_addr_t">zap_addr_sub_addr_t</a></h4>
+<p>Union of the sub_addr field in zap_addr_t</p>
+
+<p> Calculated Width =19</p>
+
+<canvas id="zap_addr_sub_addr_t_canvas"></canvas>
+<script>
+  var canvas = document.getElementById("zap_addr_sub_addr_t_canvas");
+  var data = [{'field_names': ['offset'], 'msbs': [18], 'lsbs': [0], 'label': 'umem_addr'}, {'field_names': ['zap_block_id', 'offset'], 'msbs': [18, 14], 'lsbs': [15, 0], 'label': 'zap_csr_addr'}];
+  var config = new StructConfig();
+  var struct = new Struct(canvas, data, config);
+</script> 
+
+<table class="table table-striped table-bordered table-sm">
+  <thead>
+    <tr>
+      <th class="th-sm">Name</th>
+      <th class="th-sm">Type</th>
+      <th class="th-sm">Width</th>
+      <th class="th-sm">Calculated Width</th>
+      <th class="th-sm">Doc Summary</th>
+      <th class="th-sm">Doc Verbose</th>
+    </tr>
+  </thead>
+
+  <tr>
+      <td id="test_pkg_c__zap_addr_sub_addr_t__umem_addr"><a href="#test_pkg_c__zap_addr_sub_addr_t__umem_addr">umem_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__umem_addr_t">umem_addr_t</a></td>
+      <td></td>
+      <td>19</td>
+      <td>JOB Addr struct</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__zap_addr_sub_addr_t__zap_csr_addr"><a href="#test_pkg_c__zap_addr_sub_addr_t__zap_csr_addr">zap_csr_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_csr_addr_t">zap_csr_addr_t</a></td>
+      <td></td>
+      <td>19</td>
+      <td>Zap CSR Addr Struct</td>
+      <td></td>
+  </tr>
+
+</table>
+
+
+
+
+
+
+
+  </div>
+</body>
+
