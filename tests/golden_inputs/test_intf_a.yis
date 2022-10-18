@@ -12,7 +12,7 @@ components:
         type: test_pkg_a::hero_write_t
         doc_summary: hero write from BOG to TRY
         doc_verbose: type.doc_verbose
-      - name: try__bog_hero__ack
+      - name: try__bog__hero__ack
         type: logic
         width: 1
         doc_summary: ACK the hero writes from BOG to TRY to refund BOG hero credits
