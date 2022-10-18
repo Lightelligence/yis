@@ -20,15 +20,23 @@ package test_pkg_c_rypkg; // Define the addressing schema
   
   localparam [/* clog2(ADDR_WIDTH.value) */ 5 - 1:0] ADDR_WIDTH_WIDTH_ONE = 5'd1; // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [32 - 1:0] NUM_ZAP = 32'd8; // There are reasons why this is 8
+  
+  localparam [32 - 1:0] NUM_ZAP_WIDTH = /* clog2(NUM_ZAP.value) */ 32'd3; // Width of NUM_ZAP
+  
+  localparam [32 - 1:0] NUM_ZAP_COUNT_WIDTH = /* clog2(NUM_ZAP.value + 1) */ 32'd4; // Width to count NUM_ZAP items
+  
+  localparam [/* clog2(NUM_ZAP.value) */ 3 - 1:0] NUM_ZAP_WIDTH_ONE = 3'd1; // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+  
   typedef enum logic [3 - 1:0] {
-    RACK_ZAP_ID_ZAP0 = 3'd0, // Zap 0 within RACK
-    RACK_ZAP_ID_ZAP1 = 3'd1, // Zap 1 within RACK
-    RACK_ZAP_ID_ZAP2 = 3'd2, // Zap 2 within RACK
-    RACK_ZAP_ID_ZAP3 = 3'd3, // Zap 3 within RACK
-    RACK_ZAP_ID_ZAP4 = 3'd4, // Zap 4 within RACK
-    RACK_ZAP_ID_ZAP5 = 3'd5, // Zap 5 within RACK
-    RACK_ZAP_ID_ZAP6 = 3'd6, // Zap 6 within RACK
-    RACK_ZAP_ID_ZAP7 = 3'd7 // Zap 7 within RACK
+    RACK_ZAP_ID_ZAP0 = 3'd0, // Zap 0 within) a rack
+    RACK_ZAP_ID_ZAP1 = 3'd1, // Zap 1 within a rack
+    RACK_ZAP_ID_ZAP2 = 3'd2, // Zap 2 within a rack
+    RACK_ZAP_ID_ZAP3 = 3'd3, // Zap 3 within a rack
+    RACK_ZAP_ID_ZAP4 = 3'd4, // Zap 4 within a rack
+    RACK_ZAP_ID_ZAP5 = 3'd5, // Zap 5 within a rack
+    RACK_ZAP_ID_ZAP6 = 3'd6, // Zap 6 within a rack
+    RACK_ZAP_ID_ZAP7 = 3'd7 // Zap 7 within a rack
   } RACK_ZAP_ID_E; // The zap id within a rack.
   
   localparam [32 - 1:0] RACK_ZAP_ID_E_WIDTH = /* RACK_ZAP_ID_E.width */ 32'd3; // Width of RACK_ZAP_ID_E
@@ -55,7 +63,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
     NON_ZAP_BLOCK_ID_SIN_ID = 3'd5, // Lorem ipsum dolor
     NON_ZAP_BLOCK_ID_RACK_ID = 3'd6, // One of the non-zap blocks within the RACK
     NON_ZAP_BLOCK_ID_FOX_ID = 3'd7 // Sit amet
-  } NON_ZAP_BLOCK_ID_E; // The ID of an individual block in the bag that does not live inside ZAP.
+  } NON_ZAP_BLOCK_ID_E; // The ID of an individual block in the BAG that does not live inside ZAP.
   
   localparam [32 - 1:0] NON_ZAP_BLOCK_ID_E_WIDTH = /* NON_ZAP_BLOCK_ID_E.width */ 32'd3; // Width of NON_ZAP_BLOCK_ID_E
   
@@ -270,7 +278,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
   // individual instances of any non-zap block instantiated in the
   // RACK (CRY, CUP, ICE). In this case, there are more CRY instances
   // (NUM_ZAP) than CUP or ICE instances so NUM_ZAP is used.
-  typedef logic [/* clog2(8) */ 3 - 1:0] rack_block_inst_id_t; // ID number for one of the non-zap blocks instantiated at RACK-level
+  typedef logic [/* clog2(NUM_ZAP.value) */ 3 - 1:0] rack_block_inst_id_t; // ID number for one of the non-zap blocks instantiated at RACK-level
   
   typedef struct packed {
     rack_id_t rack_id; // ID of a rack
@@ -285,7 +293,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
   } non_zap_subaddr_t; // Union for sub_addr field in addr_t
   
   typedef struct packed {
-    NON_ZAP_BLOCK_ID_E non_zap_block_id; // The ID of an individual block in the bag that does not live inside ZAP.
+    NON_ZAP_BLOCK_ID_E non_zap_block_id; // The ID of an individual block in the BAG that does not live inside ZAP.
     non_zap_subaddr_t sub_addr; // Union for sub_addr field in addr_t
   } non_zap_addr_t; // Non-Zap Addr Struct
   

@@ -16,15 +16,23 @@
 
 `define ADDR_WIDTH_WIDTH_ONE 1 // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
 
+`define NUM_ZAP 8 // There are reasons why this is 8
+
+`define NUM_ZAP_WIDTH /* clog2(NUM_ZAP.value) */ 3 // Width of NUM_ZAP
+
+`define NUM_ZAP_COUNT_WIDTH /* clog2(NUM_ZAP.value + 1) */ 4 // Width to count NUM_ZAP items
+
+`define NUM_ZAP_WIDTH_ONE 1 // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+
 enum RACK_ZAP_ID_E {
-    RACK_ZAP_ID_ZAP0 = 0; // Zap 0 within RACK
-    RACK_ZAP_ID_ZAP1 = 1; // Zap 1 within RACK
-    RACK_ZAP_ID_ZAP2 = 2; // Zap 2 within RACK
-    RACK_ZAP_ID_ZAP3 = 3; // Zap 3 within RACK
-    RACK_ZAP_ID_ZAP4 = 4; // Zap 4 within RACK
-    RACK_ZAP_ID_ZAP5 = 5; // Zap 5 within RACK
-    RACK_ZAP_ID_ZAP6 = 6; // Zap 6 within RACK
-    RACK_ZAP_ID_ZAP7 = 7; // Zap 7 within RACK
+    RACK_ZAP_ID_ZAP0 = 0; // Zap 0 within) a rack
+    RACK_ZAP_ID_ZAP1 = 1; // Zap 1 within a rack
+    RACK_ZAP_ID_ZAP2 = 2; // Zap 2 within a rack
+    RACK_ZAP_ID_ZAP3 = 3; // Zap 3 within a rack
+    RACK_ZAP_ID_ZAP4 = 4; // Zap 4 within a rack
+    RACK_ZAP_ID_ZAP5 = 5; // Zap 5 within a rack
+    RACK_ZAP_ID_ZAP6 = 6; // Zap 6 within a rack
+    RACK_ZAP_ID_ZAP7 = 7; // Zap 7 within a rack
   }; // The zap id within a rack.
 
 `define RACK_ZAP_ID_E_WIDTH /* RACK_ZAP_ID_E.width */ 3 // Width of RACK_ZAP_ID_E
@@ -51,7 +59,7 @@ enum NON_ZAP_BLOCK_ID_E {
     NON_ZAP_BLOCK_ID_SIN_ID = 5; // Lorem ipsum dolor
     NON_ZAP_BLOCK_ID_RACK_ID = 6; // One of the non-zap blocks within the RACK
     NON_ZAP_BLOCK_ID_FOX_ID = 7; // Sit amet
-  }; // The ID of an individual block in the bag that does not live inside ZAP.
+  }; // The ID of an individual block in the BAG that does not live inside ZAP.
 
 `define NON_ZAP_BLOCK_ID_E_WIDTH /* NON_ZAP_BLOCK_ID_E.width */ 3 // Width of NON_ZAP_BLOCK_ID_E
 

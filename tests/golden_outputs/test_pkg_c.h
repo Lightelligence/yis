@@ -13,6 +13,10 @@
 #define ADDR_WIDTH_WIDTH 5           // Width of ADDR_WIDTH
 #define ADDR_WIDTH_COUNT_WIDTH 5           // Width to count ADDR_WIDTH items
 #define ADDR_WIDTH_WIDTH_ONE 1           // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+#define NUM_ZAP 8           // There are reasons why this is 8
+#define NUM_ZAP_WIDTH 3           // Width of NUM_ZAP
+#define NUM_ZAP_COUNT_WIDTH 4           // Width to count NUM_ZAP items
+#define NUM_ZAP_WIDTH_ONE 1           // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
 #define RACK_ZAP_ID_E_WIDTH 3           // Width of RACK_ZAP_ID_E
 #define ADDR_TYPE_E_WIDTH 1           // Width of ADDR_TYPE_E
 #define IS_ZAP_E_WIDTH 1           // Width of IS_ZAP_E
@@ -36,14 +40,14 @@
 
 // The zap id within a rack.
 typedef enum {
-    ZAP0 = 0,   // Zap 0 within RACK
-    ZAP1 = 1,   // Zap 1 within RACK
-    ZAP2 = 2,   // Zap 2 within RACK
-    ZAP3 = 3,   // Zap 3 within RACK
-    ZAP4 = 4,   // Zap 4 within RACK
-    ZAP5 = 5,   // Zap 5 within RACK
-    ZAP6 = 6,   // Zap 6 within RACK
-    ZAP7 = 7,   // Zap 7 within RACK
+    ZAP0 = 0,   // Zap 0 within) a rack
+    ZAP1 = 1,   // Zap 1 within a rack
+    ZAP2 = 2,   // Zap 2 within a rack
+    ZAP3 = 3,   // Zap 3 within a rack
+    ZAP4 = 4,   // Zap 4 within a rack
+    ZAP5 = 5,   // Zap 5 within a rack
+    ZAP6 = 6,   // Zap 6 within a rack
+    ZAP7 = 7,   // Zap 7 within a rack
 } RACK_ZAP_ID_E;
 
 // Indicates top-level address type.
@@ -58,7 +62,7 @@ typedef enum {
     ZAP = 1,   // This address targets something inside a zap.
 } IS_ZAP_E;
 
-// The ID of an individual block in the bag that does not live inside ZAP.
+// The ID of an individual block in the BAG that does not live inside ZAP.
 typedef enum {
     LEG_ID = 0,   // LEG
     TAX_ID = 1,   // LEG controller
@@ -298,7 +302,7 @@ typedef union _non_zap_subaddr_t {
 
 // Non-Zap Addr Struct
 typedef struct _non_zap_addr_t {
-    NON_ZAP_BLOCK_ID_E non_zap_block_id;    // 3 bits : The ID of an individual block in the bag that does not live inside ZAP.
+    NON_ZAP_BLOCK_ID_E non_zap_block_id;    // 3 bits : The ID of an individual block in the BAG that does not live inside ZAP.
     non_zap_subaddr_t sub_addr;    // 23 bits : Union for sub_addr field in addr_t
 } non_zap_addr_t;
 

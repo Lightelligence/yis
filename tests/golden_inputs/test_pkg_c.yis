@@ -183,7 +183,7 @@ typedefs:
       instantiated in the RACK (CRY, CUP, ICE). In this case, there are more CRY instances (NUM_ZAP) than CUP or ICE instances
       so NUM_ZAP is used.
     base_type: logic
-    width: clog2(NUM_ZAP)
+    width: clog2(NUM_ZAP.value)
 
   - name: quad_id_t
     doc_summary: ID of a quad

@@ -88,6 +88,51 @@ Even if not using PCIE, this might be a good assumption to make for future proof
   </tr>
 
   <tr>
+      <td id="test_pkg_c__NUM_ZAP"><a href="#test_pkg_c__NUM_ZAP">NUM_ZAP</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>8</td>
+      <td>8</td>
+      <td>There are reasons why this is 8</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NUM_ZAP_WIDTH"><a href="#test_pkg_c__NUM_ZAP_WIDTH">NUM_ZAP_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(<a href="./test_pkg_c_rypkg.html#test_pkg_c__NUM_ZAP">NUM_ZAP.value</a>)
+</td>
+      <td>3</td>
+      <td>Width of NUM_ZAP</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NUM_ZAP_COUNT_WIDTH"><a href="#test_pkg_c__NUM_ZAP_COUNT_WIDTH">NUM_ZAP_COUNT_WIDTH</a></td>
+      <td>32</td>
+      <td>32</td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__NUM_ZAP">NUM_ZAP.value</a> + 1
+    )
+</td>
+      <td>4</td>
+      <td>Width to count NUM_ZAP items</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NUM_ZAP_WIDTH_ONE"><a href="#test_pkg_c__NUM_ZAP_WIDTH_ONE">NUM_ZAP_WIDTH_ONE</a></td>
+      <td>clog2(<a href="./test_pkg_c_rypkg.html#test_pkg_c__NUM_ZAP">NUM_ZAP.value</a>)
+</td>
+      <td>3</td>
+      <td>1</td>
+      <td>1</td>
+      <td>NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E_WIDTH"><a href="#test_pkg_c__RACK_ZAP_ID_E_WIDTH">RACK_ZAP_ID_E_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
@@ -320,56 +365,56 @@ Even if not using PCIE, this might be a good assumption to make for future proof
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP0"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP0">ZAP0</a></td>
       <td>0</td>
-      <td>Zap 0 within RACK</td>
+      <td>Zap 0 within) a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP1"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP1">ZAP1</a></td>
       <td>1</td>
-      <td>Zap 1 within RACK</td>
+      <td>Zap 1 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP2"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP2">ZAP2</a></td>
       <td>2</td>
-      <td>Zap 2 within RACK</td>
+      <td>Zap 2 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP3"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP3">ZAP3</a></td>
       <td>3</td>
-      <td>Zap 3 within RACK</td>
+      <td>Zap 3 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP4"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP4">ZAP4</a></td>
       <td>4</td>
-      <td>Zap 4 within RACK</td>
+      <td>Zap 4 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP5"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP5">ZAP5</a></td>
       <td>5</td>
-      <td>Zap 5 within RACK</td>
+      <td>Zap 5 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP6"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP6">ZAP6</a></td>
       <td>6</td>
-      <td>Zap 6 within RACK</td>
+      <td>Zap 6 within a rack</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_c__RACK_ZAP_ID_E__ZAP7"><a href="#test_pkg_c__RACK_ZAP_ID_E__ZAP7">ZAP7</a></td>
       <td>7</td>
-      <td>Zap 7 within RACK</td>
+      <td>Zap 7 within a rack</td>
       <td></td>
   </tr>
 
@@ -438,7 +483,7 @@ Even if not using PCIE, this might be a good assumption to make for future proof
 </table>
 
 <h4 id="test_pkg_c__NON_ZAP_BLOCK_ID_E"><a href="#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E</a></h4>
-<p>The ID of an individual block in the bag that does not live inside ZAP.</p>
+<p>The ID of an individual block in the BAG that does not live inside ZAP.</p>
 
 <p> Width =3</p>
 <p> Calculated Width = 3</p>
@@ -1681,7 +1726,7 @@ Even if not using PCIE, this might be a good assumption to make for future proof
   <tr>
       <td id="test_pkg_c__rack_block_inst_id_t"><a href="#test_pkg_c__rack_block_inst_id_t">rack_block_inst_id_t</a></td>
       <td>logic</td>
-      <td>clog2(8)
+      <td>clog2(<a href="./test_pkg_c_rypkg.html#test_pkg_c__NUM_ZAP">NUM_ZAP.value</a>)
 </td>
       <td>3</td>
       <td>ID number for one of the non-zap blocks instantiated at RACK-level</td>
@@ -1967,7 +2012,7 @@ so NUM_ZAP is used.
       <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__NON_ZAP_BLOCK_ID_E">NON_ZAP_BLOCK_ID_E</a></td>
       <td></td>
       <td>3</td>
-      <td>The ID of an individual block in the bag that does not live inside ZAP.</td>
+      <td>The ID of an individual block in the BAG that does not live inside ZAP.</td>
       <td></td>
   </tr>
 
