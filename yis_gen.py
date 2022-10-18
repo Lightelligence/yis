@@ -1093,7 +1093,7 @@ class PkgItemBase(YisNode):
 
     def get_addr_node(self):
         """
-        This is a linked list of info ends up in the C macros for addresses.
+        This is a linked list of stuff ends up in the C macros for addresses.
 
         For terminal nodes, next is an empty array, value is the field name (for now)
 
@@ -1702,7 +1702,7 @@ class PkgStruct(PkgItemBase):
         Processing walks the fields in order, top to bottom.  When a selector
         is encountered, is causes a bifurcation in the map.  Each value in the
         selector is expected to be an enum, and will be hard-coded into the
-        address generator, which will in turn, have the enum mntrymonic appended
+        address generator, which will in turn, have the enum mnemonic appended
         to its base name.
 
         Returns:
@@ -1959,8 +1959,8 @@ class PkgUnion(PkgItemBase):
         # to see in the debugger when pulling one's hair out.
         #
         retVal = AddrField(obj=self)
-        # retVal.name = "Placeholder " + retVal.name
-        retVal.bitCount = 0 # these don't really take any space, the info in them does, but they don't
+        # For address map purposes, keep a union's bitCount as 0. Its children have a non-zero bitCount
+        retVal.bitCount = 0
         for fieldName in self.children:
             obj = self.children[fieldName]
             if isinstance(obj.sv_type, str):
