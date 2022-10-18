@@ -255,7 +255,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
   
   typedef struct packed {
     logic [/* ADDR_WIDTH.value - IS_ZAP_E.width - ADDR_TYPE_E.width - zap_id_t.width */ 19 - 1:0] offset; // JOB Address Offset
-  } umem_addr_t; // JOB Addr struct
+  } job_addr_t; // JOB Addr struct
   
   typedef struct packed {
     ZAP_BLOCK_ID_E zap_block_id; // A subblock ID inside a ZAP.
@@ -263,7 +263,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
   } zap_csr_addr_t; // Zap CSR Addr Struct
   
   typedef union packed {
-    umem_addr_t umem_addr; // JOB Addr struct
+    job_addr_t job_addr; // JOB Addr struct
     zap_csr_addr_t zap_csr_addr; // Zap CSR Addr Struct
   } zap_addr_sub_addr_t; // Union of the sub_addr field in zap_addr_t
   
@@ -309,7 +309,7 @@ package test_pkg_c_rypkg; // Define the addressing schema
   
   localparam [32 - 1:0] ADDR_T_WIDTH = /* addr_t.width */ 32'd27; // Width of addr_t
   
-  localparam [32 - 1:0] JOB_ADDR_T_WIDTH = /* umem_addr_t.width */ 32'd19; // Width of umem_addr_t
+  localparam [32 - 1:0] JOB_ADDR_T_WIDTH = /* job_addr_t.width */ 32'd19; // Width of job_addr_t
   
   localparam [32 - 1:0] ZAP_CSR_ADDR_T_WIDTH = /* zap_csr_addr_t.width */ 32'd19; // Width of zap_csr_addr_t
   

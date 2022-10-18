@@ -273,7 +273,7 @@ reg zap_id_t {
 
 `define ADDR_T_WIDTH /* addr_t.width */ 27 // Width of addr_t
 
-`define JOB_ADDR_T_WIDTH /* umem_addr_t.width */ 19 // Width of umem_addr_t
+`define JOB_ADDR_T_WIDTH /* job_addr_t.width */ 19 // Width of job_addr_t
 
 `define ZAP_CSR_ADDR_T_WIDTH /* zap_csr_addr_t.width */ 19 // Width of zap_csr_addr_t
 

@@ -28,7 +28,7 @@
 #define ICE_ID_E_WIDTH 1           // Width of ICE_ID_E
 #define ZAP_ID_T_WIDTH 6           // Width of zap_id_t
 #define ADDR_T_WIDTH 27           // Width of addr_t
-#define JOB_ADDR_T_WIDTH 19           // Width of umem_addr_t
+#define JOB_ADDR_T_WIDTH 19           // Width of job_addr_t
 #define ZAP_CSR_ADDR_T_WIDTH 19           // Width of zap_csr_addr_t
 #define ZAP_ADDR_T_WIDTH 26           // Width of zap_addr_t
 #define NON_ZAP_ADDR_T_WIDTH 26           // Width of non_zap_addr_t
@@ -263,9 +263,9 @@ typedef struct _zap_id_t {
 } zap_id_t;
 
 // JOB Addr struct
-typedef struct _umem_addr_t {
+typedef struct _job_addr_t {
     uint32_t offset;    // 19 bits : JOB Address Offset
-} umem_addr_t;
+} job_addr_t;
 
 // Zap CSR Addr Struct
 typedef struct _zap_csr_addr_t {
@@ -275,7 +275,7 @@ typedef struct _zap_csr_addr_t {
 
 // Union of the sub_addr field in zap_addr_t
 typedef union _zap_addr_sub_addr_t {
-    umem_addr_t umem_addr;    // 19 bits : JOB Addr struct
+    job_addr_t job_addr;    // 19 bits : JOB Addr struct
     zap_csr_addr_t zap_csr_addr;    // 19 bits : Zap CSR Addr Struct
 } zap_addr_sub_addr_t;
 

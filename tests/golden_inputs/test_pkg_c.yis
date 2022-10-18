@@ -218,7 +218,7 @@ structs:
         type: addr_sub_addr_t
         doc_summary: type.doc_summary
 
-  - name: umem_addr_t
+  - name: job_addr_t
     doc_summary: JOB Addr struct
     fields:
       - name: offset
@@ -316,8 +316,8 @@ unions:
   - name: zap_addr_sub_addr_t
     doc_summary: Union of the sub_addr field in zap_addr_t
     fields:
-      - name: umem_addr
-        type: umem_addr_t
+      - name: job_addr
+        type: job_addr_t
         doc_summary: type.doc_summary
       - name: zap_csr_addr
         type: zap_csr_addr_t

@@ -257,10 +257,10 @@ Even if not using PCIE, this might be a good assumption to make for future proof
       <td id="test_pkg_c__JOB_ADDR_T_WIDTH"><a href="#test_pkg_c__JOB_ADDR_T_WIDTH">JOB_ADDR_T_WIDTH</a></td>
       <td>32</td>
       <td>32</td>
-      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__umem_addr_t">umem_addr_t.width</a>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__job_addr_t">job_addr_t.width</a>
 </td>
       <td>19</td>
-      <td>Width of umem_addr_t</td>
+      <td>Width of job_addr_t</td>
       <td></td>
   </tr>
 
@@ -1842,14 +1842,14 @@ so NUM_ZAP is used.
 
 </table>
 
-<h4 id="test_pkg_c__umem_addr_t"><a href="#test_pkg_c__umem_addr_t">umem_addr_t</a></h4>
+<h4 id="test_pkg_c__job_addr_t"><a href="#test_pkg_c__job_addr_t">job_addr_t</a></h4>
 <p>JOB Addr struct</p>
 
 <p> Calculated Width =19</p>
 
-<canvas id="umem_addr_t_canvas"></canvas>
+<canvas id="job_addr_t_canvas"></canvas>
 <script>
-  var canvas = document.getElementById("umem_addr_t_canvas");
+  var canvas = document.getElementById("job_addr_t_canvas");
   var data = [{'field_names': ['offset'], 'msbs': [18], 'lsbs': [0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
@@ -1868,7 +1868,7 @@ so NUM_ZAP is used.
   </thead>
 
   <tr>
-      <td id="test_pkg_c__umem_addr_t__offset"><a href="#test_pkg_c__umem_addr_t__offset">offset</a></td>
+      <td id="test_pkg_c__job_addr_t__offset"><a href="#test_pkg_c__job_addr_t__offset">offset</a></td>
       <td>logic</td>
       <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__IS_ZAP_E">IS_ZAP_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_TYPE_E">ADDR_TYPE_E.width</a> - <a href="./test_pkg_c_rypkg.html#test_pkg_c__zap_id_t">zap_id_t.width</a>
 </td>
@@ -2195,7 +2195,7 @@ so NUM_ZAP is used.
 <canvas id="zap_addr_sub_addr_t_canvas"></canvas>
 <script>
   var canvas = document.getElementById("zap_addr_sub_addr_t_canvas");
-  var data = [{'field_names': ['offset'], 'msbs': [18], 'lsbs': [0], 'label': 'umem_addr'}, {'field_names': ['zap_block_id', 'offset'], 'msbs': [18, 14], 'lsbs': [15, 0], 'label': 'zap_csr_addr'}];
+  var data = [{'field_names': ['offset'], 'msbs': [18], 'lsbs': [0], 'label': 'job_addr'}, {'field_names': ['zap_block_id', 'offset'], 'msbs': [18, 14], 'lsbs': [15, 0], 'label': 'zap_csr_addr'}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -2213,8 +2213,8 @@ so NUM_ZAP is used.
   </thead>
 
   <tr>
-      <td id="test_pkg_c__zap_addr_sub_addr_t__umem_addr"><a href="#test_pkg_c__zap_addr_sub_addr_t__umem_addr">umem_addr</a></td>
-      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__umem_addr_t">umem_addr_t</a></td>
+      <td id="test_pkg_c__zap_addr_sub_addr_t__job_addr"><a href="#test_pkg_c__zap_addr_sub_addr_t__job_addr">job_addr</a></td>
+      <td><a href="./test_pkg_c_rypkg.html#test_pkg_c__job_addr_t">job_addr_t</a></td>
       <td></td>
       <td>19</td>
       <td>JOB Addr struct</td>
