@@ -17,28 +17,28 @@ enums:
     values:
       - name: ZAP0
         value: 0
-        doc_summary: Zap 0 within RACK
+        doc_summary: Zap 0 within) a rack
       - name: ZAP1
         value: 1
-        doc_summary: Zap 1 within RACK
+        doc_summary: Zap 1 within a rack
       - name: ZAP2
         value: 2
-        doc_summary: Zap 2 within RACK
+        doc_summary: Zap 2 within a rack
       - name: ZAP3
         value: 3
-        doc_summary: Zap 3 within RACK
+        doc_summary: Zap 3 within a rack
       - name: ZAP4
         value: 4
-        doc_summary: Zap 4 within RACK
+        doc_summary: Zap 4 within a rack
       - name: ZAP5
         value: 5
-        doc_summary: Zap 5 within RACK
+        doc_summary: Zap 5 within a rack
       - name: ZAP6
         value: 6
-        doc_summary: Zap 6 within RACK
+        doc_summary: Zap 6 within a rack
       - name: ZAP7
         value: 7
-        doc_summary: Zap 7 within RACK
+        doc_summary: Zap 7 within a rack
 
   - name: ADDR_TYPE_E
     width: 1
