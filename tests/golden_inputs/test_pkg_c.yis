@@ -64,7 +64,7 @@ enums:
 
   - name: NON_ZAP_BLOCK_ID_E
     width: 3
-    doc_summary: The ID of an individual block in the bag that does not live inside ZAP.
+    doc_summary: The ID of an individual block in the BAG that does not live inside ZAP.
     values:
       - name: LEG_ID
         value: 0
