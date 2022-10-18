@@ -9,6 +9,9 @@ localparams:
     doc_verbose: |
       This is an assumption that we will have 40 bits of addressing over PCIE.
       Even if not using PCIE, this might be a good assumption to make for future proofing.
+  - name: NUM_ZAP
+    value: 8
+    doc_summary: There are reasons why this is 8
 
 enums:
   - name: RACK_ZAP_ID_E
@@ -180,7 +183,7 @@ typedefs:
       instantiated in the RACK (CRY, CUP, ICE). In this case, there are more CRY instances (NUM_ZAP) than CUP or ICE instances
       so NUM_ZAP is used.
     base_type: logic
-    width: clog2(8)
+    width: clog2(NUM_ZAP)
 
   - name: quad_id_t
     doc_summary: ID of a quad
