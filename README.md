@@ -148,3 +148,5 @@ yis_pkg(
 ```
 It's important to note that YIS can't compute transitive dependencies.
 In this example, that means that the `zip_yis` target must list `common.yis` as a dependency before `bar.yis`.
+
+For full examples, see the `tests/golden_inputs` and `tests/golden_outputs` directories.
