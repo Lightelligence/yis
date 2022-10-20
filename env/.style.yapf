@@ -113,9 +113,9 @@ continuation_indent_width=4
 #   )        # <--- this bracket is dedented and on a separate line
 dedent_closing_brackets=False
 
-# Disable the htryristic which places each list element on a separate line
+# Disable the heuristic which places each list element on a separate line
 # if the list is comma-terminated.
-disable_ending_comma_htryristic=False
+disable_ending_comma_heuristic=False
 
 # Place each dictionary entry onto its own line.
 each_dict_entry_on_separate_line=True
