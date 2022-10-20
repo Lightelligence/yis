@@ -147,6 +147,10 @@ yis_pkg(
 )
 ```
 It's important to note that YIS can't compute transitive dependencies.
-In this example, that means that the `zip_yis` target must list `common.yis` as a dependency before `bar.yis`.
+In this example, that means that even if `zip.yis` doesn't explicitly depend on `common.yis`,
+the `zip_yis` macro must still list `common.yis` in the `pkg_deps` list before `bar.yis`.
+YIS can't determine that `common.yis` is a transitive dependency of `zip.yis`.
+
+`zip_yis` target must list `common.yis` as a dependency before `bar.yis`.
 
 For full examples, see the `tests/golden_inputs` and `tests/golden_outputs` directories.
