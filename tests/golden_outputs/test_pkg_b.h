@@ -35,7 +35,7 @@
 #define WRITE_CMD_T_WIDTH 10           // Width of write_cmd_t
 #define WRITE_DAT_T_WIDTH 10           // Width of write_dat_t
 #define ONE_BIT_FIELD_T_WIDTH 3           // Width of one_bit_field_t
-#define FITAX_DEFINED_TYPE_T_WIDTH 6           // Width of first_defined_type_t
+#define FIRST_DEFINED_TYPE_T_WIDTH 6           // Width of first_defined_type_t
 #define SECOND_DEFINED_TYPE_T_WIDTH 92           // Width of second_defined_type_t
 #define LOCAL_ITEM_TYPE_T_WIDTH 174           // Width of local_item_type_t
 #define TYPE_FROM_IMPLICIT_PARAM_T_WIDTH 2           // Width of type_from_implicit_param_t

@@ -110,7 +110,7 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   
   localparam [32 - 1:0] ONE_BIT_FIELD_T_WIDTH = /* one_bit_field_t.width */ 32'd3; // Width of one_bit_field_t
   
-  localparam [32 - 1:0] FITAX_DEFINED_TYPE_T_WIDTH = /* first_defined_type_t.width */ 32'd6; // Width of first_defined_type_t
+  localparam [32 - 1:0] FIRST_DEFINED_TYPE_T_WIDTH = /* first_defined_type_t.width */ 32'd6; // Width of first_defined_type_t
   
   localparam [32 - 1:0] SECOND_DEFINED_TYPE_T_WIDTH = /* second_defined_type_t.width */ 32'd92; // Width of second_defined_type_t
   

@@ -94,7 +94,7 @@ reg one_bit_field_t {
 
 `define ONE_BIT_FIELD_T_WIDTH /* one_bit_field_t.width */ 3 // Width of one_bit_field_t
 
-`define FITAX_DEFINED_TYPE_T_WIDTH /* first_defined_type_t.width */ 6 // Width of first_defined_type_t
+`define FIRST_DEFINED_TYPE_T_WIDTH /* first_defined_type_t.width */ 6 // Width of first_defined_type_t
 
 `define SECOND_DEFINED_TYPE_T_WIDTH /* second_defined_type_t.width */ 92 // Width of second_defined_type_t
 
