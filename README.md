@@ -106,3 +106,45 @@ For example, a valid connection name would be `try__ipa__cmd`.
 The specification schema for connections is otherwise very similar to struct fields with one major exception.
 A connection that has "logic" or "wire as a type must either have a width of 1 or use a localparam.
 If a connection needs to be wider than 1-bit, the width must be declared in a pkg and referenced.
+
+# Dependencies
+YIS depends on [Bazel](https://bazel.build/), [rules_verilog](https://github.com/Lightelligence/rules_verilog), and some python packages.
+YIS was tested against `Bazel` version 5.2.0 and `rules_verilog` version 0.1.0.
+The python dependencies are listed in env/requirements.txt but aren't automatically pulled in via Bazel.
+They are instead already expected to be available modules.
+Lightelligence uses [conda](https://docs.conda.io/en/latest/) to manage python dependency versions.
+
+# Usage
+The following sample code shows how to instantiate a YIS target in a BUILD file.
+In this example, `foo.yis` has no dependencies, `bar.yis` depends on `common.yis` from another directory, and `zip.yis` depends on both `foo.yis` and `bar.yis`.
+
+
+```
+load("@yis//:yis.bzl", "yis_pkg")
+
+yis_pkg(
+    name = "foo_yis",
+    pkg = ":foo.yis",
+    pkg_deps = [],
+)
+
+yis_pkg(
+    name = "bar_yis",
+    pkg = ":bar.yis",
+    pkg_deps = [
+        "//digital/rtl/common:common.yis"
+    ],
+)
+
+yis_pkg(
+    name = "zip_yis",
+    pkg = ":zip.yis",
+    pkg_deps = [
+        ":foo.yis",
+        "//digital/rtl/common:common.yis"
+        ":bar.yis",
+    ],
+)
+```
+It's important to note that YIS can't compute transitive dependencies.
+In this example, that means that the `zip_yis` target must list `common.yis` as a dependency before `bar.yis`.
