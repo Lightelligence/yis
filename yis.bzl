@@ -126,16 +126,15 @@ def yis_intf(name, pkg_deps, intf):
     if not name.endswith("_yis"):
         fail("yis_intf rule names must end with '_yis': {}".format(name))
 
-    src_block, dst_block = intf.strip(":").split("__")
-    dst_block = dst_block.split(".")[0]
+    if not intf.endswith("_intf.yis"):
+        fail("yis_intf .yis file must end with '_intf.yis': {}".format(intf))
+    block = intf.strip(":").split("_intf.yis")[0]
     current_block = native.package_name().rsplit("/")[-1]
 
-    if src_block != current_block:
-        fail("yis_intf files must be named <src>__<dst>.intf.\n" +
-             "The file should live in the rtl/<src> directory.\n" +
-             "The rtl/<dst> may create a symlink back to rtl/<src>/<src>__<dst>.yis for convenience.\n" +
-             "However to prevent bazel from double building, only the rtl/<src>/BUILD may declare the yis_intf rule\n" +
-             "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, src_block))
+    if block != current_block:
+        fail("yis_intf files must be named <blk>_intf.yis\n" +
+             "The file should live in the rtl/<blk> directory.\n" +
+             "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, block))
     yis_html_intf(name[:-4], pkg_deps, intf)
     yis_dv_intf(name[:-4], pkg_deps, intf)
 
@@ -150,7 +149,7 @@ def _rst_html_wrapper_impl(ctx):
         output = out,
         substitutions = {
             "{TITLE}": ctx.attr.title,
-            "{TITLE_UNDERSZAP}": "=" * len(ctx.attr.title),
+            "{TITLE_UNDERSCORE}": "=" * len(ctx.attr.title),
             "{HTML_FILE}": ctx.attr.html_file,
         },
     )

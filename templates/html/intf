@@ -11,34 +11,39 @@
 {% endif %}
 <p> Calculated Width = {{ interface.computed_width }} </p>
 <br/>
-{% for connection in interface.children.values() %}
-    <h4 id="{{ connection.html_anchor() }}"><a href="#{{ connection.html_anchor() }}">{{ connection.name }}</a></h4>
-    <h5>{{ connection.html_render_doc("doc_summary") }}</h5>
-      {% if connection.doc_verbose %}
-      <pre> {{ connection.html_render_doc("doc_verbose") }} </pre>
+{% for component in interface.children.values() %}
+    <h4 id="{{ component.html_anchor() }}"><a href="#{{ component.html_anchor() }}">{{ component.name }}</a></h4>
+    <h5>{{ component.html_render_doc("doc_summary") }}</h5>
+      {% if component.doc_verbose %}
+      <pre> {{ component.html_render_doc("doc_verbose") }} </pre>
       {% endif %}
-      <p> Calculated Width = {{ connection.computed_width }} </p>
-      <table class="table table-striped table-bordered table-sm">
-        <thead>
+      <p> Calculated Width = {{ component.computed_symbol_width }} x {{ component.connections|length }} = {{ component.computed_width }} </p>
+
+      {% for conn_name, connection in component.connections.items() %}
+        <table class="table table-striped table-bordered table-sm">
+          <thead>
+            <tr>
+              <th class="th-sm">{{ conn_name|upper }} Port</th>
+              <th class="th-sm">Direction</th>
+              <th class="th-sm">Type</th>
+              <th class="th-sm">Width</th>
+              <th class="th-sm">Calculated Width</th>
+              <th class="th-sm">Doc Summary</th>
+              <th class="th-sm">Doc Verbose</th>
+            </tr>
+          </thead>
+        {% for symbol in component.children.values() %}
           <tr>
-            <th class="th-sm">Name</th>
-            <th class="th-sm">Type</th>
-            <th class="th-sm">Width</th>
-            <th class="th-sm">Calculated Width</th>
-            <th class="th-sm">Doc Summary</th>
-            <th class="th-sm">Doc Verbose</th>
+              <td id="{{ symbol.html_anchor() }}"><a href="#{{ symbol.html_anchor() }}">{{ symbol.computed_port_name(connection) }}</a></td>
+              <td>{{ symbol.direction }}</td>
+              <td>{{ symbol.html_link_attribute('sv_type') }}</td>
+              <td>{{ symbol.render_equation_as_html('width') }}</td>
+              <td>{{ symbol.computed_width }}</td>
+              <td>{{ symbol.html_render_doc("doc_summary") }}</td>
+              <td>{% if symbol.doc_verbose %}<pre>{{ symbol.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
           </tr>
-        </thead>
-      {% for component in connection.children.values() %}
-        <tr>
-            <td id="{{ component.html_anchor() }}"><a href="#{{ component.html_anchor() }}">{{ component.name }}</a></td>
-            <td>{{ component.html_link_attribute('sv_type') }}</td>
-            <td>{{ component.render_equation_as_html('width') }}</td>
-            <td>{{ component.computed_width }}</td>
-            <td>{{ component.html_render_doc("doc_summary") }}</td>
-            <td>{% if component.doc_verbose %}<pre>{{ component.html_render_doc("doc_verbose") }}</pre>{% endif %}</td>
-        </tr>
+        {% endfor %}
+        </table>
       {% endfor %}
-      </table>
 {% endfor %}
 {% endblock content %}

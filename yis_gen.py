@@ -2044,8 +2044,9 @@ class Intf(YisNode):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source_file = kwargs['source_file']
-        for row in kwargs.pop('components'):
-            IntfComp(parent=self, log=self.log, **row)
+        self.block = self.name[:-5] # block name - name is "<blk>_intf"
+        for component in kwargs.pop('components'):
+            IntfComp(parent=self, log=self.log, **component)
 
     def src_dst_extract(self, name):
         """Extract the source and dst out of name."""
@@ -2094,8 +2095,25 @@ class IntfComp(IntfItemBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for connection in kwargs.pop('connections'):
-            IntfCompConn(parent=self, log=self.log, **connection)
+        for symbol in kwargs.pop('symbols'):
+            IntfCompSymb(parent=self, log=self.log, **symbol)
+        symbols = self.children
+        #
+        self.connections = OrderedDict() # list of varianted connections
+        for connection in kwargs.pop("connections"):
+            # connection and its lower submodule are purely text processing,
+            #   no yisnode attribute needed.
+            #   thus skip a class define for them
+            # loop through and update connection name if submoduleis defined
+            for submodule in connection.pop('submodules', [{'name': ''}]):
+                # update connection name with submodule variant
+                if submodule['name']:
+                    submodule['name'] = f"_{submodule['name']}"
+                conn = {
+                    "name": connection['name'],
+                    "submodule": submodule['name'],
+                }
+                self.connections[f"{connection['name']}{submodule['name']}"] = conn
 
     def __repr__(self):
         return (F"Component name: {self.name}\n"
@@ -2103,32 +2121,38 @@ class IntfComp(IntfItemBase):
                     connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
     @memoize_property
-    def computed_width(self):
+    def computed_symbol_width(self):
         """Compute width for this Component by iterating through all children."""
         return sum([c.computed_width for c in self.children.values()])
 
+    @memoize_property
+    def computed_width(self):
+        """Compute width for this Component by iterating through all children."""
+        return self.computed_symbol_width * len(self.connections)
 
-class IntfCompConn(IntfItemBase):
-    """Definition for a Conn(onent) in a Comp(onent)."""
+
+class IntfCompSymb(IntfItemBase):
+    """Definition for a Symb(ol) in a Comp(onent)."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
+        self.direction = kwargs.pop('direction', "input")
         self._render_type = self.sv_type
         self._render_width = self.width
         self._check_width_consistency()
 
     def __repr__(self):
-        return F"Conn {self.name}, {self.sv_type}, {self.width}"
+        return F"Symb {self.name}, {self.sv_type}, {self.width}"
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
 
     def _check_extra_dunder_name(self):
-        if self.name.count("__") > 2:
-            self.log.error(F"{self.name} is not a valid name. Connection names must have exactly 2 underscores -"
-                           " one between source and destination, one between destintation and \'functional\' name")
+        if self.name.count("__") > 0:
+            self.log.error(F"{self.name} is not a valid name. Symbol names should not have double underscores"
+                           " this is to avoid confusions with source and destinaton")
 
     def _check_width_consistency(self):
         if is_verilog_primitive(self.sv_type) and isinstance(self.width, int) and self.width != 1:
@@ -2169,6 +2193,12 @@ class IntfCompConn(IntfItemBase):
         if is_verilog_primitive(self.sv_type):
             return self.width.computed_width
         return self.sv_type.computed_width
+
+    def computed_port_name(self, connection):
+        is_input = self.direction == "input"
+        src = connection['name'] if is_input else self.parent.parent.block
+        dst = self.parent.parent.block if is_input else connection['name']
+        return f"{src}__{dst}_{connection['submodule']}_{self.name}"
 
     def _get_render_type(self):
         return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
