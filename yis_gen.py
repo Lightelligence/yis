@@ -2120,14 +2120,14 @@ class IntfComp(IntfItemBase):
                     connections="\n  -".join([repr(connection) for connection in self.children.values()])))
 
     @memoize_property
-    def computed_symbol_width(self):
+    def computed_port_width(self):
         """Compute width for this Component by iterating through all children."""
         return sum([c.computed_width for c in self.children.values()])
 
     @memoize_property
     def computed_width(self):
         """Compute width for this Component by iterating through all children."""
-        return self.computed_symbol_width * len(self.connections)
+        return self.computed_port_width * len(self.connections)
 
 
 class IntfCompPort(IntfItemBase):
