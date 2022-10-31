@@ -2045,7 +2045,7 @@ class Intf(YisNode):
         super().__init__(**kwargs)
         self.source_file = kwargs['source_file']
         self.block = self.name[:-5] # block name - name is "<blk>_intf"
-        for component in kwargs.pop('components'):
+        for component in kwargs.pop('components', []):
             IntfComp(parent=self, log=self.log, **component)
 
     def src_dst_extract(self, name):
