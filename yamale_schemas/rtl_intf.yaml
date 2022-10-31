@@ -4,7 +4,7 @@ components: list(include('component'))
 ---
 equation: any(str(min=1), int(min=0))
 ---
-name: regex('^[a-z]+[a-z0-9]$', name="valid symbol name. Symbol name must be at least 2 letters, all lowercase, start with a letter, can only contain letters, numbers.")
+name: regex('^[a-z]+[a-z0-9]$', name="valid name. name must be at least 2 letters, all lowercase, start with a letter, can only contain letters, numbers. no _ allowed")
 sv_name: str(min=3, exclude='=+!@#$%^&*()-|\/?.,[{]}\`~:;')
 doc_verbose: str(min=3)
 doc_summary: str(min=3)
@@ -20,14 +20,15 @@ component:
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
   connections: list(include('connection'))
-  symbols: list(include('symbol'))
+  ports: list(include('port'))
 connection:
   name: include('name')
-  submodules: list(include('submodule'), required=False)
-submodule:
+  doc_summary: include('doc_summary', required=False)
+  subconnections: list(include('subconnection'), required=False)
+subconnection:
   name: include('name')
   doc_summary: include('doc_summary', required=False)
-symbol:
+port:
   name: include('name')
   type: include('sv_type')
   direction: include('sv_io', required=False)
