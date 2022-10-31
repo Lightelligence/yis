@@ -17,7 +17,7 @@ golden_pkg_tests(
 
 golden_intf_tests(
     deps = {
-        "test_intf": [
+        "test_intf_a": [
             "test_pkg_a.yis",
             "test_pkg_b.yis",
         ],
