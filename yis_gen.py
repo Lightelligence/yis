@@ -2137,7 +2137,7 @@ class IntfCompPort(IntfItemBase):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
         self.width = kwargs.pop('width', None)
-        self.direction = kwargs.pop('direction', "input")
+        self.direction = kwargs.pop('direction')
         self._render_type = self.sv_type
         self._render_width = self.width
         self._check_width_consistency()
@@ -2194,9 +2194,11 @@ class IntfCompPort(IntfItemBase):
         return self.sv_type.computed_width
 
     def computed_port_name(self, connection):
-        is_input = self.direction == "input"
-        src = connection['name'] if is_input else self.parent.parent.block
-        dst = self.parent.parent.block if is_input else connection['name']
+        src = self.parent.parent.block
+        dst = connection['name']
+        if self.direction == "input":
+            src = connection['name']
+            dst = self.parent.parent.block
         return f"{src}__{dst}_{connection['subconnection']}_{self.name}"
 
     def _get_render_type(self):

@@ -19,14 +19,14 @@ components:
       - name: foo
     ports: # defines ports of this interface
       - name: write # min 2 lowercase letters/numbers, no _ allowed.
-        type: test_pkg_a::hero_write_t
+        type: test_pkg_a::hero_write_t # if picks 'logic', width has to be specified,
         direction: input  # [optional] if omitted, default to be an input
         doc_summary: hero write from BOG to TRY
         doc_verbose: type.doc_verbose # [optional]
       - name: ack
-        type: logic # if picks 'logic', width has to be specified,
-        direction: output
+        type: logic
         width: 1
+        direction: output
         doc_summary: ACK the hero writes from BOG to TRY to refund BOG hero credits
   - name: csr
     doc_summary: CSR interface for TRY
@@ -42,4 +42,5 @@ components:
         doc_summary: width.doc_summary
       - name: rsp
         type: test_pkg_b::several_things_t
+        direction: input
         doc_summary: type.doc_summary

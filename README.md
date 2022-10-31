@@ -93,23 +93,24 @@ An intf uses the primitives defined in pkgs to describe the interface between tw
 An intf consists of one or more components, and each component consists of one or more connections.  
 
 components are groups of individual port-to-port connections that constitute a higher-level protocol or logical grouping of signals.
-Ports describe the shape of an interface (component) and connections describe the repeat of an interface (component).
+Ports describe how an interface (component) looks like in terms of width and direction.
+Connections describe how if an interface (component) instantiated multiple times.
 For example, if two blocks had a `val/rdy` handshake, the `val` and `rdy` are ports described in `ports` section.
-if this same handshake ports are used multiply to connecting other blocks, those are described inthe `connections` section
+If this same handshake ports are used multiply to connecting other blocks, those are described inthe `connections` section.
 Both ports and connections would be contained within a component.
 
 ## components
-components require a name, doc_summary, and a list of connections.
+Components require a name, doc_summary, and a list of connections.
 An intf can have several components, where each component describes a independent logical function.
 
 ## connections
-connections defines the instances of interface (component).
-connections require a name, optional doc_summary, and optional subconnections.
-subconnections are similar in concept to connections, as they both address the instantiation of the interface (component)
+Connections defines the number of instantiation of interface (component).
+Connections require a name, optional doc_summary, and optional subconnections.
+Subconnections are similar in concept to connections, as they both address the instantiation of the interface (component).
 
 ## ports
-ports defines the structure of interface (component)
-ports require a name, doc_summary, a type, an optional direction, and an optional width.
+Ports defines the structure such as width and direction of interface (component).
+Ports require a name, doc_summary, a type, a direction, and an optional width.
 The specification schema for ports is otherwise very similar to struct fields with one major exception.
 A port that has `logic` or `wire` as a type must either have a width of 1 or use a localparam.
 If a port needs to be wider than 1-bit, the width must be declared in a pkg and referenced.

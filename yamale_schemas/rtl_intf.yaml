@@ -31,7 +31,7 @@ subconnection:
 port:
   name: include('name')
   type: include('sv_type')
-  direction: include('sv_io', required=False)
+  direction: include('sv_io')
   width: include('equation', required=False)
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
