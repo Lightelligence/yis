@@ -2095,29 +2095,18 @@ class IntfComp(IntfItemBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for symbol in kwargs.pop('ports'):
-            IntfCompPort(parent=self, log=self.log, **symbol)
+        for port in kwargs.pop('ports'):
+            IntfCompPort(parent=self, log=self.log, **port)
         #
-        self.connections = OrderedDict() # list of varianted connections
-        for connection in kwargs.pop("connections"):
-            # connection and its lower subconnection are purely text processing,
-            #   no yisnode attribute needed.
-            #   thus skip a class define for them
-            # loop through and update connection name if submoduleis defined
-            for subconnection in connection.pop('subconnections', [{'name': ''}]):
-                # update connection name with subconnection variant
-                if subconnection['name']:
-                    subconnection['name'] = f"_{subconnection['name']}"
-                conn = {
-                    "name": connection['name'],
-                    "subconnection": subconnection['name'],
-                }
-                self.connections[f"{connection['name']}{subconnection['name']}"] = conn
+        # connection is purely text processing,
+        #   no yisnode attribute needed.
+        #   thus skip a class define for them
+        self.connections = kwargs.pop("connections")
 
     def __repr__(self):
         return (F"Component name: {self.name}\n"
-                "Connections:\n  -{connections}\n".format(
-                    connections="\n  -".join([repr(connection) for connection in self.children.values()])))
+                "Ports:\n  -{ports}\n".format(
+                    ports="\n  -".join([repr(port) for port in self.children.values()])))
 
     @memoize_property
     def computed_port_width(self):
@@ -2143,7 +2132,7 @@ class IntfCompPort(IntfItemBase):
         self._check_width_consistency()
 
     def __repr__(self):
-        return F"Port {self.name}, {self.sv_type}, {self.width}"
+        return F"Port {self.name}, {self.direction}, {self.sv_type}, {self.width}"
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
@@ -2199,7 +2188,7 @@ class IntfCompPort(IntfItemBase):
         if self.direction == "input":
             src = connection['name']
             dst = self.parent.parent.block
-        return f"{src}__{dst}_{connection['subconnection']}_{self.name}"
+        return f"{src}__{dst}__{self.name}"
 
     def _get_render_type(self):
         return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"

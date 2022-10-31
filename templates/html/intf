@@ -19,11 +19,11 @@
       {% endif %}
       <p> Calculated Width = {{ component.computed_port_width }} x {{ component.connections|length }} = {{ component.computed_width }} </p>
 
-      {% for conn_name, connection in component.connections.items() %}
+      {% for connection in component.connections %}
         <table class="table table-striped table-bordered table-sm">
           <thead>
             <tr>
-              <th class="th-sm">{{ conn_name|upper }} Port</th>
+              <th class="th-sm">{{ connection['name']|upper }} Port</th>
               <th class="th-sm">Direction</th>
               <th class="th-sm">Type</th>
               <th class="th-sm">Width</th>

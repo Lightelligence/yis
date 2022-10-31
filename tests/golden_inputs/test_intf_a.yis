@@ -10,12 +10,8 @@ components:
     connections: # defines a connection instance of this interface.
       # list the names of blocks this interface connects to.
       #   each connection will be a port named <src>__<dst>__<port> where src/dst will be name of the connection
-      - name: bog # min 2 lowercase letters/numbers, no _ allowed.
-        subconnections: # [optional] if multiple interface instances to same other block, defines a subconnection name to differentiate
-          # list the names of variants of this interface instantied as.
-          #   each subconnect will make a port named <src>__<dst>__<sconn>_<port> where sconn will be name of a subconnect
-          - name: hero # min 2 lowercase letters/numbers, no _ allowed.
-          - name: ace
+      - name: bog_hero # min 2 lowercase letters/numbers, no __ allowed.
+      - name: bog_ace
       - name: foo
     ports: # defines ports of this interface
       - name: write # min 2 lowercase letters/numbers, no _ allowed.
@@ -31,9 +27,7 @@ components:
   - name: csr
     doc_summary: CSR interface for TRY
     connections:
-      - name: bog
-        subconnections:
-          - name: csr
+      - name: bog_csr
     ports:
       - name: req
         type: logic
