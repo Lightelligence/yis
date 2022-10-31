@@ -2,24 +2,29 @@
 ---
 doc_summary: This is my first real interface file
 components:
-  - name: mem_write
+  - name: mem_write # a descriptive name of this interface
     doc_summary: Memory write interface for TRY
-    doc_verbose: |
+    doc_verbose: | # [optional]
       Boring info about memories. And now
       I'm on a new line
-    connections:
-      - name: bog
-        submodules:
-          - name: hero
+    connections: # defines a connection instance of this interface.
+      # list the names of blocks this interface connects to.
+      #   each connection will be a port named <src>__<dst>__<symbol> where src/dst will be name of the connection
+      - name: bog # min 2 lowercase letters/numbers, no _ allowed.
+        submodules: # [optional] if multiple interface instances to same other block, defines a submodule name to differentiate
+          # list the names of variants of this interface instantied as.
+          #   each submodule will make a port named <src>__<dst>__<submodule>_<symbol> where submodule will be name of submodule
+          - name: hero # min 2 lowercase letters/numbers, no _ allowed.
           - name: ace
       - name: foo
-    symbols:
-      - name: write
+    symbols: # defines symbols of this interface
+      - name: write # min 2 lowercase letters/numbers, no _ allowed.
         type: test_pkg_a::hero_write_t
+        direction: input  # [optional] if omitted, default to be an input
         doc_summary: hero write from BOG to TRY
-        doc_verbose: type.doc_verbose
+        doc_verbose: type.doc_verbose # [optional]
       - name: ack
-        type: logic
+        type: logic # if picks 'logic', width has to be specified,
         direction: output
         width: 1
         doc_summary: ACK the hero writes from BOG to TRY to refund BOG hero credits
