@@ -2091,29 +2091,28 @@ class IntfItemBase(YisNode):
 
 
 class IntfComp(IntfItemBase):
-    """Definition for a Comp(onent) - a set of individual port symbols - on an interface."""
+    """Definition for a Comp(onent) - a set of individual ports - on an interface."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for symbol in kwargs.pop('symbols'):
-            IntfCompSymb(parent=self, log=self.log, **symbol)
-        symbols = self.children
+        for symbol in kwargs.pop('ports'):
+            IntfCompPort(parent=self, log=self.log, **symbol)
         #
         self.connections = OrderedDict() # list of varianted connections
         for connection in kwargs.pop("connections"):
-            # connection and its lower submodule are purely text processing,
+            # connection and its lower subconnection are purely text processing,
             #   no yisnode attribute needed.
             #   thus skip a class define for them
             # loop through and update connection name if submoduleis defined
-            for submodule in connection.pop('submodules', [{'name': ''}]):
-                # update connection name with submodule variant
-                if submodule['name']:
-                    submodule['name'] = f"_{submodule['name']}"
+            for subconnection in connection.pop('subconnections', [{'name': ''}]):
+                # update connection name with subconnection variant
+                if subconnection['name']:
+                    subconnection['name'] = f"_{subconnection['name']}"
                 conn = {
                     "name": connection['name'],
-                    "submodule": submodule['name'],
+                    "subconnection": subconnection['name'],
                 }
-                self.connections[f"{connection['name']}{submodule['name']}"] = conn
+                self.connections[f"{connection['name']}{subconnection['name']}"] = conn
 
     def __repr__(self):
         return (F"Component name: {self.name}\n"
@@ -2131,8 +2130,8 @@ class IntfComp(IntfItemBase):
         return self.computed_symbol_width * len(self.connections)
 
 
-class IntfCompSymb(IntfItemBase):
-    """Definition for a Symb(ol) in a Comp(onent)."""
+class IntfCompPort(IntfItemBase):
+    """Definition for a Port in a Comp(onent)."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -2144,14 +2143,14 @@ class IntfCompSymb(IntfItemBase):
         self._check_width_consistency()
 
     def __repr__(self):
-        return F"Symb {self.name}, {self.sv_type}, {self.width}"
+        return F"Port {self.name}, {self.sv_type}, {self.width}"
 
     def _naming_convention_callback(self):
         self._check_extra_dunder_name()
 
     def _check_extra_dunder_name(self):
         if self.name.count("__") > 0:
-            self.log.error(F"{self.name} is not a valid name. Symbol names should not have double underscores"
+            self.log.error(F"{self.name} is not a valid name. Port names should not have double underscores"
                            " this is to avoid confusions with source and destinaton")
 
     def _check_width_consistency(self):
@@ -2198,7 +2197,7 @@ class IntfCompSymb(IntfItemBase):
         is_input = self.direction == "input"
         src = connection['name'] if is_input else self.parent.parent.block
         dst = self.parent.parent.block if is_input else connection['name']
-        return f"{src}__{dst}_{connection['submodule']}_{self.name}"
+        return f"{src}__{dst}_{connection['subconnection']}_{self.name}"
 
     def _get_render_type(self):
         return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"

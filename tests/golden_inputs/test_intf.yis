@@ -32,7 +32,7 @@ components:
     doc_summary: CSR interface for TRY
     connections:
       - name: bog
-        submodules:
+        subconnections:
           - name: csr
     ports:
       - name: req
