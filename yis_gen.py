@@ -2105,8 +2105,7 @@ class IntfComp(IntfItemBase):
 
     def __repr__(self):
         return (F"Component name: {self.name}\n"
-                "Ports:\n  -{ports}\n".format(
-                    ports="\n  -".join([repr(port) for port in self.children.values()])))
+                "Ports:\n  -{ports}\n".format(ports="\n  -".join([repr(port) for port in self.children.values()])))
 
     @memoize_property
     def computed_port_width(self):
