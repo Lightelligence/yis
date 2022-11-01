@@ -93,22 +93,22 @@ An intf uses the primitives defined in pkgs to describe the interface between tw
 An intf consists of one or more components, and each component consists of one or more connections.  
 
 components are groups of individual port-to-port connections that constitute a higher-level protocol or logical grouping of signals.
-Ports describe how an interface (component) looks like in terms of width and direction.
-Connections describe how if an interface (component) instantiated multiple times.
+Ports describe how an component looks like in terms of width and direction.
+Connections describe if an component is instantiated multiple times.
 For example, if two blocks had a `val/rdy` handshake, the `val` and `rdy` are ports described in `ports` section.
 If this same handshake ports are used multiply to connecting other blocks, those are described inthe `connections` section.
 Both ports and connections would be contained within a component.
 
 ## components
-Components require a name, doc_summary, and a list of connections.
 An intf can have several components, where each component describes a independent logical function.
+Components require a name, doc_summary, and a list of connections.
 
 ## connections
-Connections defines the number of instantiation of interface (component).
+Connections defines the number of instantiation of component.
 Connections require a name, optional doc_summary
 
 ## ports
-Ports defines the structure such as width and direction of interface (component).
+Ports defines the structure such as width and direction of component.
 Ports require a name, doc_summary, a type, a direction, and an optional width.
 The specification schema for ports is otherwise very similar to struct fields with one major exception.
 A port that has `logic` or `wire` as a type must either have a width of 1 or use a localparam.
