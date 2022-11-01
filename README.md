@@ -24,7 +24,7 @@ The yis_pkg rule creates the RTL and docs collateral for a single pkg.
 The pkg_deps argument is an in-order list of the YIS pkgs that must be parsed before parsing the target pkg.
 This list may be empty. The pkg argument is the target pkg that you want to generate RTL and docs collateral for.  
 
-Note that YIS-generated packages use the "_rypkg.svh" suffix, which stands for "RTL YIS pkg".
+Note that YIS-generated packages use the `_rypkg.svh` suffix, which stands for "RTL YIS pkg".
 This is to disambiguate from future DV YIS pkgs, and other tools that generate RTL and DV pkgs.
 
 ## yis_intf
@@ -93,19 +93,26 @@ An intf uses the primitives defined in pkgs to describe the interface between tw
 An intf consists of one or more components, and each component consists of one or more connections.  
 
 components are groups of individual port-to-port connections that constitute a higher-level protocol or logical grouping of signals.
-For example, if two blocks had a val/rdy handshake, the "val" port and the "rdy" port would each be described in a connection, and those connections would be contained within a component.
+Ports describe how an component looks like in terms of width and direction.
+Connections describe if an component is instantiated multiple times.
+For example, if two blocks had a `val/rdy` handshake, the `val` and `rdy` are ports described in `ports` section.
+If this same handshake ports are used multiply to connecting other blocks, those are described inthe `connections` section.
+Both ports and connections would be contained within a component.
 
 ## components
-components require a name, doc_summary, and a list of connections.
-An intf can have several components, where each component describes a separate logical function.
+An intf can have several components, where each component describes a independent logical function.
+Components require a name, doc_summary, and a list of connections.
 
 ## connections
-connections require a name, doc_summary, a type, and an optional width.
-connection names must be of the form `source__destination__functional_name`.
-For example, a valid connection name would be `try__ipa__cmd`.
-The specification schema for connections is otherwise very similar to struct fields with one major exception.
-A connection that has "logic" or "wire as a type must either have a width of 1 or use a localparam.
-If a connection needs to be wider than 1-bit, the width must be declared in a pkg and referenced.
+Connections defines the number of instantiation of component.
+Connections require a name, optional doc_summary
+
+## ports
+Ports defines the structure such as width and direction of component.
+Ports require a name, doc_summary, a type, a direction, and an optional width.
+The specification schema for ports is otherwise very similar to struct fields with one major exception.
+A port that has `logic` or `wire` as a type must either have a width of 1 or use a localparam.
+If a port needs to be wider than 1-bit, the width must be declared in a pkg and referenced.
 
 # Dependencies
 YIS depends on [Bazel](https://bazel.build/), [rules_verilog](https://github.com/Lightelligence/rules_verilog), and some python packages.

@@ -2,27 +2,39 @@
 ---
 doc_summary: This is my first real interface file
 components:
-  - name: mem_write
-    doc_summary: Memory write interface between TRY and BOG
-    doc_verbose: |
+  - name: mem_write # a descriptive name of this interface
+    doc_summary: Memory write interface for TRY
+    doc_verbose: | # [optional]
       Boring info about memories. And now
       I'm on a new line
-    connections:
-      - name: mwc__try__hero_write
-        type: test_pkg_a::hero_write_t
+    connections: # defines a connection instance of this interface.
+      # list the names of blocks this interface connects to.
+      #   each connection will be a port named <src>__<dst>__<port> where src/dst will be name of the connection
+      - name: bog_hero # min 2 lowercase letters/numbers/_, while _ cannot be at end and no __
+      - name: bog_ace
+      - name: foo
+    ports: # defines ports of this interface
+      - name: write # min 2 lowercase letters/numbers/_, while _ cannot be at end and no __
+        type: test_pkg_a::hero_write_t # if picks 'logic', width has to be specified,
+        direction: input  # [optional] if omitted, default to be an input
         doc_summary: hero write from BOG to TRY
-        doc_verbose: type.doc_verbose
-      - name: try__bog__hero_ack
+        doc_verbose: type.doc_verbose # [optional]
+      - name: wr_ack
         type: logic
         width: 1
+        direction: output
         doc_summary: ACK the hero writes from BOG to TRY to refund BOG hero credits
   - name: csr
-    doc_summary: CSR interface between TRY and BOG
-    connections:                  
-      - name: try__bog__csr_req
+    doc_summary: CSR interface for TRY
+    connections:
+      - name: bog_csr
+    ports:
+      - name: req
         type: logic
+        direction: output
         width: test_pkg_b::NEW_PARAM.value
         doc_summary: width.doc_summary
-      - name: bog__try__csr_rsp
+      - name: rsp
         type: test_pkg_b::several_things_t
+        direction: input
         doc_summary: type.doc_summary
