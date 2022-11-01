@@ -105,8 +105,7 @@ An intf can have several components, where each component describes a independen
 
 ## connections
 Connections defines the number of instantiation of interface (component).
-Connections require a name, optional doc_summary, and optional subconnections.
-Subconnections are similar in concept to connections, as they both address the instantiation of the interface (component).
+Connections require a name, optional doc_summary
 
 ## ports
 Ports defines the structure such as width and direction of interface (component).
