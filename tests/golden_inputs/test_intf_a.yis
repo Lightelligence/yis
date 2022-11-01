@@ -10,16 +10,16 @@ components:
     connections: # defines a connection instance of this interface.
       # list the names of blocks this interface connects to.
       #   each connection will be a port named <src>__<dst>__<port> where src/dst will be name of the connection
-      - name: bog_hero # min 2 lowercase letters/numbers, no __ allowed.
+      - name: bog_hero # min 2 lowercase letters/numbers/_, while _ cannot be at end and no __
       - name: bog_ace
       - name: foo
     ports: # defines ports of this interface
-      - name: write # min 2 lowercase letters/numbers, no _ allowed.
+      - name: write # min 2 lowercase letters/numbers/_, while _ cannot be at end and no __
         type: test_pkg_a::hero_write_t # if picks 'logic', width has to be specified,
         direction: input  # [optional] if omitted, default to be an input
         doc_summary: hero write from BOG to TRY
         doc_verbose: type.doc_verbose # [optional]
-      - name: ack
+      - name: wr_ack
         type: logic
         width: 1
         direction: output

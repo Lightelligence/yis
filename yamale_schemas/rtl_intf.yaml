@@ -4,8 +4,7 @@ components: list(include('component'), required=False)
 ---
 equation: any(str(min=1), int(min=0))
 ---
-name: regex('^[a-z]+[a-z0-9]$', name="valid name. name must be at least 2 letters, all lowercase, start with a letter, can only contain letters, numbers. no _ allowed")
-conn_name: regex('^[a-z][a-z0-9_]*[a-z0-9]$', name="valid connection name. connection name must be at least 2 letters, all lowercase, start with a letter, can only contain letters, numbers.")
+name: regex('^[a-z][a-z0-9]*[_]?[a-z0-9]+$', name="valid connection name. connection name must be at least 2 letters, all lowercase, starts with a letter, can only contain letters, numbers, and _ where _ can not be at end, and no __ allowed")
 sv_name: str(min=3, exclude='=+!@#$%^&*()-|\/?.,[{]}\`~:;')
 doc_verbose: str(min=3)
 doc_summary: str(min=3)
@@ -23,7 +22,7 @@ component:
   connections: list(include('connection'))
   ports: list(include('port'))
 connection:
-  name: include('conn_name')
+  name: include('name')
   doc_summary: include('doc_summary', required=False)
 port:
   name: include('name')
