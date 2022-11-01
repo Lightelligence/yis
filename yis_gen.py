@@ -2044,7 +2044,7 @@ class Intf(YisNode):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source_file = kwargs['source_file']
-        self.block = self.name.split("_intf")[0]
+        self.block = self.name.split("_intf")[0].split("__")[0]
         for component in kwargs.pop('components', []):
             IntfComp(parent=self, log=self.log, **component)
 

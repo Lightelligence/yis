@@ -123,17 +123,20 @@ def yis_pkg(name, pkg_deps, pkg):
     yis_html_pkg(name[:-4], pkg_deps, pkg)
 
 def yis_intf(name, pkg_deps, intf):
-    if not name.endswith("_yis"):
-        fail("yis_intf rule names must end with '_yis': {}".format(name))
+    if not name.endswith("_intf_yis"):
+        fail("yis_intf rule names must end with '_intf_yis': {}".format(name))
 
-    if not intf.endswith("_intf.yis"):
-        fail("yis_intf .yis file must end with '_intf.yis': {}".format(intf))
-    block = intf.strip(":").split("_intf.yis")[0]
+    # there can be 2 flavors of name allowed:
+    # 1. <block>_intf_yis
+    # 2. <block>__<suffix>_intf_yis
+    block = name.split("_intf_yis")[0]
+    if "__" in block:
+        block, suffix = block.split("__")
+    # where block should be current block matching directory name
     current_block = native.package_name().rsplit("/")[-1]
 
     if block != current_block:
-        fail("yis_intf files must be named <blk>_intf.yis\n" +
-             "The file should live in the rtl/<blk> directory.\n" +
+        fail("yis_intf files must be named {blk}_intf.yis or {blk}__<suffix>_intf.yis\n".format(blk=current_block) +
              "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, block))
     yis_html_intf(name[:-4], pkg_deps, intf)
     yis_dv_intf(name[:-4], pkg_deps, intf)
