@@ -683,7 +683,7 @@ class YisNode: # pylint: disable=too-few-public-methods
     def _check_data_vs_dat(self):
         """Verify that 'data' instead of 'dat'."""
         if 'data' in self.name.lower() and not getattr(self, 'implicit', False):
-            self.log.error("%s %s in %s has 'data' in the name, but our methodology requires 'dat' instead",
+            self.log.error("%s '%s' in %s.yis has 'data' in the name, but YIS methodology requires 'dat' instead",
                            self.__class__.__name__, self.name,
                            self.get_nonyis_root().name)
 
