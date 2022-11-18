@@ -29,18 +29,6 @@ def yis_c_hdr(name, pkg_deps, pkg):
         tools = ["@yis//:yis_gen"],
     )
 
-def yis_instruction(name, pkg_deps, pkg):
-    """Create a single yis-generate instruction proto."""
-    native.genrule(
-        name = "{}_instruction_pb".format(name),
-        srcs = pkg_deps + [pkg],
-        outs = ["{}_instruction.pb2".format(name)],
-        cmd = "$(location @yis//:yis_gen) --pkgs $(SRCS) --output-file $@ --gen-instruction",
-        output_to_bindir = True,
-        exec_tools = ["@yis//:yis_gen"],
-        visibility = ["//visibility:public"],
-    )
-
 def yis_rdl_pkg(name, pkg_deps, pkg):
     """Create a single yis-generate RDL pkg."""
     native.genrule(
