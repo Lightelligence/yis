@@ -48,7 +48,13 @@
 // Width would be 0 because clog2(1)=0. Forcing to 1.
   `define THIS_IS_ONE_WIDTH_ONE 1 // THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers
 
-// Skipping rdl render for WRITE_TYPE_E because it doesn't declare explicit enum values
+// This enum's values don't follow from 0 to N, in order to
+  // demonstrate the feature
+  enum WRITE_TYPE_E {
+    WRITE_TYPE_STD = 1; // Standard write, nothing special
+    WRITE_TYPE_MULTI_WDONE = 3; // Send a wdone for each individual cycle completing
+    WRITE_TYPE_SINGLE_WDONE = 7; // Send a wdone only for the entire write xaction
+  }; // Specifies how the write should be handled
 
 `define WRITE_TYPE_E_WIDTH /* WRITE_TYPE_E.width */ 3 // Width of WRITE_TYPE_E
 

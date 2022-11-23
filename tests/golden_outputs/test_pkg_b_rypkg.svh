@@ -52,10 +52,12 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   // Width would be 0 because clog2(1)=0. Forcing to 1.
   localparam [/* clog2(THIS_IS_ONE.value) */ 1 - 1:0] THIS_IS_ONE_WIDTH_ONE = 1'd1; // THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers
   
+  // This enum's values don't follow from 0 to N, in order to
+  // demonstrate the feature
   typedef enum logic [3 - 1:0] {
-    WRITE_TYPE_STD, // Standard write, nothing special
-    WRITE_TYPE_MULTI_WDONE, // Send a wdone for each individual cycle completing
-    WRITE_TYPE_SINGLE_WDONE // Send a wdone only for the entire write xaction
+    WRITE_TYPE_STD = 3'd1, // Standard write, nothing special
+    WRITE_TYPE_MULTI_WDONE = 3'd3, // Send a wdone for each individual cycle completing
+    WRITE_TYPE_SINGLE_WDONE = 3'd7 // Send a wdone only for the entire write xaction
   } WRITE_TYPE_E; // Specifies how the write should be handled
   
   localparam [32 - 1:0] WRITE_TYPE_E_WIDTH = /* WRITE_TYPE_E.width */ 32'd3; // Width of WRITE_TYPE_E
