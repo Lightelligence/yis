@@ -100,13 +100,13 @@ package test_pkg_a_rypkg; // This is an example of what a package file could loo
   localparam [32 - 1:0] SUB_DEF_T_WIDTH = /* sub_def_t.width */ 32'd7; // Width of sub_def_t
   
   // And it has a doc_verbose for good measure
-  typedef logic [6 - 1:0] vanilla_type_t; // This is a basic logic type and width
+  typedef logic [/* ANOTHER_PARAM.value */ 2 - 1:0] vanilla_type_t; // This is a basic logic type and width
   
-  localparam [32 - 1:0] VANILLA_TYPE_T_WIDTH = /* vanilla_type_t.width */ 32'd6; // Width of vanilla_type_t
+  localparam [32 - 1:0] VANILLA_TYPE_T_WIDTH = /* vanilla_type_t.width */ 32'd2; // Width of vanilla_type_t
   
-  typedef vanilla_type_t [/* ANOTHER_PARAM.value */ 2 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
+  typedef vanilla_type_t [1 - 1:0] nested_type_t; // Use another typedef as the base type, a localparam as the width
   
-  localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = /* nested_type_t.width */ 32'd12; // Width of nested_type_t
+  localparam [32 - 1:0] NESTED_TYPE_T_WIDTH = /* nested_type_t.width */ 32'd2; // Width of nested_type_t
   
 
 endpackage : test_pkg_a_rypkg
