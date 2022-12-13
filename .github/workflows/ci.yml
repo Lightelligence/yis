@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: main
     paths-ignore:
-      - "*.md"
+      - *.md
       - LICENSE
 jobs:
   yapf:
@@ -32,4 +32,4 @@ jobs:
         with:
           requirements: env/requirements.txt
       - name: run-bazel-tests
-        run: bazel test --cache_test_results=no --test_out
+        run: bazel test --cache_test_results=no --test_output=all ...
