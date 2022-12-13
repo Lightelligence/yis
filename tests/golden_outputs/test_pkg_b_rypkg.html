@@ -423,6 +423,9 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
 <h4 id="test_pkg_b__WRITE_TYPE_E"><a href="#test_pkg_b__WRITE_TYPE_E">WRITE_TYPE_E</a></h4>
 <p>Specifies how the write should be handled</p>
 
+<pre>This enum's values don't follow from 0 to N, in order to demonstrate the feature
+</pre>
+
 <p> Width =3</p>
 <p> Calculated Width = 3</p>
 <table class="table table-striped table-bordered table-sm">
@@ -437,21 +440,21 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
 
   <tr>
       <td id="test_pkg_b__WRITE_TYPE_E__STD"><a href="#test_pkg_b__WRITE_TYPE_E__STD">STD</a></td>
-      <td></td>
+      <td>1</td>
       <td>Standard write, nothing special</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_b__WRITE_TYPE_E__MULTI_WDONE"><a href="#test_pkg_b__WRITE_TYPE_E__MULTI_WDONE">MULTI_WDONE</a></td>
-      <td></td>
+      <td>3</td>
       <td>Send a wdone for each individual cycle completing</td>
       <td></td>
   </tr>
 
   <tr>
       <td id="test_pkg_b__WRITE_TYPE_E__SINGLE_WDONE"><a href="#test_pkg_b__WRITE_TYPE_E__SINGLE_WDONE">SINGLE_WDONE</a></td>
-      <td></td>
+      <td>7</td>
       <td>Send a wdone only for the entire write xaction</td>
       <td></td>
   </tr>

@@ -43,7 +43,15 @@
 
 `define ANOTHER_PARAM_WIDTH_ONE 1 // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
-// Skipping rdl render for CYCLE_TYPE_E because it doesn't declare explicit enum values
+// I'm writing this verbose documentation so that we have something to
+  // attempt to link in for cycle_type.
+  enum CYCLE_TYPE_E {
+    CYCLE_TYPE_IDLE = 0; // The bus is idle this cycle.
+    // The enum value is so complicated it needs its own verbose
+    // documentation that none of the other values in this enum need.
+    CYCLE_TYPE_VALID = 1; // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    CYCLE_TYPE_DONE = 2; // The command on the bus this is valid and this is the last cycle of data.
+  }; // Indicates a command type of IDLE, VALID, or DONE.
 
 `define CYCLE_TYPE_E_WIDTH /* CYCLE_TYPE_E.width */ 2 // Width of CYCLE_TYPE_E
 
@@ -82,9 +90,9 @@ reg sub_def_t {
 
 
 
-`define VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 6 // Width of vanilla_type_t
+`define VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 2 // Width of vanilla_type_t
 
 
 
-`define NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 12 // Width of nested_type_t
+`define NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 2 // Width of nested_type_t
 

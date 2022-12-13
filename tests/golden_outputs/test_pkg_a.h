@@ -30,15 +30,15 @@
 #define CONCISE_E_WIDTH 4           // Width of CONCISE_E
 #define HERO_WRITE_T_WIDTH 46           // Width of hero_write_t
 #define SUB_DEF_T_WIDTH 7           // Width of sub_def_t
-#define VANILLA_TYPE_T_WIDTH 6           // Width of vanilla_type_t
-#define NESTED_TYPE_T_WIDTH 12           // Width of nested_type_t
+#define VANILLA_TYPE_T_WIDTH 2           // Width of vanilla_type_t
+#define NESTED_TYPE_T_WIDTH 2           // Width of nested_type_t
 
 
 // Indicates a command type of IDLE, VALID, or DONE.
 typedef enum {
-    IDLE,                    // The bus is idle this cycle.
-    VALID,                    // The command on the bus this is valid and there will be future VALID cycles for this transaction.
-    DONE,                    // The command on the bus this is valid and this is the last cycle of data.
+    IDLE = 0,   // The bus is idle this cycle.
+    VALID = 1,   // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    DONE = 2,   // The command on the bus this is valid and this is the last cycle of data.
 } CYCLE_TYPE_E;
 
 // Test for an enum that is width 1
@@ -59,10 +59,10 @@ typedef enum {
 
 
 // This is a basic logic type and width
-typedef uint8_t vanilla_type_t;    // 6 bits wide
+typedef uint8_t vanilla_type_t;    // 2 bits wide
 
 // Use another typedef as the base type, a localparam as the width
-typedef uint16_t nested_type_t;    // 12 bits wide
+typedef uint8_t nested_type_t;    // 2 bits wide
 
 
 // A sub-struct of hero_write_t that is declared afterwards.
