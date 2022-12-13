@@ -1,24 +1,36 @@
-name: Run Bazel Tests
-on: [push]
+name: CI
+on:
+  pull_request:
+    branches: main
+    paths-ignore:
+      - "*.md"
+      - LICENSE
 jobs:
+  yapf:
+    name: YAPF Checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - name: Run YAPF python style checks
+        uses: AlexanderMelde/yapf-action@master
+        with:
+          args: . --diff --recursive --style env/.style.yapf --exclude github
   bazel-tests:
     name: Bazel Tests
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@main
-      
       - name: install-bazelisk
         uses: vsco/bazelisk-action@master
         with:
           version: '1.7.5'
           bazel-install-path: './.local/bin'
           os: 'linux'
-
       - name: pip-install
         uses: BSFishy/pip-action@v1
         with:
           requirements: env/requirements.txt
-
       - name: run-bazel-tests
         run: bazel test --cache_test_results=no --test_output=all ...
+
