@@ -34,16 +34,13 @@ enums:
     width: TRIPLE_NESTED_PARAM.value
     values:
       - name: IDLE
-        value: 0
         doc_summary: The bus is idle this cycle.
       - name: VALID
-        value: 1
         doc_summary: The command on the bus this is valid and there will be future VALID cycles for this transaction.
         doc_verbose: |
           The enum value is so complicated it needs its own
           verbose documentation that none of the other values in this enum need.
       - name: DONE
-        value: 2
         doc_summary: The command on the bus this is valid and this is the last cycle of data.
 
     doc_summary: Indicates a command type of IDLE, VALID, or DONE.
@@ -76,11 +73,11 @@ typedefs:
     doc_summary: This is a basic logic type and width
     doc_verbose: And it has a doc_verbose for good measure
     base_type: "logic"
-    width: 6
+    width: ANOTHER_PARAM.value
   - name: nested_type_t
     doc_summary: Use another typedef as the base type, a localparam as the width
     base_type: vanilla_type_t
-    width: ANOTHER_PARAM.value
+    width: 1
 structs:
   - name: hero_write_t
     doc_summary: "A struct that wraps all fields needed for a single hero write."
