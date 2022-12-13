@@ -1232,7 +1232,11 @@ class PkgLocalparam(PkgItemBase):
 
 
 class PkgEnum(PkgItemBase):
-    """Definition for an enum inside a pkg."""
+    """Definition for an enum inside a pkg.
+
+    Note - YIS enums currently don't allow for implicit values, even though it's legal SystemVerilog.
+    See GitHub issue #7 for details, and GitHub PR #8 for reference for how to support implicit values.
+    """
 
     TYPE_NAME_SUFFIX = "_E"
     INSTANCE_NAME_SUFFIX = ""
@@ -1270,8 +1274,6 @@ class PkgEnum(PkgItemBase):
         if not self.implicit:
             self._gen_width_param(F"{self.name}.width")
 
-        self._explicit_values = False
-
     @only_run_once
     def resolve_links(self):
         """Call superclass to resolve width links, then resolve type links."""
@@ -1292,28 +1294,15 @@ class PkgEnum(PkgItemBase):
 
     def _check_enum_value_consistency(self):
         # I had a list comprehension that was way cooler, but it was hard to read
-        explicit_values = []
-        implicit_values = []
         reverse_value_lookups = {}
 
         for child in self.children.values():
-            value_attr = getattr(child, 'sv_value', None)
-            if value_attr is None:
-                implicit_values.append(child.name)
+            value_attr = getattr(child, 'sv_value')
+            if child.sv_value in reverse_value_lookups:
+                self.log.error(F"Enum {self.name} {child.name} has the same defined value as "
+                               F"{reverse_value_lookups[child.sv_value]}")
             else:
-                self._explicit_values = True
-                if child.sv_value in reverse_value_lookups:
-                    self.log.error(F"Enum {self.name} {child.name} has the same defined value as "
-                                   F"{reverse_value_lookups[child.sv_value]}")
-                else:
-                    reverse_value_lookups[child.sv_value] = child.name
-
-                explicit_values.append(child.name)
-
-        if explicit_values and implicit_values:
-            self.log.error(F"Enum {self.name} is using a mix of explicit and implicit values\n"
-                           F"Implicit values: {implicit_values}\n"
-                           F"Explicit values: {explicit_values}")
+                reverse_value_lookups[child.sv_value] = child.name
 
     def _width_check(self):
         if len(self.children) > (1 << self.computed_width):
@@ -1321,11 +1310,10 @@ class PkgEnum(PkgItemBase):
                            "({self.width.computed_value})")
 
         max_value = (1 << self.computed_width) - 1
-        if self._explicit_values:
-            for child in self.children.values():
-                if child.sv_value > max_value:
-                    self.log.error(F"{child.name} value of {child.sv_value} exceeds maximum value {max_value} "
-                                   F"allowed by width {self.computed_width}")
+        for child in self.children.values():
+            if child.sv_value > max_value:
+                self.log.error(F"{child.name} value of {child.sv_value} exceeds maximum value {max_value} "
+                               F"allowed by width {self.computed_width}")
 
     @memoize_property
     def computed_width(self):
@@ -1373,11 +1361,7 @@ class PkgEnum(PkgItemBase):
         return "\n  ".join(ret_arr)
 
     def render_rdl_pkg(self):
-        """Render the RDL for this enum.
-        """
-        # If this enum doesn't use explicit values, don't render it to RDL and comment why it wasn't rendered
-        if list(self.children.values())[0].sv_value is None:
-            return "// Skipping rdl render for {} because it doesn't declare explicit enum values".format(self.name)
+        """Render the RDL for this enum."""
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
         doc_verbose = self.render_doc_verbose(2)
@@ -1540,6 +1524,7 @@ class PkgTypedef(PkgItemBase):
         else:
             # add support for typdefs of array with width of 1. this is useful in a parametered env where allowing depth being 1 simpifies the coding style
             ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
+            #                       self.name)
         return "\n  ".join(ret_arr)
 
 
