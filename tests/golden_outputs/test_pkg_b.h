@@ -45,9 +45,9 @@
 
 // Specifies how the write should be handled
 typedef enum {
-    STD,                    // Standard write, nothing special
-    MULTI_WDONE,                    // Send a wdone for each individual cycle completing
-    SINGLE_WDONE,                    // Send a wdone only for the entire write xaction
+    STD = 1,   // Standard write, nothing special
+    MULTI_WDONE = 3,   // Send a wdone for each individual cycle completing
+    SINGLE_WDONE = 7,   // Send a wdone only for the entire write xaction
 } WRITE_TYPE_E;
 
 
