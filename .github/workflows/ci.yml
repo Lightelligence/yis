@@ -3,7 +3,8 @@ on:
   pull_request:
     branches: main
     paths-ignore:
-      - README
+      - *.md
+      - LICENSE
 jobs:
   yapf:
     name: YAPF Checking
