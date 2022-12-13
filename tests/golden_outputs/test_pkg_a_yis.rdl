@@ -90,9 +90,9 @@ reg sub_def_t {
 
 
 
-`define VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 6 // Width of vanilla_type_t
+`define VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 2 // Width of vanilla_type_t
 
 
 
-`define NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 12 // Width of nested_type_t
+`define NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 2 // Width of nested_type_t
 
