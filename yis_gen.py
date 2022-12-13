@@ -1534,17 +1534,11 @@ class PkgTypedef(PkgItemBase):
 
         render_type = self._get_render_base_sv_type()
         render_width = self.width.render_rtl()
-        if self.width.computed_width == 1:
-            if is_verilog_primitive(render_type):
-                self.log.debug("Converting tyepdef %s to raw logic typedef from a vector because it's a 1-bit logic")
-                if render_width == "1":
-                    ret_arr.append(F"typedef logic {self.name}; // {self.doc_summary}")
-                else:
-                    ret_arr.append(F"typedef logic /* {self.width.equation} */ {self.name}; // {self.doc_summary}")
-            else:
-                self.log.critical("typdefs with a width of 1 are unsupported. Why do you need %s array of width 1?",
-                                  self.name)
+        if self.width.computed_width == 1 and is_verilog_primitive(render_type):
+            # self.log.debug("Converting tyepdef %s to raw logic typedef from a vector because it's a 1-bit logic")
+            ret_arr.append(F"typedef logic [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         else:
+            # add support for typdefs of array with width of 1. this is useful in a parametered env where allowing depth being 1 simpifies the coding style
             ret_arr.append(F"typedef {render_type} [{render_width} - 1:0] {self.name}; // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
