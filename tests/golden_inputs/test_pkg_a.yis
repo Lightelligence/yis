@@ -32,18 +32,16 @@ localparams:
 enums:
   - name: CYCLE_TYPE_E
     width: TRIPLE_NESTED_PARAM.value
+    prefix: ""
     values:
       - name: IDLE
-        value: 0
         doc_summary: The bus is idle this cycle.
       - name: VALID
-        value: 1
         doc_summary: The command on the bus this is valid and there will be future VALID cycles for this transaction.
         doc_verbose: |
           The enum value is so complicated it needs its own
           verbose documentation that none of the other values in this enum need.
       - name: DONE
-        value: 2
         doc_summary: The command on the bus this is valid and this is the last cycle of data.
 
     doc_summary: Indicates a command type of IDLE, VALID, or DONE.
