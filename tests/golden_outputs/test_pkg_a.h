@@ -36,9 +36,9 @@
 
 // Indicates a command type of IDLE, VALID, or DONE.
 typedef enum {
-    IDLE = 0,   // The bus is idle this cycle.
-    VALID = 1,   // The command on the bus this is valid and there will be future VALID cycles for this transaction.
-    DONE = 2,   // The command on the bus this is valid and this is the last cycle of data.
+    IDLE,                    // The bus is idle this cycle.
+    VALID,                    // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    DONE,                    // The command on the bus this is valid and this is the last cycle of data.
 } CYCLE_TYPE_E;
 
 // Test for an enum that is width 1

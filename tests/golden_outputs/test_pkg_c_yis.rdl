@@ -8,21 +8,21 @@
 // This is an assumption that we will have 40 bits of addressing over
   // PCIE. Even if not using PCIE, this might be a good assumption to
   // make for future proofing.
-  `define ADDR_WIDTH 27 // The default address width
+  `define TEST_PKG_C_ADDR_WIDTH 27 // The default address width
 
-`define ADDR_WIDTH_WIDTH /* clog2(ADDR_WIDTH.value) */ 5 // Width of ADDR_WIDTH
+`define TEST_PKG_C_ADDR_WIDTH_WIDTH /* clog2(ADDR_WIDTH.value) */ 5 // Width of ADDR_WIDTH
 
-`define ADDR_WIDTH_COUNT_WIDTH /* clog2(ADDR_WIDTH.value + 1) */ 5 // Width to count ADDR_WIDTH items
+`define TEST_PKG_C_ADDR_WIDTH_COUNT_WIDTH /* clog2(ADDR_WIDTH.value + 1) */ 5 // Width to count ADDR_WIDTH items
 
-`define ADDR_WIDTH_WIDTH_ONE 1 // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_C_ADDR_WIDTH_WIDTH_ONE 1 // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
 
-`define NUM_ZAP 8 // There are reasons why this is 8
+`define TEST_PKG_C_NUM_ZAP 8 // There are reasons why this is 8
 
-`define NUM_ZAP_WIDTH /* clog2(NUM_ZAP.value) */ 3 // Width of NUM_ZAP
+`define TEST_PKG_C_NUM_ZAP_WIDTH /* clog2(NUM_ZAP.value) */ 3 // Width of NUM_ZAP
 
-`define NUM_ZAP_COUNT_WIDTH /* clog2(NUM_ZAP.value + 1) */ 4 // Width to count NUM_ZAP items
+`define TEST_PKG_C_NUM_ZAP_COUNT_WIDTH /* clog2(NUM_ZAP.value + 1) */ 4 // Width to count NUM_ZAP items
 
-`define NUM_ZAP_WIDTH_ONE 1 // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_C_NUM_ZAP_WIDTH_ONE 1 // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
 
 enum RACK_ZAP_ID_E {
     RACK_ZAP_ID_ZAP0 = 0; // Zap 0 within) a rack
@@ -35,21 +35,21 @@ enum RACK_ZAP_ID_E {
     RACK_ZAP_ID_ZAP7 = 7; // Zap 7 within a rack
   }; // The zap id within a rack.
 
-`define RACK_ZAP_ID_E_WIDTH /* RACK_ZAP_ID_E.width */ 3 // Width of RACK_ZAP_ID_E
+`define TEST_PKG_C_RACK_ZAP_ID_E_WIDTH /* RACK_ZAP_ID_E.width */ 3 // Width of RACK_ZAP_ID_E
 
 enum ADDR_TYPE_E {
     ADDR_TYPE_MEM = 0; // This is a memory address.
     ADDR_TYPE_CSR = 1; // This is an CSR address.
   }; // Indicates top-level address type.
 
-`define ADDR_TYPE_E_WIDTH /* ADDR_TYPE_E.width */ 1 // Width of ADDR_TYPE_E
+`define TEST_PKG_C_ADDR_TYPE_E_WIDTH /* ADDR_TYPE_E.width */ 1 // Width of ADDR_TYPE_E
 
 enum IS_ZAP_E {
     IS_ZAP_NON_ZAP = 0; // This address targets something outside a zap.
     IS_ZAP_ZAP = 1; // This address targets something inside a zap.
   }; // Indicates a zap address or a non-zap address.
 
-`define IS_ZAP_E_WIDTH /* IS_ZAP_E.width */ 1 // Width of IS_ZAP_E
+`define TEST_PKG_C_IS_ZAP_E_WIDTH /* IS_ZAP_E.width */ 1 // Width of IS_ZAP_E
 
 enum NON_ZAP_BLOCK_ID_E {
     NON_ZAP_BLOCK_ID_LEG_ID = 0; // LEG
@@ -61,7 +61,7 @@ enum NON_ZAP_BLOCK_ID_E {
     NON_ZAP_BLOCK_ID_FOX_ID = 7; // Sit amet
   }; // The ID of an individual block in the BAG that does not live inside ZAP.
 
-`define NON_ZAP_BLOCK_ID_E_WIDTH /* NON_ZAP_BLOCK_ID_E.width */ 3 // Width of NON_ZAP_BLOCK_ID_E
+`define TEST_PKG_C_NON_ZAP_BLOCK_ID_E_WIDTH /* NON_ZAP_BLOCK_ID_E.width */ 3 // Width of NON_ZAP_BLOCK_ID_E
 
 enum ZAP_BLOCK_ID_E {
     ZAP_BLOCK_ID_TRY = 1; // Consectetur adipiscing
@@ -78,7 +78,7 @@ enum ZAP_BLOCK_ID_E {
     ZAP_BLOCK_ID_GRE = 12; // Nulla pharetra velit. Sed eget justo dolor. Proin egestas nulla vitae tempor fringilla. Sed commodo vulputate enim a pulvinar. Transmit
   }; // A subblock ID inside a ZAP.
 
-`define ZAP_BLOCK_ID_E_WIDTH /* ZAP_BLOCK_ID_E.width */ 4 // Width of ZAP_BLOCK_ID_E
+`define TEST_PKG_C_ZAP_BLOCK_ID_E_WIDTH /* ZAP_BLOCK_ID_E.width */ 4 // Width of ZAP_BLOCK_ID_E
 
 enum RACK_BLOCK_ID_E {
     RACK_BLOCK_ID_ICE = 0; // Sed eget
@@ -86,7 +86,7 @@ enum RACK_BLOCK_ID_E {
     RACK_BLOCK_ID_CUP = 2; // Sed lobortis congue Transmit
   }; // A block instantiated at RACK-level that is not a zap
 
-`define RACK_BLOCK_ID_E_WIDTH /* RACK_BLOCK_ID_E.width */ 2 // Width of RACK_BLOCK_ID_E
+`define TEST_PKG_C_RACK_BLOCK_ID_E_WIDTH /* RACK_BLOCK_ID_E.width */ 2 // Width of RACK_BLOCK_ID_E
 
 enum CUP_ID_E {
     CUP_ID_CUP0 = 0; // CUPn
@@ -99,7 +99,7 @@ enum CUP_ID_E {
     CUP_ID_CUP7 = 7; // CUPn
   }; // CUP numbering for address generation
 
-`define CUP_ID_E_WIDTH /* CUP_ID_E.width */ 3 // Width of CUP_ID_E
+`define TEST_PKG_C_CUP_ID_E_WIDTH /* CUP_ID_E.width */ 3 // Width of CUP_ID_E
 
 enum CRY_ID_E {
     CRY_ID_CRY0 = 0; // CRYn
@@ -232,24 +232,24 @@ enum CRY_ID_E {
     CRY_ID_CRY127 = 127; // CRYn
   }; // CRY numbering for address generation
 
-`define CRY_ID_E_WIDTH /* CRY_ID_E.width */ 7 // Width of CRY_ID_E
+`define TEST_PKG_C_CRY_ID_E_WIDTH /* CRY_ID_E.width */ 7 // Width of CRY_ID_E
 
 enum ICE_ID_E {
     ICE_ID_ICE0 = 0; // ICE 0
   }; // ICE Numbering
 
-`define ICE_ID_E_WIDTH /* ICE_ID_E.width */ 1 // Width of ICE_ID_E
+`define TEST_PKG_C_ICE_ID_E_WIDTH /* ICE_ID_E.width */ 1 // Width of ICE_ID_E
 
 
 
-reg zap_id_t {
+reg test_pkg_c_zap_id_t {
   desc = "The ID for a given ZAP";
   default reset = 0;
   field {desc = "ID of a rack";} rack_id[5:3];
-  field {desc = "Zap ID (Within a rack)";} zap_id[2:0];
+  field {encode=RACK_ZAP_ID_E; render_encode_pkg="test_pkg_c_rypkg"; desc = "Zap ID (Within a rack)";} zap_id[2:0];
 };
 
-`define ZAP_ID_T_WIDTH /* zap_id_t.width */ 6 // Width of zap_id_t
+`define TEST_PKG_C_ZAP_ID_T_WIDTH /* zap_id_t.width */ 6 // Width of zap_id_t
 
 
 
@@ -271,23 +271,23 @@ reg zap_id_t {
 
 
 
-`define ADDR_T_WIDTH /* addr_t.width */ 27 // Width of addr_t
+`define TEST_PKG_C_ADDR_T_WIDTH /* addr_t.width */ 27 // Width of addr_t
 
-`define JOB_ADDR_T_WIDTH /* job_addr_t.width */ 19 // Width of job_addr_t
+`define TEST_PKG_C_JOB_ADDR_T_WIDTH /* job_addr_t.width */ 19 // Width of job_addr_t
 
-`define ZAP_CSR_ADDR_T_WIDTH /* zap_csr_addr_t.width */ 19 // Width of zap_csr_addr_t
+`define TEST_PKG_C_ZAP_CSR_ADDR_T_WIDTH /* zap_csr_addr_t.width */ 19 // Width of zap_csr_addr_t
 
-`define ZAP_ADDR_T_WIDTH /* zap_addr_t.width */ 26 // Width of zap_addr_t
+`define TEST_PKG_C_ZAP_ADDR_T_WIDTH /* zap_addr_t.width */ 26 // Width of zap_addr_t
 
-`define NON_ZAP_ADDR_T_WIDTH /* non_zap_addr_t.width */ 26 // Width of non_zap_addr_t
+`define TEST_PKG_C_NON_ZAP_ADDR_T_WIDTH /* non_zap_addr_t.width */ 26 // Width of non_zap_addr_t
 
-`define RACK_ADDR_T_WIDTH /* rack_addr_t.width */ 23 // Width of rack_addr_t
+`define TEST_PKG_C_RACK_ADDR_T_WIDTH /* rack_addr_t.width */ 23 // Width of rack_addr_t
 
-`define RACK_ID_T_WIDTH /* rack_id_t.width */ 3 // Width of rack_id_t
+`define TEST_PKG_C_RACK_ID_T_WIDTH /* rack_id_t.width */ 3 // Width of rack_id_t
 
-`define RACK_BLOCK_INST_ID_T_WIDTH /* rack_block_inst_id_t.width */ 3 // Width of rack_block_inst_id_t
+`define TEST_PKG_C_RACK_BLOCK_INST_ID_T_WIDTH /* rack_block_inst_id_t.width */ 3 // Width of rack_block_inst_id_t
 
 
 
-`define QUAD_ID_T_WIDTH /* quad_id_t.width */ 2 // Width of quad_id_t
+`define TEST_PKG_C_QUAD_ID_T_WIDTH /* quad_id_t.width */ 2 // Width of quad_id_t
 

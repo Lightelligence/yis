@@ -50,11 +50,11 @@ package test_pkg_a_rypkg; // This is an example of what a package file could loo
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.
   typedef enum logic [/* TRIPLE_NESTED_PARAM.value */ 2 - 1:0] {
-    CYCLE_TYPE_IDLE = 2'd0, // The bus is idle this cycle.
+    IDLE, // The bus is idle this cycle.
     // The enum value is so complicated it needs its own verbose
     // documentation that none of the other values in this enum need.
-    CYCLE_TYPE_VALID = 2'd1, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
-    CYCLE_TYPE_DONE = 2'd2 // The command on the bus this is valid and this is the last cycle of data.
+    VALID, // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    DONE // The command on the bus this is valid and this is the last cycle of data.
   } CYCLE_TYPE_E; // Indicates a command type of IDLE, VALID, or DONE.
   
   localparam [32 - 1:0] CYCLE_TYPE_E_WIDTH = /* CYCLE_TYPE_E.width */ 32'd2; // Width of CYCLE_TYPE_E
