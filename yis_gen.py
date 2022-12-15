@@ -1227,7 +1227,7 @@ class PkgLocalparam(PkgItemBase):
         if doc_verbose:
             ret_arr.append(doc_verbose)
         render_value = self.value.render_rtl()
-        ret_arr.append(f"`define {self.name} {render_value} // {self.doc_summary}")
+        ret_arr.append(f"`define {self.parent.name.upper()}_{self.name} {render_value} // {self.doc_summary}")
         return "\n  ".join(ret_arr)
 
 
@@ -1632,15 +1632,18 @@ class PkgStruct(PkgItemBase):
             return ""
 
         ret_arr = []
-        ret_arr.append(F"reg {self.name} {{")
+        ret_arr.append(F"reg {self.parent.name}_{self.name} {{")
         ret_arr.append(F"  desc = \"{self.doc_summary}\";")
         ret_arr.append("  default reset = 0;")
 
         start_idx = self.computed_width - 1
         end_idx = self.computed_width - 1
         for child in self.children.values():
+            encode = ""
+            if child._get_render_type().endswith("_E"): # should use type check again enum
+                encode = F'encode={child._get_render_type()}; render_encode_pkg="{self.parent.name}_rypkg"; '
             start_idx -= child.computed_width - 1
-            ret_arr.append(F"  field {{desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
+            ret_arr.append(F"  field {{{encode}desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
             end_idx -= child.computed_width
             start_idx = end_idx
 
@@ -1726,7 +1729,7 @@ class PkgStructField(PkgItemBase):
         self._check_vld_bit()
 
     def _check_vld_bit(self):
-        """Check if there is valid (vld) bit present in the struct, and if there is, 
+        """Check if there is valid (vld) bit present in the struct, and if there is,
         make sure it is named 'vld', has width = '1', and sv_type = 'logic'
         """
         if self.name in ['valid', 'vld', 'val']:
@@ -1746,6 +1749,8 @@ class PkgStructField(PkgItemBase):
         return F"{id(self)} type {self.sv_type} width {self.width}"
 
     def _get_render_type(self):
+        if isinstance(self.sv_type, str):
+            return self.sv_type
         if self.get_parent_pkg() is not self.sv_type.get_parent_pkg():
             return F"{self.sv_type.parent.name}_rypkg::{self.sv_type.name}"
         return F"{self.sv_type.name}"
