@@ -5,7 +5,7 @@
 
 
 
-`define HERO_WIDTH 36 // Width of hero bus around the bag.
+`define TEST_PKG_A_HERO_WIDTH 36 // Width of hero bus around the bag.
 
 // This field has extra verbose documentation surrounding it for
   // reasons that might be clear later. The intent of these different
@@ -13,46 +13,46 @@
   // an interface definition, we can copy over the doc_summary and
   // keep it inline, but for more information point to the package
   // definition for the whole long-form documentation.
-  `define ANOTHER_PARAM 2 // This is a different parameter than the first.
+  `define TEST_PKG_A_ANOTHER_PARAM 2 // This is a different parameter than the first.
 
-`define DOUBLE_LINK_PARAM /* ANOTHER_PARAM.value */ 2 // This parameter has a paramterized width and a parameterized type.
+`define TEST_PKG_A_DOUBLE_LINK_PARAM /* ANOTHER_PARAM.value */ 2 // This parameter has a paramterized width and a parameterized type.
 
-`define TRIPLE_NESTED_PARAM /* ANOTHER_PARAM.value */ 2 // This parameter has a paramterized width and a parameterized type.
+`define TEST_PKG_A_TRIPLE_NESTED_PARAM /* ANOTHER_PARAM.value */ 2 // This parameter has a paramterized width and a parameterized type.
 
-`define TRIPLE_NESTED_PARAM_WIDTH /* clog2(TRIPLE_NESTED_PARAM.value) */ 1 // Width of TRIPLE_NESTED_PARAM
+`define TEST_PKG_A_TRIPLE_NESTED_PARAM_WIDTH /* clog2(TRIPLE_NESTED_PARAM.value) */ 1 // Width of TRIPLE_NESTED_PARAM
 
-`define TRIPLE_NESTED_PARAM_COUNT_WIDTH /* clog2(TRIPLE_NESTED_PARAM.value + 1) */ 2 // Width to count TRIPLE_NESTED_PARAM items
+`define TEST_PKG_A_TRIPLE_NESTED_PARAM_COUNT_WIDTH /* clog2(TRIPLE_NESTED_PARAM.value + 1) */ 2 // Width to count TRIPLE_NESTED_PARAM items
 
-`define TRIPLE_NESTED_PARAM_WIDTH_ONE 1 // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_A_TRIPLE_NESTED_PARAM_WIDTH_ONE 1 // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
-`define DOUBLE_LINK_PARAM_WIDTH /* clog2(DOUBLE_LINK_PARAM.value) */ 1 // Width of DOUBLE_LINK_PARAM
+`define TEST_PKG_A_DOUBLE_LINK_PARAM_WIDTH /* clog2(DOUBLE_LINK_PARAM.value) */ 1 // Width of DOUBLE_LINK_PARAM
 
-`define DOUBLE_LINK_PARAM_COUNT_WIDTH /* clog2(DOUBLE_LINK_PARAM.value + 1) */ 2 // Width to count DOUBLE_LINK_PARAM items
+`define TEST_PKG_A_DOUBLE_LINK_PARAM_COUNT_WIDTH /* clog2(DOUBLE_LINK_PARAM.value + 1) */ 2 // Width to count DOUBLE_LINK_PARAM items
 
-`define DOUBLE_LINK_PARAM_WIDTH_ONE 1 // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_A_DOUBLE_LINK_PARAM_WIDTH_ONE 1 // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
-`define HERO_WIDTH_WIDTH /* clog2(HERO_WIDTH.value) */ 6 // Width of HERO_WIDTH
+`define TEST_PKG_A_HERO_WIDTH_WIDTH /* clog2(HERO_WIDTH.value) */ 6 // Width of HERO_WIDTH
 
-`define HERO_WIDTH_COUNT_WIDTH /* clog2(HERO_WIDTH.value + 1) */ 6 // Width to count HERO_WIDTH items
+`define TEST_PKG_A_HERO_WIDTH_COUNT_WIDTH /* clog2(HERO_WIDTH.value + 1) */ 6 // Width to count HERO_WIDTH items
 
-`define HERO_WIDTH_WIDTH_ONE 1 // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_A_HERO_WIDTH_WIDTH_ONE 1 // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
 
-`define ANOTHER_PARAM_WIDTH /* clog2(ANOTHER_PARAM.value) */ 1 // Width of ANOTHER_PARAM
+`define TEST_PKG_A_ANOTHER_PARAM_WIDTH /* clog2(ANOTHER_PARAM.value) */ 1 // Width of ANOTHER_PARAM
 
-`define ANOTHER_PARAM_COUNT_WIDTH /* clog2(ANOTHER_PARAM.value + 1) */ 2 // Width to count ANOTHER_PARAM items
+`define TEST_PKG_A_ANOTHER_PARAM_COUNT_WIDTH /* clog2(ANOTHER_PARAM.value + 1) */ 2 // Width to count ANOTHER_PARAM items
 
-`define ANOTHER_PARAM_WIDTH_ONE 1 // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
+`define TEST_PKG_A_ANOTHER_PARAM_WIDTH_ONE 1 // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
 // Skipping rdl render for CYCLE_TYPE_E because it doesn't declare explicit enum values
 
-`define CYCLE_TYPE_E_WIDTH /* CYCLE_TYPE_E.width */ 2 // Width of CYCLE_TYPE_E
+`define TEST_PKG_A_CYCLE_TYPE_E_WIDTH /* CYCLE_TYPE_E.width */ 2 // Width of CYCLE_TYPE_E
 
 enum BOOL_E {
     BOOL_TRUE = 1; // This is true
     BOOL_FALSE = 0; // This is false
   }; // Test for an enum that is width 1
 
-`define BOOL_E_WIDTH /* BOOL_E.width */ 1 // Width of BOOL_E
+`define TEST_PKG_A_BOOL_E_WIDTH /* BOOL_E.width */ 1 // Width of BOOL_E
 
 enum CONCISE_E {
     CONCISE_SEQUENTIAL_THINGS0 = 0; // ThingX
@@ -63,9 +63,9 @@ enum CONCISE_E {
     CONCISE_BEE = 3; // ThingX
   }; // Write a lot of enums without much YIS
 
-`define CONCISE_E_WIDTH /* CONCISE_E.width */ 4 // Width of CONCISE_E
+`define TEST_PKG_A_CONCISE_E_WIDTH /* CONCISE_E.width */ 4 // Width of CONCISE_E
 
-reg sub_def_t {
+reg test_pkg_a_sub_def_t {
   desc = "A sub-struct of hero_write_t that is declared afterwards.";
   default reset = 0;
   field {desc = "Test that a width-1 logic field generates correctly";} subfield_a[6:6];
@@ -76,15 +76,15 @@ reg sub_def_t {
 
 
 
-`define HERO_WRITE_T_WIDTH /* hero_write_t.width */ 46 // Width of hero_write_t
+`define TEST_PKG_A_HERO_WRITE_T_WIDTH /* hero_write_t.width */ 46 // Width of hero_write_t
 
-`define SUB_DEF_T_WIDTH /* sub_def_t.width */ 7 // Width of sub_def_t
-
-
-
-`define VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 2 // Width of vanilla_type_t
+`define TEST_PKG_A_SUB_DEF_T_WIDTH /* sub_def_t.width */ 7 // Width of sub_def_t
 
 
 
-`define NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 2 // Width of nested_type_t
+`define TEST_PKG_A_VANILLA_TYPE_T_WIDTH /* vanilla_type_t.width */ 2 // Width of vanilla_type_t
+
+
+
+`define TEST_PKG_A_NESTED_TYPE_T_WIDTH /* nested_type_t.width */ 2 // Width of nested_type_t
 
