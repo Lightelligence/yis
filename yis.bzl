@@ -149,6 +149,8 @@ def yis_intf(name, pkg_deps, intf):
         fail("yis_intf files must be named {blk}_intf.yis or {blk}__<suffix>_intf.yis\n".format(blk=current_block) +
              "Error: trying to build '{}' in the '{}' directory when it should be in '{}'".format(intf, current_block, block))
 
+    yis_pkg_deps(name[:-4], pkg_deps, intf)
+
     yis_html_intf(name[:-4], pkg_deps, intf)
     # yis_dv_intf(name[:-4], pkg_deps, intf)
 
