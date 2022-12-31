@@ -91,11 +91,11 @@ package test_pkg_a_rypkg; // This is an example of what a package file could loo
     // attempt to link in for cycle_type.
     CYCLE_TYPE_E cycle_type; // Indicates a command type of IDLE, VALID, or DONE.
     logic [/* HERO_WIDTH.value */ 36 - 1:0] wdat; // Width of hero bus around the bag.
-    sub_def_t another_type_reference; // Test a struct of a struct
+    sub_def_t [/* 2 + 1 */ 3 - 1:0] another_type_reference; // Test a struct of a struct
     logic clk_en; // Clock enable for the bus
   } hero_write_t; // A struct that wraps all fields needed for a single hero write.
   
-  localparam [32 - 1:0] HERO_WRITE_T_WIDTH = /* hero_write_t.width */ 32'd46; // Width of hero_write_t
+  localparam [32 - 1:0] HERO_WRITE_T_WIDTH = /* hero_write_t.width */ 32'd60; // Width of hero_write_t
   
   localparam [32 - 1:0] SUB_DEF_T_WIDTH = /* sub_def_t.width */ 32'd7; // Width of sub_def_t
   

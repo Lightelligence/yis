@@ -28,7 +28,7 @@
 #define CYCLE_TYPE_E_WIDTH 2           // Width of CYCLE_TYPE_E
 #define BOOL_E_WIDTH 1           // Width of BOOL_E
 #define CONCISE_E_WIDTH 4           // Width of CONCISE_E
-#define HERO_WRITE_T_WIDTH 46           // Width of hero_write_t
+#define HERO_WRITE_T_WIDTH 60           // Width of hero_write_t
 #define SUB_DEF_T_WIDTH 7           // Width of sub_def_t
 #define VANILLA_TYPE_T_WIDTH 2           // Width of vanilla_type_t
 #define NESTED_TYPE_T_WIDTH 2           // Width of nested_type_t
@@ -77,7 +77,7 @@ typedef struct _sub_def_t {
 typedef struct _hero_write_t {
     CYCLE_TYPE_E cycle_type;    // 2 bits : Indicates a command type of IDLE, VALID, or DONE.
     uint64_t wdat;    // 36 bits : Width of hero bus around the bag.
-    sub_def_t another_type_reference;    // 7 bits : Test a struct of a struct
+    sub_def_t another_type_reference;    // 21 bits : Test a struct of a struct
     uint8_t clk_en;    // 1 bits : Clock enable for the bus
 } hero_write_t;
 

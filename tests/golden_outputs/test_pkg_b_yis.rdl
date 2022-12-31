@@ -60,7 +60,7 @@
 
 
 
-`define TEST_PKG_B_SEVERAL_THINGS_T_WIDTH /* several_things_t.width */ 87 // Width of several_things_t
+`define TEST_PKG_B_SEVERAL_THINGS_T_WIDTH /* several_things_t.width */ 101 // Width of several_things_t
 
 
 
@@ -68,7 +68,7 @@
 
 
 
-`define TEST_PKG_B_TYPE_LINKS_T_WIDTH /* type_links_t.width */ 100 // Width of type_links_t
+`define TEST_PKG_B_TYPE_LINKS_T_WIDTH /* type_links_t.width */ 128 // Width of type_links_t
 
 reg test_pkg_b_write_cmd_t {
   desc = "The command cycle of a pipelined write";
@@ -102,11 +102,11 @@ reg test_pkg_b_one_bit_field_t {
 
 `define TEST_PKG_B_FIRST_DEFINED_TYPE_T_WIDTH /* first_defined_type_t.width */ 6 // Width of first_defined_type_t
 
-`define TEST_PKG_B_SECOND_DEFINED_TYPE_T_WIDTH /* second_defined_type_t.width */ 92 // Width of second_defined_type_t
+`define TEST_PKG_B_SECOND_DEFINED_TYPE_T_WIDTH /* second_defined_type_t.width */ 120 // Width of second_defined_type_t
 
 
 
-`define TEST_PKG_B_LOCAL_ITEM_TYPE_T_WIDTH /* local_item_type_t.width */ 174 // Width of local_item_type_t
+`define TEST_PKG_B_LOCAL_ITEM_TYPE_T_WIDTH /* local_item_type_t.width */ 202 // Width of local_item_type_t
 
 
 

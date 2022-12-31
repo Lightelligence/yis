@@ -281,7 +281,7 @@ documentation.
       <td>32</td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__hero_write_t">hero_write_t.width</a>
 </td>
-      <td>46</td>
+      <td>60</td>
       <td>Width of hero_write_t</td>
       <td></td>
   </tr>
@@ -508,12 +508,12 @@ verbose documentation that none of the other values in this enum need.
 doc links are working correctly.
 </pre>
 
-<p> Calculated Width =46</p>
+<p> Calculated Width =60</p>
 
 <canvas id="hero_write_t_canvas"></canvas>
 <script>
   var canvas = document.getElementById("hero_write_t_canvas");
-  var data = [{'field_names': ['cycle_type', 'wdat', 'another_type_reference', 'clk_en'], 'msbs': [45, 43, 7, 0], 'lsbs': [44, 8, 1, 0]}];
+  var data = [{'field_names': ['cycle_type', 'wdat', 'another_type_reference', 'clk_en'], 'msbs': [59, 57, 21, 0], 'lsbs': [58, 22, 1, 0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -533,7 +533,7 @@ doc links are working correctly.
   <tr>
       <td id="test_pkg_a__hero_write_t__cycle_type"><a href="#test_pkg_a__hero_write_t__cycle_type">cycle_type</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">CYCLE_TYPE_E</a></td>
-      <td></td>
+      <td>1</td>
       <td>2</td>
       <td>Indicates a command type of IDLE, VALID, or DONE.</td>
       <td><pre>I'm writing this verbose documentation so that we have something to attempt to link in
@@ -554,8 +554,9 @@ for cycle_type.
   <tr>
       <td id="test_pkg_a__hero_write_t__another_type_reference"><a href="#test_pkg_a__hero_write_t__another_type_reference">another_type_reference</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__sub_def_t">sub_def_t</a></td>
-      <td></td>
-      <td>7</td>
+      <td>2 + 1
+</td>
+      <td>21</td>
       <td>Test a struct of a struct</td>
       <td></td>
   </tr>

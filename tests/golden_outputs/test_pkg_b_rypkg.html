@@ -299,7 +299,7 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
       <td>32</td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__several_things_t">several_things_t.width</a>
 </td>
-      <td>87</td>
+      <td>101</td>
       <td>Width of several_things_t</td>
       <td></td>
   </tr>
@@ -310,7 +310,7 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
       <td>32</td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__type_links_t">type_links_t.width</a>
 </td>
-      <td>100</td>
+      <td>128</td>
       <td>Width of type_links_t</td>
       <td></td>
   </tr>
@@ -365,7 +365,7 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
       <td>32</td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__second_defined_type_t">second_defined_type_t.width</a>
 </td>
-      <td>92</td>
+      <td>120</td>
       <td>Width of second_defined_type_t</td>
       <td></td>
   </tr>
@@ -376,7 +376,7 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
       <td>32</td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__local_item_type_t">local_item_type_t.width</a>
 </td>
-      <td>174</td>
+      <td>202</td>
       <td>Width of local_item_type_t</td>
       <td></td>
   </tr>
@@ -492,7 +492,7 @@ tests/golden_inputs/test_pkg_b.yis - YIS</title>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__hero_write_t">test_pkg_a_rypkg::hero_write_t</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__DOUBLE_LINK_PARAM">test_pkg_a_rypkg::DOUBLE_LINK_PARAM.value</a>
 </td>
-      <td>92</td>
+      <td>120</td>
       <td>Use another package's struct as the type and another packages's localparam as width</td>
       <td><pre>This verbose doc is several lines in order to demonstrate 
 that we can have a multi-line verbose doc that can be linked through
@@ -503,7 +503,7 @@ that we can have a multi-line verbose doc that can be linked through
       <td id="test_pkg_b__local_item_type_t"><a href="#test_pkg_b__local_item_type_t">local_item_type_t</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__several_things_t">several_things_t</a></td>
       <td>2</td>
-      <td>174</td>
+      <td>202</td>
       <td>Use this package's struct as the type and an int for a width</td>
       <td></td>
   </tr>
@@ -546,12 +546,12 @@ that we can have a multi-line verbose doc that can be linked through
 <h4 id="test_pkg_b__several_things_t"><a href="#test_pkg_b__several_things_t">several_things_t</a></h4>
 <p>Testing inter-package dependencies within struct fields.</p>
 
-<p> Calculated Width =87</p>
+<p> Calculated Width =101</p>
 
 <canvas id="several_things_t_canvas"></canvas>
 <script>
   var canvas = document.getElementById("several_things_t_canvas");
-  var data = [{'field_names': ['fielda', 'fieldb', 'fieldc', 'fieldd'], 'msbs': [86, 50, 4, 2], 'lsbs': [51, 5, 3, 0]}];
+  var data = [{'field_names': ['fielda', 'fieldb', 'fieldc', 'fieldd'], 'msbs': [100, 64, 4, 2], 'lsbs': [65, 5, 3, 0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -581,8 +581,8 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__several_things_t__fieldb"><a href="#test_pkg_b__several_things_t__fieldb">fieldb</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__hero_write_t">test_pkg_a_rypkg::hero_write_t</a></td>
-      <td></td>
-      <td>46</td>
+      <td>1</td>
+      <td>60</td>
       <td>A struct that wraps all fields needed for a single hero write.</td>
       <td></td>
   </tr>
@@ -590,7 +590,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__several_things_t__fieldc"><a href="#test_pkg_b__several_things_t__fieldc">fieldc</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">test_pkg_a_rypkg::CYCLE_TYPE_E</a></td>
-      <td></td>
+      <td>1</td>
       <td>2</td>
       <td>Indicates a command type of IDLE, VALID, or DONE.</td>
       <td></td>
@@ -611,12 +611,12 @@ that we can have a multi-line verbose doc that can be linked through
 <h4 id="test_pkg_b__type_links_t"><a href="#test_pkg_b__type_links_t">type_links_t</a></h4>
 <p>Link in a local typedef, a scoped typdef, and a scoped enum</p>
 
-<p> Calculated Width =100</p>
+<p> Calculated Width =128</p>
 
 <canvas id="type_links_t_canvas"></canvas>
 <script>
   var canvas = document.getElementById("type_links_t_canvas");
-  var data = [{'field_names': ['first_field', 'second_field', 'third_field'], 'msbs': [99, 93, 1], 'lsbs': [94, 2, 0]}];
+  var data = [{'field_names': ['first_field', 'second_field', 'third_field'], 'msbs': [127, 121, 1], 'lsbs': [122, 2, 0]}];
   var config = new StructConfig();
   var struct = new Struct(canvas, data, config);
 </script> 
@@ -636,7 +636,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__type_links_t__first_field"><a href="#test_pkg_b__type_links_t__first_field">first_field</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__first_defined_type_t">first_defined_type_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>6</td>
       <td>Use another package's enum as the type and a local localparam as width</td>
       <td></td>
@@ -645,8 +645,8 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__type_links_t__second_field"><a href="#test_pkg_b__type_links_t__second_field">second_field</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__second_defined_type_t">second_defined_type_t</a></td>
-      <td></td>
-      <td>92</td>
+      <td>1</td>
+      <td>120</td>
       <td>Use another package's struct as the type and another packages's localparam as width</td>
       <td><pre>This verbose doc is several lines in order to demonstrate 
 that we can have a multi-line verbose doc that can be linked through
@@ -656,7 +656,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__type_links_t__third_field"><a href="#test_pkg_b__type_links_t__third_field">third_field</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">test_pkg_a_rypkg::CYCLE_TYPE_E</a></td>
-      <td></td>
+      <td>1</td>
       <td>2</td>
       <td>This is a custom doc summary, not inherited from the type</td>
       <td><pre>This also a custom verbose doc</pre></td>
@@ -723,7 +723,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__write_cmd_t__write_type"><a href="#test_pkg_b__write_cmd_t__write_type">write_type</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__WRITE_TYPE_E">WRITE_TYPE_E</a></td>
-      <td></td>
+      <td>1</td>
       <td>3</td>
       <td>Specifies how the write should be handled</td>
       <td></td>
@@ -759,7 +759,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__write_dat_t__cycle_type"><a href="#test_pkg_b__write_dat_t__cycle_type">cycle_type</a></td>
       <td><a href="./test_pkg_a_rypkg.html#test_pkg_a__CYCLE_TYPE_E">test_pkg_a_rypkg::CYCLE_TYPE_E</a></td>
-      <td></td>
+      <td>1</td>
       <td>2</td>
       <td>Indicates a command type of IDLE, VALID, or DONE.</td>
       <td></td>
@@ -868,7 +868,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__pipelined_write_t__cmd_cycle"><a href="#test_pkg_b__pipelined_write_t__cmd_cycle">cmd_cycle</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_cmd_t">write_cmd_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>10</td>
       <td>The command cycle of a pipelined write</td>
       <td></td>
@@ -877,7 +877,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__pipelined_write_t__dat0"><a href="#test_pkg_b__pipelined_write_t__dat0">dat0</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_dat_t">write_dat_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>10</td>
       <td>Data cycle of a pipelined write</td>
       <td></td>
@@ -886,7 +886,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__pipelined_write_t__dat1"><a href="#test_pkg_b__pipelined_write_t__dat1">dat1</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_dat_t">write_dat_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>10</td>
       <td>Data cycle of a pipelined write</td>
       <td></td>
@@ -895,7 +895,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__pipelined_write_t__dat2"><a href="#test_pkg_b__pipelined_write_t__dat2">dat2</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_dat_t">write_dat_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>10</td>
       <td>Data cycle of a pipelined write</td>
       <td></td>
@@ -904,7 +904,7 @@ that we can have a multi-line verbose doc that can be linked through
   <tr>
       <td id="test_pkg_b__pipelined_write_t__dat3"><a href="#test_pkg_b__pipelined_write_t__dat3">dat3</a></td>
       <td><a href="./test_pkg_b_rypkg.html#test_pkg_b__write_dat_t">write_dat_t</a></td>
-      <td></td>
+      <td>1</td>
       <td>10</td>
       <td>Data cycle of a pipelined write</td>
       <td></td>

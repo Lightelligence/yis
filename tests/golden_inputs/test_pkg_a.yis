@@ -96,6 +96,7 @@ structs:
         doc_summary: width.doc_summary
       - name: another_type_reference
         type: sub_def_t
+        width: 2 + 1
         doc_summary: Test a struct of a struct
       - name: clk_en
         type: logic

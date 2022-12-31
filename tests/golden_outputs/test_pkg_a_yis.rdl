@@ -76,7 +76,7 @@ reg test_pkg_a_sub_def_t {
 
 
 
-`define TEST_PKG_A_HERO_WRITE_T_WIDTH /* hero_write_t.width */ 46 // Width of hero_write_t
+`define TEST_PKG_A_HERO_WRITE_T_WIDTH /* hero_write_t.width */ 60 // Width of hero_write_t
 
 `define TEST_PKG_A_SUB_DEF_T_WIDTH /* sub_def_t.width */ 7 // Width of sub_def_t
 
