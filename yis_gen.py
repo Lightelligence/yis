@@ -1757,16 +1757,18 @@ class PkgStructField(PkgItemBase):
 
     @only_run_once
     def resolve_links(self):
+        if self.width is None:
+            self.width = 1
+        try:
+            self.width = Equation(self, self.width)
+        except EquationError as exc:
+            # If the EquationError doesn't have a message, don't render it to log
+            # This is the only place I've seen this bad formatting orackr, so I only fixed the code here
+            if str(exc):
+                self.log.error(str(exc))
+            self.log.critical(F"Previous error parsing width field for {self.name}")
         if is_verilog_primitive(self.sv_type):
-            try:
-                self.width = Equation(self, self.width)
-            except EquationError as exc:
-                # If the EquationError doesn't have a message, don't render it to log
-                # This is the only place I've seen this bad formatting orackr, so I only fixed the code here
-                if str(exc):
-                    self.log.error(str(exc))
-                self.log.critical(F"Previous error parsing width field for {self.name}")
-
+            pass
         else:
             self._resolve_link("sv_type", allowed_symbols=[Pkg.TYPEDEFS, Pkg.ENUMS, Pkg.STRUCTS, Pkg.UNIONS])
             self._check_link_instance_naming("sv_type")
@@ -1775,9 +1777,9 @@ class PkgStructField(PkgItemBase):
 
     def check_type_width_conflicts(self):
         """Check to see if this struct field defines both a width and a non-logic/wire type."""
-        if not is_verilog_primitive(self.sv_type) and self.width is not None:
-            self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
-                           "a non-logic/wire type. Only logic/wire can have a width")
+        # if not is_verilog_primitive(self.sv_type) and self.width is not None:
+        # self.log.error(F"Struct field {self.parent.name}.{self.name} has width specified for "
+        #                "a non-logic/wire type. Only logic/wire can have a width")
         if self.computed_width <= 0:
             self.log.error("Struct field %s.%s has computed width of %d. It cannot be represented in verilog",
                            self.parent.name, self.name, self.computed_width)
@@ -1787,18 +1789,18 @@ class PkgStructField(PkgItemBase):
         """Compute width by looking at width and type."""
         self.log.debug("Computing width for %s %s - width is %s, type is %s", self.parent.name, self.name, self.width,
                        self.sv_type)
-        if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
-            return self.width
+        # if is_verilog_primitive(self.sv_type) and isinstance(self.width, int):
+        #     return self.width
         if is_verilog_primitive(self.sv_type):
             return self.width.computed_value
-        return self.sv_type.computed_width
+        return self.sv_type.computed_width * self.width.computed_value
 
     def render_rtl_sv_pkg(self):
         """Render RTL in a SV pkg for this struct field."""
         if is_verilog_primitive(self.sv_type):
             render_type = self._render_formatted_width(self.sv_type)
         else:
-            render_type = self._get_render_type()
+            render_type = self._render_formatted_width(self._get_render_type())
 
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines

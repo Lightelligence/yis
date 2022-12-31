@@ -1,6 +1,6 @@
 """Test helpers for yis."""
 
-load("@yis//:yis.bzl", "yis_c_hdr", "yis_html_intf", "yis_html_pkg", "yis_rdl_pkg", "yis_rtl_pkg")
+load("@yis//:yis.bzl", "yis_c_hdr", "yis_html_intf", "yis_html_pkg", "yis_rdl_pkg", "yis_rtl_pkg", "yis_pkg_deps")
 
 golden_out_location = "@yis//tests/golden_outputs:"
 
@@ -112,6 +112,7 @@ def golden_html_intf_test(name, pkg_deps):
 def golden_pkg_tests(deps):  # buildifier: disable=unnamed-macro
     """Run all golden pkg tests, allow pkg dependencies."""
     for key, row in deps.items():
+        yis_pkg_deps(key, row, ":{}.yis".format(key))
         golden_rtl_pkg_test(key, row)
         golden_hdr_test(key, row)
         golden_html_pkg_test(key, row)
@@ -120,4 +121,5 @@ def golden_pkg_tests(deps):  # buildifier: disable=unnamed-macro
 def golden_intf_tests(deps):  # buildifier: disable=unnamed-macro
     """Run all golden intf tests, allow pkg dependencies."""
     for key, row in deps.items():
+        yis_pkg_deps(key, row, ":{}.yis".format(key))
         golden_html_intf_test(key, row)

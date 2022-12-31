@@ -69,7 +69,7 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
     logic [/* NEW_PARAM.value */ 3 - 1:0] fieldd; // This summary is different than its base definition
   } several_things_t; // Testing inter-package dependencies within struct fields.
   
-  localparam [32 - 1:0] SEVERAL_THINGS_T_WIDTH = /* several_things_t.width */ 32'd87; // Width of several_things_t
+  localparam [32 - 1:0] SEVERAL_THINGS_T_WIDTH = /* several_things_t.width */ 32'd101; // Width of several_things_t
   
   typedef test_pkg_a_rypkg::CYCLE_TYPE_E [/* NEW_PARAM.value */ 3 - 1:0] first_defined_type_t; // Use another package's enum as the type and a local localparam as width
   
@@ -86,7 +86,7 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
     test_pkg_a_rypkg::CYCLE_TYPE_E third_field; // This is a custom doc summary, not inherited from the type
   } type_links_t; // Link in a local typedef, a scoped typdef, and a scoped enum
   
-  localparam [32 - 1:0] TYPE_LINKS_T_WIDTH = /* type_links_t.width */ 32'd100; // Width of type_links_t
+  localparam [32 - 1:0] TYPE_LINKS_T_WIDTH = /* type_links_t.width */ 32'd128; // Width of type_links_t
   
   typedef struct packed {
     logic vld; // This cmd is valid, this is the start of a new pipelined write
@@ -114,11 +114,11 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   
   localparam [32 - 1:0] FIRST_DEFINED_TYPE_T_WIDTH = /* first_defined_type_t.width */ 32'd6; // Width of first_defined_type_t
   
-  localparam [32 - 1:0] SECOND_DEFINED_TYPE_T_WIDTH = /* second_defined_type_t.width */ 32'd92; // Width of second_defined_type_t
+  localparam [32 - 1:0] SECOND_DEFINED_TYPE_T_WIDTH = /* second_defined_type_t.width */ 32'd120; // Width of second_defined_type_t
   
   typedef several_things_t [2 - 1:0] local_item_type_t; // Use this package's struct as the type and an int for a width
   
-  localparam [32 - 1:0] LOCAL_ITEM_TYPE_T_WIDTH = /* local_item_type_t.width */ 32'd174; // Width of local_item_type_t
+  localparam [32 - 1:0] LOCAL_ITEM_TYPE_T_WIDTH = /* local_item_type_t.width */ 32'd202; // Width of local_item_type_t
   
   typedef logic [/* MAX_WR_CYCLES_WIDTH.value */ 2 - 1:0] type_from_implicit_param_t; // Use an auto-generated localparam in the definition of another YIS type
   

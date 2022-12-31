@@ -30,14 +30,14 @@
 #define THIS_IS_ONE_COUNT_WIDTH 1           // Width to count THIS_IS_ONE items
 #define THIS_IS_ONE_WIDTH_ONE 1           // THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers
 #define WRITE_TYPE_E_WIDTH 3           // Width of WRITE_TYPE_E
-#define SEVERAL_THINGS_T_WIDTH 87           // Width of several_things_t
-#define TYPE_LINKS_T_WIDTH 100           // Width of type_links_t
+#define SEVERAL_THINGS_T_WIDTH 101           // Width of several_things_t
+#define TYPE_LINKS_T_WIDTH 128           // Width of type_links_t
 #define WRITE_CMD_T_WIDTH 10           // Width of write_cmd_t
 #define WRITE_DAT_T_WIDTH 10           // Width of write_dat_t
 #define ONE_BIT_FIELD_T_WIDTH 3           // Width of one_bit_field_t
 #define FIRST_DEFINED_TYPE_T_WIDTH 6           // Width of first_defined_type_t
-#define SECOND_DEFINED_TYPE_T_WIDTH 92           // Width of second_defined_type_t
-#define LOCAL_ITEM_TYPE_T_WIDTH 174           // Width of local_item_type_t
+#define SECOND_DEFINED_TYPE_T_WIDTH 120           // Width of second_defined_type_t
+#define LOCAL_ITEM_TYPE_T_WIDTH 202           // Width of local_item_type_t
 #define TYPE_FROM_IMPLICIT_PARAM_T_WIDTH 2           // Width of type_from_implicit_param_t
 #define WIDTH_ONE_TYPEDEF_T_WIDTH 1           // Width of width_one_typedef_t
 #define WIDTH_ONE_EQN_TYPEDEF_T_WIDTH 1           // Width of width_one_eqn_typedef_t
@@ -55,10 +55,10 @@ typedef enum {
 typedef uint8_t first_defined_type_t;    // 6 bits wide
 
 // Use another package's struct as the type and another packages's localparam as width
-typedef uint64_t second_defined_type_t;    // 92 bits wide
+typedef uint64_t second_defined_type_t;    // 120 bits wide
 
 // Use this package's struct as the type and an int for a width
-typedef uint64_t local_item_type_t;    // 174 bits wide
+typedef uint64_t local_item_type_t;    // 202 bits wide
 
 // Use an auto-generated localparam in the definition of another YIS type
 typedef uint8_t type_from_implicit_param_t;    // 2 bits wide
@@ -73,7 +73,7 @@ typedef uint8_t width_one_eqn_typedef_t;    // 1 bits wide
 // Testing inter-package dependencies within struct fields.
 typedef struct _several_things_t {
     uint64_t fielda;    // 36 bits : Width of hero bus around the bag.
-    hero_write_t fieldb;    // 46 bits : A struct that wraps all fields needed for a single hero write.
+    hero_write_t fieldb;    // 60 bits : A struct that wraps all fields needed for a single hero write.
     CYCLE_TYPE_E fieldc;    // 2 bits : Indicates a command type of IDLE, VALID, or DONE.
     uint8_t fieldd;    // 3 bits : This summary is different than its base definition
 } several_things_t;
@@ -81,7 +81,7 @@ typedef struct _several_things_t {
 // Link in a local typedef, a scoped typdef, and a scoped enum
 typedef struct _type_links_t {
     first_defined_type_t first_field;    // 6 bits : Use another package's enum as the type and a local localparam as width
-    second_defined_type_t second_field;    // 92 bits : Use another package's struct as the type and another packages's localparam as width
+    second_defined_type_t second_field;    // 120 bits : Use another package's struct as the type and another packages's localparam as width
     CYCLE_TYPE_E third_field;    // 2 bits : This is a custom doc summary, not inherited from the type
 } type_links_t;
 
