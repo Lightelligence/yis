@@ -28,7 +28,7 @@ localparam:
 ---
 enum_name: regex('^[A-Z][A-Z0-9_]+[A-Z0-9]_E$', name="valid enum name. enums must be at least 3 characters, all caps, start with a letter, only contain letters, numbers, and _, and must end with _E")
 enum_prefix_name: regex('^[A-Z][A-Z0-9_]*$', name="valid enum prefix name. enum prefix names must be at least 1 letters, all caps, start with a letter, and only contain letters, numbers, and _")
-enum_value_name: regex('^[A-Z][A-Z0-9_]*[A-Z0-9]$', name="valid enum value name. enum value names must be at least 2 letters, all caps, start with a letter or number, and only contain letters, numbers, and _")
+enum_value_name: regex('^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$', name="valid enum value name. enum value names must be at least 2 letters, all caps, start with a letter or number, and only contain letters, numbers, and _")
 pkg_scoped_enum_name: regex('^[a-z][a-z0-9_]*[a-z0-9]::[A-Z][A-Z0-9_]+[A-Z0-9]_E$', name="valid package scoped enum name. enums must be at least 3 letters, all caps, start with a letter, can only contain letters, numbers, and _, and must end with _E. The package must be all lowercase and start with a letter.")
 any_enum_name: any(include('enum_name'), include('pkg_scoped_enum_name'))
 any_enum_prefix_name: any(include('enum_value_name'), include('empty_str'))
