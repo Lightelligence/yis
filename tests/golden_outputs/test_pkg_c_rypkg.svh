@@ -20,6 +20,8 @@ package test_pkg_c_rypkg; // Define the addressing schema
   
   localparam [/* clog2(ADDR_WIDTH.value) */ 5 - 1:0] ADDR_WIDTH_WIDTH_ONE = 5'd1; // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [/* clog2(ADDR_WIDTH.value + 1) */ 5 - 1:0] ADDR_WIDTH_COUNT_ONE = 5'd1; // ADDR_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
+  
   localparam [32 - 1:0] NUM_ZAP = 32'd8; // There are reasons why this is 8
   
   localparam [32 - 1:0] NUM_ZAP_WIDTH = /* clog2(NUM_ZAP.value) */ 32'd3; // Width of NUM_ZAP
@@ -27,6 +29,8 @@ package test_pkg_c_rypkg; // Define the addressing schema
   localparam [32 - 1:0] NUM_ZAP_COUNT_WIDTH = /* clog2(NUM_ZAP.value + 1) */ 32'd4; // Width to count NUM_ZAP items
   
   localparam [/* clog2(NUM_ZAP.value) */ 3 - 1:0] NUM_ZAP_WIDTH_ONE = 3'd1; // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(NUM_ZAP.value + 1) */ 4 - 1:0] NUM_ZAP_COUNT_ONE = 4'd1; // NUM_ZAP_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   typedef enum logic [3 - 1:0] {
     RACK_ZAP_ID_ZAP0 = 3'd0, // Zap 0 within) a rack

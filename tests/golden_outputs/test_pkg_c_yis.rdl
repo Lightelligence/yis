@@ -16,6 +16,8 @@
 
 `define TEST_PKG_C_ADDR_WIDTH_WIDTH_ONE 1 // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
 
+`define TEST_PKG_C_ADDR_WIDTH_COUNT_ONE 1 // ADDR_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
+
 `define TEST_PKG_C_NUM_ZAP 8 // There are reasons why this is 8
 
 `define TEST_PKG_C_NUM_ZAP_WIDTH /* clog2(NUM_ZAP.value) */ 3 // Width of NUM_ZAP
@@ -23,6 +25,8 @@
 `define TEST_PKG_C_NUM_ZAP_COUNT_WIDTH /* clog2(NUM_ZAP.value + 1) */ 4 // Width to count NUM_ZAP items
 
 `define TEST_PKG_C_NUM_ZAP_WIDTH_ONE 1 // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+
+`define TEST_PKG_C_NUM_ZAP_COUNT_ONE 1 // NUM_ZAP_COUNT_WIDTH-wide 1 for incrementers and decrementers
 
 enum RACK_ZAP_ID_E {
     RACK_ZAP_ID_ZAP0 = 0; // Zap 0 within) a rack

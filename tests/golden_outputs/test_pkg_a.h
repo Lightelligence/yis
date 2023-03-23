@@ -13,18 +13,22 @@
 #define TRIPLE_NESTED_PARAM_WIDTH 1           // Width of TRIPLE_NESTED_PARAM
 #define TRIPLE_NESTED_PARAM_COUNT_WIDTH 2           // Width to count TRIPLE_NESTED_PARAM items
 #define TRIPLE_NESTED_PARAM_WIDTH_ONE 1           // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
+#define TRIPLE_NESTED_PARAM_COUNT_ONE 1           // TRIPLE_NESTED_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define DOUBLE_LINK_PARAM 2           // This parameter has a paramterized width and a parameterized type.
 #define DOUBLE_LINK_PARAM_WIDTH 1           // Width of DOUBLE_LINK_PARAM
 #define DOUBLE_LINK_PARAM_COUNT_WIDTH 2           // Width to count DOUBLE_LINK_PARAM items
 #define DOUBLE_LINK_PARAM_WIDTH_ONE 1           // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
+#define DOUBLE_LINK_PARAM_COUNT_ONE 1           // DOUBLE_LINK_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define HERO_WIDTH 36           // Width of hero bus around the bag.
 #define HERO_WIDTH_WIDTH 6           // Width of HERO_WIDTH
 #define HERO_WIDTH_COUNT_WIDTH 6           // Width to count HERO_WIDTH items
 #define HERO_WIDTH_WIDTH_ONE 1           // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+#define HERO_WIDTH_COUNT_ONE 1           // HERO_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define ANOTHER_PARAM 2           // This is a different parameter than the first.
 #define ANOTHER_PARAM_WIDTH 1           // Width of ANOTHER_PARAM
 #define ANOTHER_PARAM_COUNT_WIDTH 2           // Width to count ANOTHER_PARAM items
 #define ANOTHER_PARAM_WIDTH_ONE 1           // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
+#define ANOTHER_PARAM_COUNT_ONE 1           // ANOTHER_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define CYCLE_TYPE_E_WIDTH 2           // Width of CYCLE_TYPE_E
 #define BOOL_E_WIDTH 1           // Width of BOOL_E
 #define CONCISE_E_WIDTH 4           // Width of CONCISE_E
