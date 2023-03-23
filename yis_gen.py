@@ -1155,7 +1155,7 @@ class PkgLocalparam(PkgItemBase):
 
         PkgLocalparam(parent=self.parent,
                       log=self.log,
-                      name=(F"{self.name}_COUNT_WIDTH_ONE"),
+                      name=(F"{self.name}_COUNT_ONE"),
                       value=1,
                       width=F"clog2({self.name}.value + 1)",
                       doc_summary=(F"{self.name}_COUNT_WIDTH-wide 1 for incrementers and decrementers"),
