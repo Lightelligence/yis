@@ -248,7 +248,6 @@ enum ICE_ID_E {
 
 reg test_pkg_c_zap_id_t {
   desc = "The ID for a given ZAP";
-  default reset = 0;
   field {desc = "ID of a rack";} rack_id[5:3];
   field {encode=RACK_ZAP_ID_E; render_encode_pkg="test_pkg_c_rypkg"; desc = "Zap ID (Within a rack)";} zap_id[2:0];
 };

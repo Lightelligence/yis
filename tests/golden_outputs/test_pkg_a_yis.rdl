@@ -83,7 +83,6 @@ enum CONCISE_E {
 
 reg test_pkg_a_sub_def_t {
   desc = "A sub-struct of hero_write_t that is declared afterwards.";
-  default reset = 0;
   field {desc = "Test that a width-1 logic field generates correctly";} subfield_a[6:6];
   field {desc = "This is a different parameter than the first.";} subfield_b[5:4];
   field {desc = "This is a different parameter than the first.";} subfield_c[3:2];

@@ -82,7 +82,6 @@
 
 reg test_pkg_b_write_cmd_t {
   desc = "The command cycle of a pipelined write";
-  default reset = 0;
   field {desc = "This cmd is valid, this is the start of a new pipelined write";} vld[9:9];
   field {desc = "Reserved";} rsvd[8:5];
   field {desc = "Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value";} num_cycles[4:3];
@@ -93,7 +92,6 @@ reg test_pkg_b_write_cmd_t {
 
 reg test_pkg_b_write_dat_t {
   desc = "Data cycle of a pipelined write";
-  default reset = 0;
   field {encode=CYCLE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Indicates a command type of IDLE, VALID, or DONE.";} cycle_type[9:8];
   field {desc = "One data cycle";} dat[7:0];
 };
@@ -102,7 +100,6 @@ reg test_pkg_b_write_dat_t {
 
 reg test_pkg_b_one_bit_field_t {
   desc = "Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct";
-  default reset = 0;
   field {desc = "This field should be rendered as bare logic without anything else";} vld[2:2];
   field {desc = "This field should be rendered to just a bare logic with the equation in comments";} new_bit_field[1:1];
   field {desc = "This field should be rendered to just a bare logic with the equation in comments";} simple_bit_field[0:0];
