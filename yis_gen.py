@@ -656,6 +656,7 @@ class YisNode: # pylint: disable=too-few-public-methods
         self.name = kwargs.pop('name')
         self.doc_summary = kwargs.pop('doc_summary')
         self.doc_verbose = kwargs.pop('doc_verbose', None)
+        self.regwidth = kwargs.pop('regwidth', 16)
         self.parent = kwargs.pop('parent')
         self.parent.add_child(self)
         self.children = OrderedDict()
@@ -906,6 +907,7 @@ class YisNode: # pylint: disable=too-few-public-methods
 
 class Pkg(YisNode):
     """Class to hold a set of PkgItemBase objects, representing the whole pkg."""
+    REGWIDTH = 'regwidth'
     LOCALPARAMS = 'localparams'
     ENUMS = 'enums'
     XACTIONS = 'xactions'
@@ -991,6 +993,7 @@ class Pkg(YisNode):
     def pretty_print(self):
         """Pretty print. Well, not so pretty."""
         return (F"Pkg name: {self.name}\n"
+                # "Regwidth:\n  -{regwidth}\n"
                 "Localparams:\n  -{localparams}\n"
                 "Enums:\n  -{enums}\n"
                 "Structs:\n  -{structs}\n"
@@ -1147,6 +1150,15 @@ class PkgLocalparam(PkgItemBase):
                       value=1,
                       width=width,
                       doc_summary=(F"{self.name}_WIDTH-wide 1 for incrementers and decrementers"),
+                      doc_verbose="",
+                      implicit=True)
+
+        PkgLocalparam(parent=self.parent,
+                      log=self.log,
+                      name=(F"{self.name}_COUNT_WIDTH_ONE"),
+                      value=1,
+                      width=F"clog2({self.name}.value + 1)",
+                      doc_summary=(F"{self.name}_COUNT_WIDTH-wide 1 for incrementers and decrementers"),
                       doc_verbose="",
                       implicit=True)
 
@@ -1376,9 +1388,11 @@ class PkgEnum(PkgItemBase):
     def render_rdl_pkg(self):
         """Render the RDL for this enum.
         """
-        # If this enum doesn't use explicit values, don't render it to RDL and comment why it wasn't rendered
-        if list(self.children.values())[0].sv_value is None:
-            return "// Skipping rdl render for {} because it doesn't declare explicit enum values".format(self.name)
+        # for a,b in enumerate(self.children.values()):
+        #     print(a, b.render_rdl_pkg())
+        # if list(self.children.values())[0].sv_value is None:
+        # # If this enum doesn't use explicit values, don't render it to RDL and comment why it wasn't rendered
+        #     return "// Skipping rdl render for {} because it doesn't declare explicit enum values".format(self.name)
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
         doc_verbose = self.render_doc_verbose(2)
@@ -1389,7 +1403,10 @@ class PkgEnum(PkgItemBase):
 
         # Render each enum_value, note they are 2 indented farther
         enum_value_arr = []
-        for row in self.children.values():
+        for idx, row in enumerate(self.children.values()):
+            if row.sv_value is None:
+                row.sv_value = idx
+                # print(idx, row.render_rdl_pkg())
             enum_value_arr.extend(row.render_rdl_pkg())
 
         # Add leading spaces to make all children line up
@@ -1442,14 +1459,14 @@ class PkgEnumValue(PkgItemBase):
         ret_arr = []
         # If there is no doc_verbose, don't append to ret_array to avoid extra newlines
         doc_verbose = self.render_doc_verbose(4)
-        if doc_verbose:
-            ret_arr.append(doc_verbose)
 
         # Strip _E from the rendered RTL name
         exp_sv_value = ""
         if self.sv_value is not None:
             exp_sv_value = F" = {self.sv_value}"
         ret_arr.append(F"{self.parent.prefix}{self.name}{exp_sv_value}; // {self.doc_summary}")
+        if doc_verbose:
+            ret_arr.append(doc_verbose)
         return ret_arr
 
     def render_html_value(self):
@@ -1551,6 +1568,7 @@ class PkgStruct(PkgItemBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.regwidth = self.parent.regwidth
         self.addr_macro = kwargs.pop('addr_macro', None)
         for row in kwargs.pop('fields'):
             PkgStructField(parent=self, log=self.log, **row)
@@ -1628,7 +1646,7 @@ class PkgStruct(PkgItemBase):
         """Render for RDL generation.
         Only works for structs whose width is 16 or less, otherwise the struct won't fit into a single register.
         """
-        if self.computed_width > 16: # pylint: disable=comparison-with-callable
+        if self.computed_width > self.regwidth: # pylint: disable=comparison-with-callable
             return ""
 
         ret_arr = []
@@ -1641,7 +1659,7 @@ class PkgStruct(PkgItemBase):
         for child in self.children.values():
             encode = ""
             if child._get_render_type().endswith("_E"): # should use type check again enum
-                encode = F'encode={child._get_render_type()}; render_encode_pkg="{self.parent.name}_rypkg"; '
+                encode = F'encode={child._get_render_type().split("::")[-1]}; render_encode_pkg="{self.parent.name}_rypkg"; '
             start_idx -= child.computed_width - 1
             ret_arr.append(F"  field {{{encode}desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
             end_idx -= child.computed_width
