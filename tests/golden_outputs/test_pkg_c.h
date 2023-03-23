@@ -13,10 +13,12 @@
 #define ADDR_WIDTH_WIDTH 5           // Width of ADDR_WIDTH
 #define ADDR_WIDTH_COUNT_WIDTH 5           // Width to count ADDR_WIDTH items
 #define ADDR_WIDTH_WIDTH_ONE 1           // ADDR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+#define ADDR_WIDTH_COUNT_ONE 1           // ADDR_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define NUM_ZAP 8           // There are reasons why this is 8
 #define NUM_ZAP_WIDTH 3           // Width of NUM_ZAP
 #define NUM_ZAP_COUNT_WIDTH 4           // Width to count NUM_ZAP items
 #define NUM_ZAP_WIDTH_ONE 1           // NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers
+#define NUM_ZAP_COUNT_ONE 1           // NUM_ZAP_COUNT_WIDTH-wide 1 for incrementers and decrementers
 #define RACK_ZAP_ID_E_WIDTH 3           // Width of RACK_ZAP_ID_E
 #define ADDR_TYPE_E_WIDTH 1           // Width of ADDR_TYPE_E
 #define IS_ZAP_E_WIDTH 1           // Width of IS_ZAP_E

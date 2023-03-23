@@ -29,11 +29,15 @@ package test_pkg_a_rypkg; // This is an example of what a package file could loo
   
   localparam [/* clog2(TRIPLE_NESTED_PARAM.value) */ 1 - 1:0] TRIPLE_NESTED_PARAM_WIDTH_ONE = 1'd1; // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [/* clog2(TRIPLE_NESTED_PARAM.value + 1) */ 2 - 1:0] TRIPLE_NESTED_PARAM_COUNT_ONE = 2'd1; // TRIPLE_NESTED_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
+  
   localparam [32 - 1:0] DOUBLE_LINK_PARAM_WIDTH = /* clog2(DOUBLE_LINK_PARAM.value) */ 32'd1; // Width of DOUBLE_LINK_PARAM
   
   localparam [32 - 1:0] DOUBLE_LINK_PARAM_COUNT_WIDTH = /* clog2(DOUBLE_LINK_PARAM.value + 1) */ 32'd2; // Width to count DOUBLE_LINK_PARAM items
   
   localparam [/* clog2(DOUBLE_LINK_PARAM.value) */ 1 - 1:0] DOUBLE_LINK_PARAM_WIDTH_ONE = 1'd1; // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(DOUBLE_LINK_PARAM.value + 1) */ 2 - 1:0] DOUBLE_LINK_PARAM_COUNT_ONE = 2'd1; // DOUBLE_LINK_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   localparam [32 - 1:0] HERO_WIDTH_WIDTH = /* clog2(HERO_WIDTH.value) */ 32'd6; // Width of HERO_WIDTH
   
@@ -41,11 +45,15 @@ package test_pkg_a_rypkg; // This is an example of what a package file could loo
   
   localparam [/* clog2(HERO_WIDTH.value) */ 6 - 1:0] HERO_WIDTH_WIDTH_ONE = 6'd1; // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [/* clog2(HERO_WIDTH.value + 1) */ 6 - 1:0] HERO_WIDTH_COUNT_ONE = 6'd1; // HERO_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
+  
   localparam [32 - 1:0] ANOTHER_PARAM_WIDTH = /* clog2(ANOTHER_PARAM.value) */ 32'd1; // Width of ANOTHER_PARAM
   
   localparam [32 - 1:0] ANOTHER_PARAM_COUNT_WIDTH = /* clog2(ANOTHER_PARAM.value + 1) */ 32'd2; // Width to count ANOTHER_PARAM items
   
   localparam [/* clog2(ANOTHER_PARAM.value) */ 1 - 1:0] ANOTHER_PARAM_WIDTH_ONE = 1'd1; // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(ANOTHER_PARAM.value + 1) */ 2 - 1:0] ANOTHER_PARAM_COUNT_ONE = 2'd1; // ANOTHER_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   // I'm writing this verbose documentation so that we have something to
   // attempt to link in for cycle_type.

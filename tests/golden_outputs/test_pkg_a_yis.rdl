@@ -25,11 +25,15 @@
 
 `define TEST_PKG_A_TRIPLE_NESTED_PARAM_WIDTH_ONE 1 // TRIPLE_NESTED_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
+`define TEST_PKG_A_TRIPLE_NESTED_PARAM_COUNT_ONE 1 // TRIPLE_NESTED_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
+
 `define TEST_PKG_A_DOUBLE_LINK_PARAM_WIDTH /* clog2(DOUBLE_LINK_PARAM.value) */ 1 // Width of DOUBLE_LINK_PARAM
 
 `define TEST_PKG_A_DOUBLE_LINK_PARAM_COUNT_WIDTH /* clog2(DOUBLE_LINK_PARAM.value + 1) */ 2 // Width to count DOUBLE_LINK_PARAM items
 
 `define TEST_PKG_A_DOUBLE_LINK_PARAM_WIDTH_ONE 1 // DOUBLE_LINK_PARAM_WIDTH-wide 1 for incrementers and decrementers
+
+`define TEST_PKG_A_DOUBLE_LINK_PARAM_COUNT_ONE 1 // DOUBLE_LINK_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
 
 `define TEST_PKG_A_HERO_WIDTH_WIDTH /* clog2(HERO_WIDTH.value) */ 6 // Width of HERO_WIDTH
 
@@ -37,13 +41,25 @@
 
 `define TEST_PKG_A_HERO_WIDTH_WIDTH_ONE 1 // HERO_WIDTH_WIDTH-wide 1 for incrementers and decrementers
 
+`define TEST_PKG_A_HERO_WIDTH_COUNT_ONE 1 // HERO_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
+
 `define TEST_PKG_A_ANOTHER_PARAM_WIDTH /* clog2(ANOTHER_PARAM.value) */ 1 // Width of ANOTHER_PARAM
 
 `define TEST_PKG_A_ANOTHER_PARAM_COUNT_WIDTH /* clog2(ANOTHER_PARAM.value + 1) */ 2 // Width to count ANOTHER_PARAM items
 
 `define TEST_PKG_A_ANOTHER_PARAM_WIDTH_ONE 1 // ANOTHER_PARAM_WIDTH-wide 1 for incrementers and decrementers
 
-// Skipping rdl render for CYCLE_TYPE_E because it doesn't declare explicit enum values
+`define TEST_PKG_A_ANOTHER_PARAM_COUNT_ONE 1 // ANOTHER_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
+
+// I'm writing this verbose documentation so that we have something to
+  // attempt to link in for cycle_type.
+  enum CYCLE_TYPE_E {
+    IDLE = 0; // The bus is idle this cycle.
+    VALID = 1; // The command on the bus this is valid and there will be future VALID cycles for this transaction.
+    // The enum value is so complicated it needs its own verbose
+    // documentation that none of the other values in this enum need.
+    DONE = 2; // The command on the bus this is valid and this is the last cycle of data.
+  }; // Indicates a command type of IDLE, VALID, or DONE.
 
 `define TEST_PKG_A_CYCLE_TYPE_E_WIDTH /* CYCLE_TYPE_E.width */ 2 // Width of CYCLE_TYPE_E
 
@@ -67,7 +83,6 @@ enum CONCISE_E {
 
 reg test_pkg_a_sub_def_t {
   desc = "A sub-struct of hero_write_t that is declared afterwards.";
-  default reset = 0;
   field {desc = "Test that a width-1 logic field generates correctly";} subfield_a[6:6];
   field {desc = "This is a different parameter than the first.";} subfield_b[5:4];
   field {desc = "This is a different parameter than the first.";} subfield_c[3:2];

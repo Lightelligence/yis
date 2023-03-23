@@ -17,6 +17,8 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   
   localparam [/* clog2(NEW_PARAM.value) */ 2 - 1:0] NEW_PARAM_WIDTH_ONE = 2'd1; // NEW_PARAM_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [/* clog2(NEW_PARAM.value + 1) */ 2 - 1:0] NEW_PARAM_COUNT_ONE = 2'd1; // NEW_PARAM_COUNT_WIDTH-wide 1 for incrementers and decrementers
+  
   localparam [32 - 1:0] MAX_WR_CYCLES = 32'd4; // Maximum number of write cycles allowed for the pipelined write
   
   localparam [32 - 1:0] MAX_WR_CYCLES_WIDTH = /* clog2(MAX_WR_CYCLES.value) */ 32'd2; // Width of MAX_WR_CYCLES
@@ -29,9 +31,13 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   
   localparam [/* clog2(MAX_WR_CYCLES_WIDTH_2.value) */ 1 - 1:0] MAX_WR_CYCLES_WIDTH_2_WIDTH_ONE = 1'd1; // MAX_WR_CYCLES_WIDTH_2_WIDTH-wide 1 for incrementers and decrementers
   
+  localparam [/* clog2(MAX_WR_CYCLES_WIDTH_2.value + 1) */ 2 - 1:0] MAX_WR_CYCLES_WIDTH_2_COUNT_ONE = 2'd1; // MAX_WR_CYCLES_WIDTH_2_COUNT_WIDTH-wide 1 for incrementers and decrementers
+  
   localparam [32 - 1:0] MAX_WR_CYCLES_COUNT_WIDTH = /* clog2(MAX_WR_CYCLES.value + 1) */ 32'd3; // Width to count MAX_WR_CYCLES items
   
   localparam [/* clog2(MAX_WR_CYCLES.value) */ 2 - 1:0] MAX_WR_CYCLES_WIDTH_ONE = 2'd1; // MAX_WR_CYCLES_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(MAX_WR_CYCLES.value + 1) */ 3 - 1:0] MAX_WR_CYCLES_COUNT_ONE = 3'd1; // MAX_WR_CYCLES_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   localparam [32 - 1:0] WR_WIDTH = 32'd8; // Width of a single write cycle
   
@@ -40,6 +46,8 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   localparam [32 - 1:0] WR_WIDTH_COUNT_WIDTH = /* clog2(WR_WIDTH.value + 1) */ 32'd4; // Width to count WR_WIDTH items
   
   localparam [/* clog2(WR_WIDTH.value) */ 3 - 1:0] WR_WIDTH_WIDTH_ONE = 3'd1; // WR_WIDTH_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(WR_WIDTH.value + 1) */ 4 - 1:0] WR_WIDTH_COUNT_ONE = 4'd1; // WR_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   // Used to verify logic fields of width 1 in a a struct via an
   // equation.
@@ -51,6 +59,8 @@ package test_pkg_b_rypkg; // Example of what a dependent package looks like
   
   // Width would be 0 because clog2(1)=0. Forcing to 1.
   localparam [/* clog2(THIS_IS_ONE.value) */ 1 - 1:0] THIS_IS_ONE_WIDTH_ONE = 1'd1; // THIS_IS_ONE_WIDTH-wide 1 for incrementers and decrementers
+  
+  localparam [/* clog2(THIS_IS_ONE.value + 1) */ 1 - 1:0] THIS_IS_ONE_COUNT_ONE = 1'd1; // THIS_IS_ONE_COUNT_WIDTH-wide 1 for incrementers and decrementers
   
   // This enum's values don't follow from 0 to N, in order to
   // demonstrate the feature

@@ -88,6 +88,19 @@ Even if not using PCIE, this might be a good assumption to make for future proof
   </tr>
 
   <tr>
+      <td id="test_pkg_c__ADDR_WIDTH_COUNT_ONE"><a href="#test_pkg_c__ADDR_WIDTH_COUNT_ONE">ADDR_WIDTH_COUNT_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__ADDR_WIDTH">ADDR_WIDTH.value</a>
+     + 1)
+</td>
+      <td>5</td>
+      <td>1</td>
+      <td>1</td>
+      <td>ADDR_WIDTH_COUNT_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
       <td id="test_pkg_c__NUM_ZAP"><a href="#test_pkg_c__NUM_ZAP">NUM_ZAP</a></td>
       <td>32</td>
       <td>32</td>
@@ -129,6 +142,19 @@ Even if not using PCIE, this might be a good assumption to make for future proof
       <td>1</td>
       <td>1</td>
       <td>NUM_ZAP_WIDTH-wide 1 for incrementers and decrementers</td>
+      <td></td>
+  </tr>
+
+  <tr>
+      <td id="test_pkg_c__NUM_ZAP_COUNT_ONE"><a href="#test_pkg_c__NUM_ZAP_COUNT_ONE">NUM_ZAP_COUNT_ONE</a></td>
+      <td>clog2(
+    <a href="./test_pkg_c_rypkg.html#test_pkg_c__NUM_ZAP">NUM_ZAP.value</a> + 1
+    )
+</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+      <td>NUM_ZAP_COUNT_WIDTH-wide 1 for incrementers and decrementers</td>
       <td></td>
   </tr>
 
