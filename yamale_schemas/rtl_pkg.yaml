@@ -66,13 +66,13 @@ rdl_property: regex('^.*?;$', name="vald rdl property. must end with ';'")
 struct:
   name: include('struct_name')
   addr_macro: include('addr_macro', required=False)
-  base_type: any(include('struct_name'), list(include('list_struct_name')), required=False)
+  base_types: list(include('struct_base_types'), required=False)
   rdl: include("default_rdl_property", required=False)
-  fields: list(include('struct_field'))
+  fields: list(include('struct_field'), required=False)
   doc_summary: include('doc_summary')
   doc_verbose: include('doc_verbose', required=False)
-list_struct_name:
-  name: include('struct_name')
+struct_base_types:
+  name: include('any_struct_name')
 struct_field:
   name: include('struct_field_name')
   doc_summary: include('doc_summary')

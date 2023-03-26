@@ -93,7 +93,7 @@ reg test_pkg_b_write_cmd_t {
 reg test_pkg_b_write_dat_t {
   desc = "Data cycle of a pipelined write";
   field {desc = "One data cycle";} dat[8];
-  field {encode=CYCLE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Indicates a command type of IDLE, VALID, or DONE.: IDLE - 0; VALID - 1; DONE - 2";} cycle_type[2];
+  field {encode=CYCLE_TYPE_E; render_encode_pkg="test_pkg_a_rypkg"; desc = "Indicates a command type of IDLE, VALID, or DONE.: IDLE - 0; VALID - 1; DONE - 2";} cycle_type[2];
 };
 
 `define TEST_PKG_B_WRITE_DAT_T_WIDTH /* write_dat_t.width */ 10 // Width of write_dat_t

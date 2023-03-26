@@ -1078,6 +1078,13 @@ class PkgItemBase(YisNode):
                 return parent
             parent = parent.parent
 
+    def get_dependent_pkg(self, pkg):
+        try:
+            return self.get_parent_pkg().parent._pkgs[pkg]
+        except KeyError:
+            self.log.error("%s not a defined pkg", pkg)
+            raise LinkError
+
     def render_rdl_pkg(self): # pylint: disable=no-self-use
         """Render for RDL generation.
         Many types are not supported, so default of return empty string.
@@ -1572,25 +1579,45 @@ class PkgStruct(PkgItemBase):
         super().__init__(**kwargs)
         self.regwidth = self.parent.regwidth
         self.addr_macro = kwargs.pop('addr_macro', None)
-        self.base_type = kwargs.pop("base_type", [])
         self.rdl = kwargs.pop("rdl", "")
-        # children = None
+
+        self._inheritance(kwargs.pop('fields', []), kwargs.pop("base_types", []))
+
+        self._check_vld_msb()
+        if not self.implicit:
+            self._gen_width_param(F"{self.name}.width")
+
+    def _inheritance(self, fields, base_types):
+        # inheritance from base_type
+
+        if not len(fields + base_types):
+            self.log.error(f"either fields or base_types has to present")
+
         children = OrderedDict()
-        if not isinstance(self.base_type, list):
-            self.base_type = [{'name': self.base_type}]
-        for base_type in self.base_type:
-            children.update(self.parent.children[base_type['name']].children)
-        for row in kwargs.pop('fields'):
-            if self.base_type and row['type'] in self.base_type:
+        base_types = [base_type['name'] for base_type in base_types]
+        # make a clone so any modify won't affect its base type object
+        for base_type in base_types:
+            pkg, symbol = self._extract_link_pieces(base_type)
+
+            try:
+                children.update(self.parent.children[base_type].children)
+            except:
+                _children = self.get_dependent_pkg(pkg).children[symbol].children
+                for name, item in _children.items():
+                    if not is_verilog_primitive(item.sv_type):
+                        item.sv_type = "::".join([pkg, item.sv_type])
+                        _children.update({name: item})
+                children.update(_children)
+
+        for row in fields:
+            if row['type'] in base_types:
+                # ? if there is a hit in any of teh base_types, both got expanded
                 self.children.update(children)
                 continue
             PkgStructField(parent=self, log=self.log, **row)
             if row['name'] in children:
                 children[row['name']] = self.children.pop(row['name'])
         self.children.update(children)
-        self._check_vld_msb()
-        if not self.implicit:
-            self._gen_width_param(F"{self.name}.width")
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
@@ -1681,8 +1708,11 @@ class PkgStruct(PkgItemBase):
             doc_summary = child.doc_summary
             if child._get_render_type().endswith("_E"): # should use type check again enum
                 child.sv_type.render_rdl_pkg()
+                sv_type = child._get_render_type().split("::")
+                if len(sv_type) < 2:
+                    sv_type.insert(0, self.parent.name + "_rypkg")
                 doc_summary += ": " + child.sv_type.doc_summary_addon
-                encode = F'encode={child._get_render_type().split("::")[-1]}; render_encode_pkg="{self.parent.name}_rypkg"; '
+                encode = F'encode={sv_type[1]}; render_encode_pkg="{sv_type[0]}"; '
             start_idx -= child.computed_width - 1
             # child_ret_arr.append(F"  field {{{encode}desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
             child_ret_arr.append(
