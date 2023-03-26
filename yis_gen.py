@@ -1695,9 +1695,11 @@ class PkgStruct(PkgItemBase):
         ret_arr = []
         ret_arr.append(F"reg {self.parent.name}_{self.name} {{")
         ret_arr.append(F"  desc = \"{self.doc_summary}\";")
+
         if self.rdl:
             ret_arr.append(F"  {self.rdl}")
         # ret_arr.append("  default hw = rw;")
+
         # ret_arr.append("  default reset = 0;")
 
         child_ret_arr = []
