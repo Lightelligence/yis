@@ -248,8 +248,8 @@ enum ICE_ID_E {
 
 reg test_pkg_c_zap_id_t {
   desc = "The ID for a given ZAP";
-  field {desc = "ID of a rack";} rack_id[5:3];
-  field {encode=RACK_ZAP_ID_E; render_encode_pkg="test_pkg_c_rypkg"; desc = "Zap ID (Within a rack)";} zap_id[2:0];
+  field {encode=RACK_ZAP_ID_E; render_encode_pkg="test_pkg_c_rypkg"; desc = "Zap ID (Within a rack): ZAP0 - 0; ZAP1 - 1; ZAP2 - 2; ZAP3 - 3; ZAP4 - 4; ZAP5 - 5; ZAP6 - 6; ZAP7 - 7";} zap_id[3];
+  field {desc = "ID of a rack";} rack_id[3];
 };
 
 `define TEST_PKG_C_ZAP_ID_T_WIDTH /* zap_id_t.width */ 6 // Width of zap_id_t

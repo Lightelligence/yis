@@ -1402,12 +1402,14 @@ class PkgEnum(PkgItemBase):
         ret_arr.append(F"enum {self.name} {{")
 
         # Render each enum_value, note they are 2 indented farther
+        doc_summary_addon = []
         enum_value_arr = []
         for idx, row in enumerate(self.children.values()):
             if row.sv_value is None:
                 row.sv_value = idx
-                # print(idx, row.render_rdl_pkg())
+            doc_summary_addon.append(f"{row.name} - {row.sv_value}")
             enum_value_arr.extend(row.render_rdl_pkg())
+        self.doc_summary_addon = "; ".join(doc_summary_addon)
 
         # Add leading spaces to make all children line up
         enum_value_arr[0] = F"  {enum_value_arr[0]}"
@@ -1570,8 +1572,22 @@ class PkgStruct(PkgItemBase):
         super().__init__(**kwargs)
         self.regwidth = self.parent.regwidth
         self.addr_macro = kwargs.pop('addr_macro', None)
+        self.base_type = kwargs.pop("base_type", [])
+        self.rdl = kwargs.pop("rdl", "")
+        # children = None
+        children = OrderedDict()
+        if not isinstance(self.base_type, list):
+            self.base_type = [{'name': self.base_type}]
+        for base_type in self.base_type:
+            children.update(self.parent.children[base_type['name']].children)
         for row in kwargs.pop('fields'):
+            if self.base_type and row['type'] in self.base_type:
+                self.children.update(children)
+                continue
             PkgStructField(parent=self, log=self.log, **row)
+            if row['name'] in children:
+                children[row['name']] = self.children.pop(row['name'])
+        self.children.update(children)
         self._check_vld_msb()
         if not self.implicit:
             self._gen_width_param(F"{self.name}.width")
@@ -1652,18 +1668,32 @@ class PkgStruct(PkgItemBase):
         ret_arr = []
         ret_arr.append(F"reg {self.parent.name}_{self.name} {{")
         ret_arr.append(F"  desc = \"{self.doc_summary}\";")
+
+        if self.rdl:
+            ret_arr.append(F"  {self.rdl}")
+        # ret_arr.append("  default hw = rw;")
+
         # ret_arr.append("  default reset = 0;")
 
+        child_ret_arr = []
         start_idx = self.computed_width - 1
         end_idx = self.computed_width - 1
         for child in self.children.values():
             encode = ""
+            doc_summary = child.doc_summary
             if child._get_render_type().endswith("_E"): # should use type check again enum
+                child.sv_type.render_rdl_pkg()
+                doc_summary += ": " + child.sv_type.doc_summary_addon
                 encode = F'encode={child._get_render_type().split("::")[-1]}; render_encode_pkg="{self.parent.name}_rypkg"; '
             start_idx -= child.computed_width - 1
-            ret_arr.append(F"  field {{{encode}desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
+            # child_ret_arr.append(F"  field {{{encode}desc = \"{child.doc_summary}\";}} {child.name}[{end_idx}:{start_idx}];")
+            child_ret_arr.append(
+                F"  field {{{encode}desc = \"{doc_summary}\";{child.rdl}}} {child.name}[{child.computed_width}];")
             end_idx -= child.computed_width
             start_idx = end_idx
+
+        child_ret_arr.reverse()
+        ret_arr.extend(child_ret_arr)
 
         ret_arr.append("};")
         return "\n".join(ret_arr)
@@ -1740,6 +1770,7 @@ class PkgStructField(PkgItemBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.sv_type = kwargs.pop('type')
+        self.rdl = kwargs.pop('rdl', "")
         self.width = kwargs.pop('width', None)
 
         if is_verilog_primitive(self.sv_type) and self.width is None:

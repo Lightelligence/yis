@@ -82,27 +82,27 @@
 
 reg test_pkg_b_write_cmd_t {
   desc = "The command cycle of a pipelined write";
-  field {desc = "This cmd is valid, this is the start of a new pipelined write";} vld[9:9];
-  field {desc = "Reserved";} rsvd[8:5];
-  field {desc = "Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value";} num_cycles[4:3];
-  field {encode=WRITE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Specifies how the write should be handled";} write_type[2:0];
+  field {encode=WRITE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Specifies how the write should be handled: STD - 1; MULTI_WDONE - 3; SINGLE_WDONE - 7";} write_type[3];
+  field {desc = "Number of cycles for this write. 0 indicates MAX_WRITE_CYCLES, otherwise indicates the regular value";} num_cycles[2];
+  field {desc = "Reserved";} rsvd[4];
+  field {desc = "This cmd is valid, this is the start of a new pipelined write";} vld[1];
 };
 
 `define TEST_PKG_B_WRITE_CMD_T_WIDTH /* write_cmd_t.width */ 10 // Width of write_cmd_t
 
 reg test_pkg_b_write_dat_t {
   desc = "Data cycle of a pipelined write";
-  field {encode=CYCLE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Indicates a command type of IDLE, VALID, or DONE.";} cycle_type[9:8];
-  field {desc = "One data cycle";} dat[7:0];
+  field {desc = "One data cycle";} dat[8];
+  field {encode=CYCLE_TYPE_E; render_encode_pkg="test_pkg_b_rypkg"; desc = "Indicates a command type of IDLE, VALID, or DONE.: IDLE - 0; VALID - 1; DONE - 2";} cycle_type[2];
 };
 
 `define TEST_PKG_B_WRITE_DAT_T_WIDTH /* write_dat_t.width */ 10 // Width of write_dat_t
 
 reg test_pkg_b_one_bit_field_t {
   desc = "Struct to hold 1-bit bit fields to make sure the 1-bit rendering is correct";
-  field {desc = "This field should be rendered as bare logic without anything else";} vld[2:2];
-  field {desc = "This field should be rendered to just a bare logic with the equation in comments";} new_bit_field[1:1];
-  field {desc = "This field should be rendered to just a bare logic with the equation in comments";} simple_bit_field[0:0];
+  field {desc = "This field should be rendered to just a bare logic with the equation in comments";} simple_bit_field[1];
+  field {desc = "This field should be rendered to just a bare logic with the equation in comments";} new_bit_field[1];
+  field {desc = "This field should be rendered as bare logic without anything else";} vld[1];
 };
 
 `define TEST_PKG_B_ONE_BIT_FIELD_T_WIDTH /* one_bit_field_t.width */ 3 // Width of one_bit_field_t
