@@ -1593,10 +1593,9 @@ class PkgStruct(PkgItemBase):
         if not len(fields + base_types):
             self.log.error(f"either fields or base_types has to present")
 
-        children = OrderedDict()
-        base_types = [base_type['name'] for base_type in base_types]
+        base_types = OrderedDict([(base_type['name'], OrderedDict()) for base_type in base_types])
         # make a clone so any modify won't affect its base type object
-        for base_type in base_types:
+        for base_type, children in base_types.items():
             pkg, symbol = self._extract_link_pieces(base_type)
 
             try:
@@ -1611,13 +1610,15 @@ class PkgStruct(PkgItemBase):
 
         for row in fields:
             if row['type'] in base_types:
-                # ? if there is a hit in any of teh base_types, both got expanded
-                self.children.update(children)
+                self.children.update(base_types[row['type']])
+                # base_types.pop(row['type'])
                 continue
             PkgStructField(parent=self, log=self.log, **row)
-            if row['name'] in children:
-                children[row['name']] = self.children.pop(row['name'])
-        self.children.update(children)
+            for children in base_types.values():
+                if row['name'] in children:
+                    children[row['name']] = self.children.pop(row['name'])
+        for children in base_types.values():
+            self.children.update(children)
 
     def _naming_convention_callback(self):
         self._check_dunder_name()
